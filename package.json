@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "pretty": "npx prettier --write ."
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.14",
@@ -42,7 +43,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
-      "prettier --write",
+      "prettier --write --ignore-unknown",
       "eslint --fix"
     ]
   }
