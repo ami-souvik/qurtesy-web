@@ -1,7 +1,9 @@
 import { TableEntry } from '../form/table-entry';
 import { ColumnMeta } from '../types';
+import { MdDeleteOutline } from 'react-icons/md';
 
-export function Table<T>({ columnMeta = [], values = [] }: { columnMeta: ColumnMeta[]; values: T[] }) {
+export function Table<T>(props: { columnMeta: ColumnMeta[]; values: T[] }) {
+  const { columnMeta = [], values = [], handleDelete } = props;
   return (
     <table>
       <thead>
@@ -21,9 +23,12 @@ export function Table<T>({ columnMeta = [], values = [] }: { columnMeta: ColumnM
                 {v[key]}
               </td>
             ))}
+            <td onClick={() => handleDelete(v.id)}>
+              <MdDeleteOutline size={24} />
+            </td>
           </tr>
         ))}
-        <TableEntry columnMeta={columnMeta} />
+        <TableEntry {...props} />
       </tbody>
     </table>
   );
