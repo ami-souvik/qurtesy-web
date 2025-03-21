@@ -1,72 +1,22 @@
-import { useEffect, useState } from 'react';
-import { Table } from './ui';
-import { Transaction } from '../types';
+import { useEffect } from 'react';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { Table } from './ui';
+import { fetchTransactions, createTransaction, fetchCategories, fetchAccounts } from '../slices/daily-expenses-slice';
 
 export function DailyExpenses() {
-  const [categories, setCategories] = useState([]);
-  const [accounts, setAccounts] = useState([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const dispatch = useDispatch();
+  const { categories, accounts, transactions } = useSelector((state) => state.dailyExpense);
   useEffect(() => {
-    getTransactions();
-    axios
-      .get('http://localhost:8000/categories')
-      .then((resp) => {
-        setCategories(
-          resp.data.map((v) => ({
-            label: v.value,
-            value: v.id,
-          }))
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-    axios
-      .get('http://localhost:8000/accounts')
-      .then((resp) => {
-        setAccounts(
-          resp.data.map((v) => ({
-            label: v.value,
-            value: v.id,
-          }))
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    dispatch(fetchTransactions());
+    dispatch(fetchCategories());
+    dispatch(fetchAccounts());
   }, []);
-  const getTransactions = () => {
-    axios
-      .get('http://localhost:8000/transactions')
-      .then((resp) => {
-        setTransactions(resp.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-  const createTransaction = ({ date, amount, category, account }) => {
-    axios
-      .post('http://localhost:8000/transactions', {
-        date,
-        amount: Number(amount),
-        category: Number(category),
-        account: Number(account),
-      })
-      .then(() => {
-        getTransactions();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
   const deleteTransaction = (id) => {
     axios
       .delete(`http://localhost:8000/transactions/${id}`)
       .then(() => {
-        getTransactions();
+        dispatch(fetchTransactions());
       })
       .catch((err) => {
         console.log(err);
@@ -74,7 +24,6 @@ export function DailyExpenses() {
   };
   return (
     <div>
-      <h3>Daily Expenses</h3>
       <Table
         columnMeta={[
           {
@@ -93,17 +42,23 @@ export function DailyExpenses() {
             label: 'Category',
             key: 'category',
             type: 'picker',
-            values: categories,
+            values: categories.map((v) => ({
+              label: v.value,
+              value: v.id,
+            })),
           },
           {
             label: 'Account',
             key: 'account',
             type: 'picker',
-            values: accounts,
+            values: accounts.map((v) => ({
+              label: v.value,
+              value: v.id,
+            })),
           },
         ]}
         values={transactions}
-        handleSubmit={createTransaction}
+        handleSubmit={(v) => dispatch(createTransaction(v))}
         handleDelete={deleteTransaction}
       />
     </div>

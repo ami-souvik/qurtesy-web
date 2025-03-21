@@ -27,6 +27,7 @@ export function TableEntry({ columnMeta = [], handleSubmit }: { columnMeta: Colu
         <th key={i} className="border">
           {type == 'picker' ? (
             <select
+              className="w-full px-1"
               onChange={(e) =>
                 setValue((prev) => {
                   const changed = { ...prev };
@@ -35,7 +36,7 @@ export function TableEntry({ columnMeta = [], handleSubmit }: { columnMeta: Colu
                 })
               }
             >
-              {rest?.values.map(({ label, value }) => <option value={value}>{label}</option>)}
+              {rest?.values && rest?.values.map(({ label, value }) => <option value={value}>{label}</option>)}
             </select>
           ) : (
             <input
@@ -49,7 +50,7 @@ export function TableEntry({ columnMeta = [], handleSubmit }: { columnMeta: Colu
                 })
               }
               onKeyDown={handleKeyDown}
-              className="w-full text-end"
+              className="w-full px-1 text-end"
             />
           )}
         </th>
