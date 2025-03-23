@@ -34,14 +34,14 @@ export const fetchTransactions = createAsyncThunk<Transaction[], void, { state: 
   async (_, { getState }) => {
     const state = getState();
     const [year, month] = state.dailyExpenses.yearmonth;
-    return await gtxns('expense')(year, month);
+    return await gtxns('EXPENSE')(year, month);
   }
 );
 
 export const createTransaction = createAsyncThunk<Transaction[], CreateTransaction, { state: RootState }>(
   'transactions/create',
   async (data: CreateTransaction, { dispatch }) => {
-    await ptxn('expense')(data);
+    await ptxn('EXPENSE')(data);
     return dispatch(fetchTransactions()).unwrap();
   }
 );
@@ -50,7 +50,7 @@ export const updateTransaction = createAsyncThunk<Transaction[], UpdateTransacti
   'transactions/update',
   async (data: UpdateTransaction, { dispatch }) => {
     const { id, ...rest } = data;
-    await puttxn('expense')(id, rest);
+    await puttxn('EXPENSE')(id, rest);
     return dispatch(fetchTransactions()).unwrap();
   }
 );
@@ -65,15 +65,15 @@ export const deleteTransaction = createAsyncThunk<Transaction[], number, { state
 
 export const fetchTransactionsSummary = createAsyncThunk<TransactionSummary, void, { state: RootState }>(
   'transactions/summary',
-  gtxnsummary('expense')
+  gtxnsummary('EXPENSE')
 );
 
-export const fetchCategories = createAsyncThunk<Category[]>('categories/list', gcats('expense'));
+export const fetchCategories = createAsyncThunk<Category[]>('categories/list', gcats('EXPENSE'));
 
 export const createCategory = createAsyncThunk<Category[], CreateCategory, { state: RootState }>(
   'categories/create',
   async (data: CreateCategory, { dispatch }) => {
-    await pcat('expense')(data);
+    await pcat('EXPENSE')(data);
     return dispatch(fetchCategories()).unwrap();
   }
 );
@@ -82,7 +82,7 @@ export const updateCategory = createAsyncThunk<Category[], UpdateCategory, { sta
   'categories/update',
   async (data: UpdateCategory, { dispatch }) => {
     const { id, ...rest } = data;
-    await putcat('expense')(id, rest);
+    await putcat('EXPENSE')(id, rest);
     return dispatch(fetchCategories()).unwrap();
   }
 );
@@ -90,17 +90,17 @@ export const updateCategory = createAsyncThunk<Category[], UpdateCategory, { sta
 export const deleteCategory = createAsyncThunk<Category[], number, { state: RootState }>(
   'categories/delete',
   async (id: number, { dispatch }) => {
-    await dcat('expense')(id);
+    await dcat('EXPENSE')(id);
     return dispatch(fetchCategories()).unwrap();
   }
 );
 
-export const fetchAccounts = createAsyncThunk<Account[]>('accounts/list', gaccs('expense'));
+export const fetchAccounts = createAsyncThunk<Account[]>('accounts/list', gaccs('EXPENSE'));
 
 export const createAccount = createAsyncThunk<Account[], CreateAccount, { state: RootState }>(
   'accounts/create',
   async (data: CreateAccount, { dispatch }) => {
-    await pacc('expense')(data);
+    await pacc('EXPENSE')(data);
     return dispatch(fetchAccounts()).unwrap();
   }
 );
@@ -109,7 +109,7 @@ export const updateAccount = createAsyncThunk<Account[], UpdateAccount, { state:
   'accounts/update',
   async (data: UpdateAccount, { dispatch }) => {
     const { id, ...rest } = data;
-    await putacc('expense')(id, rest);
+    await putacc('EXPENSE')(id, rest);
     return dispatch(fetchAccounts()).unwrap();
   }
 );
@@ -117,7 +117,7 @@ export const updateAccount = createAsyncThunk<Account[], UpdateAccount, { state:
 export const deleteAccount = createAsyncThunk<Account[], number, { state: RootState }>(
   'accounts/delete',
   async (id: number, { dispatch }) => {
-    await dacc('expense')(id);
+    await dacc('EXPENSE')(id);
     return dispatch(fetchAccounts()).unwrap();
   }
 );
@@ -143,7 +143,7 @@ const dailyExpenseSlice = createSlice<
 >({
   name: 'dailyExpenses',
   initialState: {
-    section: 'expense',
+    section: 'EXPENSE',
     categories: [],
     accounts: [],
     yearmonth: [new Date().getFullYear(), new Date().getMonth()],

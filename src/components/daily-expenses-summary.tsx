@@ -11,7 +11,6 @@ export function DailyExpensesSummary() {
   }, []);
   return (
     <div>
-      <p className="mb-2">Daily Expenses</p>
       <div
         className="px-4 pt-2 pb-4 rounded-xl flex flex-col justify-center gap-2"
         style={{

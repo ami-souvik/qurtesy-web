@@ -1,4 +1,4 @@
-export type Section = 'expense' | 'income' | 'investment' | 'lend' | 'split';
+export type Section = 'EXPENSE' | 'INCOME' | 'INVESTMENT' | 'LEND' | 'SPLIT';
 
 export type Category = {
   id: number;

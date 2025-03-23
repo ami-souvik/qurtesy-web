@@ -5,37 +5,37 @@ import { Income } from './income';
 import { AppDispatch, RootState } from '../store.types';
 import { setSection } from '../slices/daily-expenses-slice';
 
-const sections: Section[] = ['expense', 'income', 'investment', 'lend', 'split'];
+const sections: Section[] = ['EXPENSE', 'INCOME', 'INVESTMENT', 'LEND', 'SPLIT'];
 
 const sectionsMeta = {
-  expense: {
-    label: 'Daily Expenses',
+  EXPENSE: {
+    label: 'Expenses',
   },
-  income: {
+  INCOME: {
     label: 'Income',
   },
-  investment: {
+  INVESTMENT: {
     label: 'Investments',
   },
-  lend: {
+  LEND: {
     label: 'Lend',
   },
-  split: {
+  SPLIT: {
     label: 'Group/Share Expense',
   },
 };
 
 export function Tab({ active }: { active: string }) {
   switch (active) {
-    case 'expense':
+    case 'EXPENSE':
       return <DailyExpenses />;
-    case 'income':
+    case 'INCOME':
       return <Income />;
-    case 'investment':
+    case 'INVESTMENT':
       return <></>;
-    case 'lend':
+    case 'LEND':
       return <></>;
-    case 'split':
+    case 'SPLIT':
       return <></>;
     default:
       return <></>;
