@@ -1,9 +1,8 @@
-import { TableEntry } from '../form/table-entry';
-import { ColumnMeta } from '../types';
 import { MdDeleteOutline } from 'react-icons/md';
+import { ColumnMeta } from '../types';
 
 export function Table<T>(props: { columnMeta: ColumnMeta[]; values: T[] }) {
-  const { columnMeta = [], values = [], handleDelete } = props;
+  const { columnMeta = [], values = [], handleDelete, children } = props;
   return (
     <table className="w-full">
       <thead className="bg-[#4C5F6B]">
@@ -16,6 +15,7 @@ export function Table<T>(props: { columnMeta: ColumnMeta[]; values: T[] }) {
         </tr>
       </thead>
       <tbody>
+        {children}
         {values.map((v, i) => (
           <tr key={i}>
             {columnMeta.map(({ key }, i) => (
@@ -28,7 +28,6 @@ export function Table<T>(props: { columnMeta: ColumnMeta[]; values: T[] }) {
             </td>
           </tr>
         ))}
-        <TableEntry {...props} />
       </tbody>
     </table>
   );

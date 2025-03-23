@@ -29,7 +29,7 @@ import { DAYS, MONTHS, formatdate } from '../utils/datetime';
 import { CategoryForm } from './category-form';
 import { AccountForm } from './account-form';
 
-export function DailyExpenses() {
+export function Income() {
   const dispatch = useDispatch<AppDispatch>();
   const { categories, accounts, yearmonth, transactions } = useSelector((state: RootState) => state.dailyExpenses);
   const setMonth = (m: number) => dispatch(setYearMonth([yearmonth[0], m]));

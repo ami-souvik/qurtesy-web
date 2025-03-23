@@ -3,6 +3,8 @@ import dailyExpenseSlice from './slices/daily-expenses-slice';
 
 const rootReducer = combineSlices(dailyExpenseSlice);
 
-export default configureStore({
+const store = configureStore({
   reducer: rootReducer,
 });
+
+export default store;

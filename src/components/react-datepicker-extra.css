@@ -1,0 +1,11 @@
+.react-datepicker-wrapper,
+.react-datepicker__input-container,
+.react-datepicker-wrapper input {
+  width: 100%;
+  height: 100%;
+}
+
+.react-datepicker-wrapper input {
+  padding: 0 0.25rem;
+  text-align: right;
+}
