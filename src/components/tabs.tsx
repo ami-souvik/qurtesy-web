@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Section } from '../types/daily-expenses';
 import { DailyExpenses } from './daily-expenses';
-import { Income } from './income';
 import { AppDispatch, RootState } from '../store.types';
 import { setSection } from '../slices/daily-expenses-slice';
 
@@ -30,7 +29,7 @@ export function Tab({ active }: { active: string }) {
     case 'EXPENSE':
       return <DailyExpenses />;
     case 'INCOME':
-      return <Income />;
+      return <DailyExpenses />;
     case 'INVESTMENT':
       return <></>;
     case 'LEND':

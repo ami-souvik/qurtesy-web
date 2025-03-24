@@ -23,17 +23,13 @@ export function DailyExpensesSummary() {
           <h1 className="font-bold text-3xl">₹ {summary.balance}</h1>
         </div>
         <div className="flex">
-          <div className="w-[33%] border-l-2 pl-4">
+          <div className="w-[50%] border-l-2 pl-4">
             <p>Income</p>
             <p className="font-bold">₹ {summary.income}</p>
           </div>
-          <div className="w-[33%] border-l-2 pl-4">
+          <div className="w-[50%] border-l-2 pl-4">
             <p>Expenses</p>
             <p className="font-bold">₹ {summary.expense}</p>
-          </div>
-          <div className="w-[33%] border-l-2 pl-4">
-            <p>Total</p>
-            <p className="font-bold">₹ 0</p>
           </div>
         </div>
       </div>

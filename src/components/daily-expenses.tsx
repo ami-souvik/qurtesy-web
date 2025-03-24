@@ -23,15 +23,24 @@ import {
   setYearMonth,
 } from '../slices/daily-expenses-slice';
 import { AppDispatch, RootState } from '../store.types';
-import { CreateTransaction } from '../types/daily-expenses';
 import { groupByDate } from '../utils/transaction';
 import { DAYS, MONTHS, formatdate } from '../utils/datetime';
 import { CategoryForm } from './category-form';
 import { AccountForm } from './account-form';
 
+type TransactionForm = {
+  id?: number;
+  date: Date;
+  amount: number;
+  category: number;
+  account: number;
+};
+
 export function DailyExpenses() {
   const dispatch = useDispatch<AppDispatch>();
-  const { categories, accounts, yearmonth, transactions } = useSelector((state: RootState) => state.dailyExpenses);
+  const { section, categories, accounts, yearmonth, transactions } = useSelector(
+    (state: RootState) => state.dailyExpenses
+  );
   const setMonth = (m: number) => dispatch(setYearMonth([yearmonth[0], m]));
   const setYear = (y: number) => dispatch(setYearMonth([y, yearmonth[1]]));
   const yearrange = (year: number, range: number) => {
@@ -52,18 +61,20 @@ export function DailyExpenses() {
     else dispatch(setYearMonth([yearmonth[0], yearmonth[1] - 1]));
   };
   useEffect(() => {
-    dispatch(fetchCategories());
     dispatch(fetchAccounts());
   }, []);
   useEffect(() => {
+    dispatch(fetchCategories());
+  }, [section]);
+  useEffect(() => {
     dispatch(fetchTransactions());
-  }, [yearmonth]);
-  const { register, handleSubmit, control, watch, reset } = useForm<CreateTransaction>();
+  }, [yearmonth, section]);
+  const { register, handleSubmit, control, watch, reset } = useForm<TransactionForm>();
 
   useEffect(() => {
     if (categories.length > 0 && accounts.length > 0) {
       reset({
-        date: new Date().toLocaleDateString(),
+        date: new Date(),
         amount: 0,
         category: categories[0].id,
         account: accounts[0].id,
@@ -71,13 +82,13 @@ export function DailyExpenses() {
     }
   }, [categories, accounts, reset]);
 
-  const onSubmit = (data: CreateTransaction) => {
+  const onSubmit = (data: TransactionForm) => {
     const { id, date, amount, category, account } = data;
     if (id) {
       dispatch(
         updateTransaction({
           id,
-          date: date,
+          date: date.toLocaleDateString(),
           amount: Number(amount),
           category: Number(category),
           account: Number(account),
@@ -86,7 +97,7 @@ export function DailyExpenses() {
     } else {
       dispatch(
         createTransaction({
-          date: date,
+          date: date.toLocaleDateString(),
           amount: Number(amount),
           category: Number(category),
           account: Number(account),
@@ -94,7 +105,7 @@ export function DailyExpenses() {
       );
     }
     reset({
-      date: new Date().toLocaleDateString(),
+      date: new Date(),
       amount: 0,
       category: categories[0].id,
       account: accounts[0].id,
@@ -146,19 +157,7 @@ export function DailyExpenses() {
               required: true,
             }}
             render={({ field: { onChange, value } }) => (
-              <DatePicker
-                dateFormat="dd/MM/YYYY"
-                selected={
-                  value
-                    ? new Date(
-                        Number(value.substring(6, 10)),
-                        Number(value.substring(3, 5)) - 1,
-                        Number(value.substring(0, 2))
-                      )
-                    : new Date()
-                }
-                onChange={onChange}
-              />
+              <DatePicker dateFormat="dd/MM/YYYY" selected={value} onChange={onChange} />
             )}
           />
         </div>
@@ -191,7 +190,7 @@ export function DailyExpenses() {
           className="flex items-center"
           onClick={() =>
             reset({
-              date: new Date().toLocaleDateString(),
+              date: new Date(),
               amount: 0,
               category: categories[0].id,
               account: accounts[0].id,
@@ -216,7 +215,7 @@ export function DailyExpenses() {
               <p>
                 {date.substring(0, 2)} {DAYS[sectionDate.getDay()].substring(0, 3)}, {formatdate(sectionDate)}
               </p>
-              <p>₹ {summary.expenses}</p>
+              <p>₹ {summary.expense}</p>
             </div>
             {data.map((v, i) => (
               <div key={i} className="grid grid-cols-[1fr_1fr_1fr_1fr_24px_24px] border-[#20242a] border-b">
@@ -231,7 +230,11 @@ export function DailyExpenses() {
                   onClick={() =>
                     reset({
                       id: v.id,
-                      date: v.date,
+                      date: new Date(
+                        Number(v.date.substring(6, 10)),
+                        Number(v.date.substring(3, 5)) - 1,
+                        Number(v.date.substring(0, 2))
+                      ),
                       amount: v.amount,
                       category: v.category.id,
                       account: v.account.id,

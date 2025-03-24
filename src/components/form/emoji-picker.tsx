@@ -61,7 +61,7 @@ export function EmojiPicker({ name, control }) {
           </div>
           <div ref={modalRef} className="relative">
             {visible && (
-              <div className="absolute top-0 bg-black border border-[#687384] rounded-md top-3 p-2">
+              <div className="absolute top-0 translate-x-[-25%] bg-black border border-[#687384] rounded-md top-3 p-2">
                 <div className="flex items-center gap-2 pb-2 border-b border-[#687384]">
                   {Object.keys(emojis).map((cat) => {
                     const Category = cats[cat];
