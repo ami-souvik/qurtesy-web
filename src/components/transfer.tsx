@@ -36,7 +36,7 @@ type TransactionForm = {
   account: number;
 };
 
-export function DailyExpenses() {
+export function Transfer() {
   const dispatch = useDispatch<AppDispatch>();
   const { section, categories, accounts, yearmonth, transactions } = useSelector(
     (state: RootState) => state.dailyExpenses
@@ -203,7 +203,7 @@ export function DailyExpenses() {
           {watch('id') ? <MdOutlineUpdate size={24} /> : <MdOutlineAddBox size={24} />}
         </button>
       </div>
-      {groupByDate(transactions).map(({ date, total, data }, i: number) => {
+      {groupByDate(transactions).map(({ date, summary, data }, i: number) => {
         const sectionDate = new Date(
           Number(date.substring(6, 10)),
           Number(date.substring(3, 5)) - 1,
@@ -215,7 +215,7 @@ export function DailyExpenses() {
               <p>
                 {date.substring(0, 2)} {DAYS[sectionDate.getDay()].substring(0, 3)}, {formatdate(sectionDate)}
               </p>
-              <p>₹ {total}</p>
+              <p>₹ {summary.expense}</p>
             </div>
             {data.map((v, i) => (
               <div key={i} className="grid grid-cols-[1fr_1fr_1fr_1fr_24px_24px] border-[#20242a] border-b">

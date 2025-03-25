@@ -1,4 +1,4 @@
-export type Section = 'EXPENSE' | 'INCOME' | 'INVESTMENT' | 'LEND' | 'SPLIT';
+export type Section = 'EXPENSE' | 'INCOME' | 'TRANSFER' | 'INVESTMENT' | 'LEND' | 'SPLIT';
 
 export type Category = {
   id: number;
@@ -62,6 +62,6 @@ export interface TransactionSummary {
 
 export type TransactionGroupByDate = {
   date: string;
-  summary: TransactionSummary;
+  total: number;
   data: Transaction[];
 };

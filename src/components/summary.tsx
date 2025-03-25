@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store.types';
 import { fetchTransactionsSummary } from '../slices/daily-expenses-slice';
 
-export function DailyExpensesSummary() {
+export function Summary() {
   const dispatch = useDispatch<AppDispatch>();
   const { summary } = useSelector((state: RootState) => state.dailyExpenses);
   useEffect(() => {
@@ -28,7 +28,7 @@ export function DailyExpensesSummary() {
             <p className="font-bold">₹ {summary.income}</p>
           </div>
           <div className="w-[50%] border-l-2 pl-4">
-            <p>Expenses</p>
+            <p>Expenditure</p>
             <p className="font-bold">₹ {summary.expense}</p>
           </div>
         </div>

@@ -1,16 +1,4 @@
-import { Transaction, TransactionGroupByDate, TransactionSummary } from '../types/daily-expenses';
-
-export function summarizeTransactions(transactions: Transaction[]): TransactionSummary {
-  const summary = {
-    income: 0,
-    expenses: 0,
-    total: 0,
-  };
-  transactions.forEach((rec) => {
-    summary.expenses += rec.amount;
-  });
-  return summary;
-}
+import { Transaction, TransactionGroupByDate } from '../types/daily-expenses';
 
 export function groupByDate(transactions: Transaction[]): TransactionGroupByDate[] {
   const grouped: { [key: string]: Transaction[] } = {};
@@ -25,7 +13,7 @@ export function groupByDate(transactions: Transaction[]): TransactionGroupByDate
     .sort()
     .map((date) => ({
       date,
-      summary: summarizeTransactions(grouped[date]),
+      total: grouped[date].map((d) => d.amount).reduce((sum: number, d) => (sum += d)),
       data: grouped[date],
     }));
 }

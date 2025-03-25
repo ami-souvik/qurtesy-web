@@ -1,10 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Section } from '../types/daily-expenses';
 import { DailyExpenses } from './daily-expenses';
+import { Transfer } from './transfer';
 import { AppDispatch, RootState } from '../store.types';
 import { setSection } from '../slices/daily-expenses-slice';
 
-const sections: Section[] = ['EXPENSE', 'INCOME', 'INVESTMENT', 'LEND', 'SPLIT'];
+const sections: Section[] = ['EXPENSE', 'INCOME', 'TRANSFER', 'INVESTMENT', 'LEND', 'SPLIT'];
 
 const sectionsMeta = {
   EXPENSE: {
@@ -12,6 +13,9 @@ const sectionsMeta = {
   },
   INCOME: {
     label: 'Income',
+  },
+  TRANSFER: {
+    label: 'Transfers',
   },
   INVESTMENT: {
     label: 'Investments',
@@ -25,20 +29,9 @@ const sectionsMeta = {
 };
 
 export function Tab({ active }: { active: string }) {
-  switch (active) {
-    case 'EXPENSE':
-      return <DailyExpenses />;
-    case 'INCOME':
-      return <DailyExpenses />;
-    case 'INVESTMENT':
-      return <></>;
-    case 'LEND':
-      return <></>;
-    case 'SPLIT':
-      return <></>;
-    default:
-      return <></>;
-  }
+  if (active == 'EXPENSE' || active == 'INCOME' || active == 'INVESTMENT') return <DailyExpenses />;
+  else if (active == 'TRANSFER') return <Transfer />;
+  else return <></>;
 }
 
 export function Tabs() {
