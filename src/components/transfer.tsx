@@ -15,25 +15,24 @@ import {
 } from 'react-icons/md';
 import {
   fetchTransactions,
-  createTransaction,
   updateTransaction,
   deleteTransaction,
   fetchCategories,
   fetchAccounts,
   setYearMonth,
+  createTransfer,
 } from '../slices/daily-expenses-slice';
 import { AppDispatch, RootState } from '../store.types';
 import { groupByDate } from '../utils/transaction';
 import { DAYS, MONTHS, formatdate } from '../utils/datetime';
-import { CategoryForm } from './category-form';
 import { AccountForm } from './account-form';
 
-type TransactionForm = {
+type TransferForm = {
   id?: number;
   date: Date;
   amount: number;
-  category: number;
-  account: number;
+  from_account: number;
+  to_account: number;
 };
 
 export function Transfer() {
@@ -69,46 +68,45 @@ export function Transfer() {
   useEffect(() => {
     dispatch(fetchTransactions());
   }, [yearmonth, section]);
-  const { register, handleSubmit, control, watch, reset } = useForm<TransactionForm>();
+  const { register, handleSubmit, control, watch, reset } = useForm<TransferForm>();
 
   useEffect(() => {
     if (categories.length > 0 && accounts.length > 0) {
       reset({
         date: new Date(),
         amount: 0,
-        category: categories[0].id,
-        account: accounts[0].id,
+        from_account: categories[0].id,
+        to_account: accounts[0].id,
       });
     }
   }, [categories, accounts, reset]);
 
-  const onSubmit = (data: TransactionForm) => {
-    const { id, date, amount, category, account } = data;
+  const onSubmit = (data: TransferForm) => {
+    const { id, date, amount, from_account, to_account } = data;
     if (id) {
       dispatch(
         updateTransaction({
           id,
           date: date.toLocaleDateString(),
           amount: Number(amount),
-          category: Number(category),
-          account: Number(account),
+          account: Number(to_account),
         })
       );
     } else {
       dispatch(
-        createTransaction({
+        createTransfer({
           date: date.toLocaleDateString(),
           amount: Number(amount),
-          category: Number(category),
-          account: Number(account),
+          from_account: Number(from_account),
+          to_account: Number(to_account),
         })
       );
     }
     reset({
       date: new Date(),
       amount: 0,
-      category: categories[0].id,
-      account: accounts[0].id,
+      from_account: accounts[0].id,
+      to_account: accounts[0].id,
     });
   };
   const handleDelete = (id: number) => {
@@ -143,8 +141,8 @@ export function Transfer() {
       <div className="py-1 grid grid-cols-[1fr_1fr_1fr_1fr_24px_24px] bg-[#1e2329] rounded-md">
         <p className="px-1 text-xs font-bold">Date</p>
         <p className="px-1 text-xs font-bold">Amount</p>
-        <p className="px-1 text-xs font-bold">Category</p>
-        <p className="px-1 text-xs font-bold">Account</p>
+        <p className="px-1 text-xs font-bold">From Account</p>
+        <p className="px-1 text-xs font-bold">To Account</p>
         <div></div>
         <div></div>
       </div>
@@ -164,20 +162,18 @@ export function Transfer() {
         <div className="border border-[#687384] rounded">
           <input className="w-full h-full px-1 text-end" {...register('amount')} />
         </div>
-        <div>
-          <div className="flex h-full">
-            <select className="w-full h-full px-1 border border-[#687384] rounded" {...register('category')}>
-              {categories.map(({ id, value, emoji }) => (
-                <option key={id} value={id}>
-                  {emoji} {value}
-                </option>
-              ))}
-            </select>
-            <CategoryForm />
-          </div>
+        <div className="flex h-full">
+          <select className="w-full h-full px-1 border border-[#687384] rounded" {...register('from_account')}>
+            {accounts.map(({ id, value }) => (
+              <option key={id} value={id}>
+                {value}
+              </option>
+            ))}
+          </select>
+          <AccountForm />
         </div>
         <div className="flex">
-          <select className="w-full h-full px-1 border border-[#687384] rounded" {...register('account')}>
+          <select className="w-full h-full px-1 border border-[#687384] rounded" {...register('to_account')}>
             {accounts.map(({ id, value }) => (
               <option key={id} value={id}>
                 {value}
@@ -192,8 +188,8 @@ export function Transfer() {
             reset({
               date: new Date(),
               amount: 0,
-              category: categories[0].id,
-              account: accounts[0].id,
+              from_account: categories[0].id,
+              to_account: accounts[0].id,
             })
           }
         >
@@ -203,7 +199,7 @@ export function Transfer() {
           {watch('id') ? <MdOutlineUpdate size={24} /> : <MdOutlineAddBox size={24} />}
         </button>
       </div>
-      {groupByDate(transactions).map(({ date, summary, data }, i: number) => {
+      {groupByDate(transactions).map(({ date, total, data }, i: number) => {
         const sectionDate = new Date(
           Number(date.substring(6, 10)),
           Number(date.substring(3, 5)) - 1,
@@ -215,14 +211,16 @@ export function Transfer() {
               <p>
                 {date.substring(0, 2)} {DAYS[sectionDate.getDay()].substring(0, 3)}, {formatdate(sectionDate)}
               </p>
-              <p>₹ {summary.expense}</p>
+              <p>₹ {total}</p>
             </div>
             {data.map((v, i) => (
               <div key={i} className="grid grid-cols-[1fr_1fr_1fr_1fr_24px_24px] border-[#20242a] border-b">
                 <p className="p-1 text-right">{String(v.date)}</p>
-                <p className="p-1 text-right">₹ {v.amount}</p>
+                <p className="p-1 text-right">
+                  ₹ {!v.credit && '-'} {v.amount}
+                </p>
                 <p className="p-1">
-                  {v.category.emoji} {v.category.value}
+                  {v.category?.emoji} {v.category.value}
                 </p>
                 <p className="p-1">{v.account.value}</p>
                 <button
@@ -236,8 +234,8 @@ export function Transfer() {
                         Number(v.date.substring(0, 2))
                       ),
                       amount: v.amount,
-                      category: v.category.id,
-                      account: v.account.id,
+                      from_account: v.category.id,
+                      to_account: v.account.id,
                     })
                   }
                 >

@@ -14,6 +14,7 @@ import {
   putAccount as putacc,
   deleteAccount as dacc,
 } from '../webservices/daily-expenses-ws';
+import { postTransfer } from '../webservices/transfers-ws';
 import {
   Section,
   Transaction,
@@ -26,7 +27,8 @@ import {
   CreateAccount,
   UpdateAccount,
   TransactionSummary,
-} from '../types/daily-expenses';
+  CreateTransfer,
+} from '../types';
 import { RootState } from '../store.types';
 
 export const fetchTransactions = createAsyncThunk<Transaction[], void, { state: RootState }>(
@@ -159,6 +161,14 @@ export const deleteAccount = createAsyncThunk<Account[], number, { state: RootSt
   }
 );
 
+export const createTransfer = createAsyncThunk<Transaction[], CreateTransfer, { state: RootState }>(
+  'transfers/create',
+  async (data: CreateTransfer, { dispatch }) => {
+    await postTransfer(data);
+    return dispatch(fetchTransactions()).unwrap();
+  }
+);
+
 type DailyExpenses = {
   section: Section;
   categories: Category[];
@@ -223,6 +233,9 @@ const dailyExpenseSlice = createSlice<
     });
     builder.addCase(fetchTransactionsSummary.fulfilled, (state, action) => {
       state.summary = action.payload;
+    });
+    builder.addCase(createTransfer.fulfilled, (state, action) => {
+      state.transactions = action.payload;
     });
   },
 });

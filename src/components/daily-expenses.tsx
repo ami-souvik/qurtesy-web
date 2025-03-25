@@ -222,7 +222,7 @@ export function DailyExpenses() {
                 <p className="p-1 text-right">{String(v.date)}</p>
                 <p className="p-1 text-right">₹ {v.amount}</p>
                 <p className="p-1">
-                  {v.category.emoji} {v.category.value}
+                  {v.category?.emoji} {v.category.value}
                 </p>
                 <p className="p-1">{v.account.value}</p>
                 <button

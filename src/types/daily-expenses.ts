@@ -3,18 +3,18 @@ export type Section = 'EXPENSE' | 'INCOME' | 'TRANSFER' | 'INVESTMENT' | 'LEND' 
 export type Category = {
   id: number;
   value: string;
-  emoji: number;
+  emoji?: number;
 };
 
 export type CreateCategory = {
   value: string;
-  emoji: number;
+  emoji?: number;
 };
 
 export type UpdateCategory = {
   id: number;
-  value: string;
-  emoji: number;
+  value?: string;
+  emoji?: number;
 };
 
 export type Account = {
@@ -34,6 +34,7 @@ export type UpdateAccount = {
 export type Transaction = {
   id: number;
   date: string;
+  credit: boolean;
   amount: number;
   category: Category;
   account: Account;
@@ -48,10 +49,10 @@ export type CreateTransaction = {
 
 export type UpdateTransaction = {
   id: number;
-  date: string;
-  amount: number;
-  category: number;
-  account: number;
+  date?: string;
+  amount?: number;
+  category?: number;
+  account?: number;
 };
 
 export interface TransactionSummary {
