@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Section } from '../types/daily-expenses';
-import { DailyExpenses } from './daily-expenses';
-import { Transfer } from './transfer';
+import { Transactions } from './transaction/transactions';
+import { Transfer } from './transfer/transfer';
 import { AppDispatch, RootState } from '../store.types';
 import { setSection } from '../slices/daily-expenses-slice';
 
@@ -29,7 +29,7 @@ const sectionsMeta = {
 };
 
 export function Tab({ active }: { active: string }) {
-  if (active == 'EXPENSE' || active == 'INCOME' || active == 'INVESTMENT') return <DailyExpenses />;
+  if (active == 'EXPENSE' || active == 'INCOME' || active == 'INVESTMENT') return <Transactions />;
   else if (active == 'TRANSFER') return <Transfer />;
   else return <></>;
 }

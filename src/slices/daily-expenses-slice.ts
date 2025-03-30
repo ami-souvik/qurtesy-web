@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction, type SliceSelectors } from '@reduxjs/toolkit';
 import {
   getTransactions as gtxns,
   postTransaction as ptxn,
@@ -20,7 +20,6 @@ import {
   Transaction,
   CreateTransaction,
   UpdateTransaction,
-  Category,
   CreateCategory,
   UpdateCategory,
   Account,
@@ -28,6 +27,9 @@ import {
   UpdateAccount,
   TransactionSummary,
   CreateTransfer,
+  UpdateTransfer,
+  CategoryGroup,
+  AccountGroup,
 } from '../types';
 import { RootState } from '../store.types';
 
@@ -81,7 +83,7 @@ export const fetchTransactionsSummary = createAsyncThunk<TransactionSummary, voi
   }
 );
 
-export const fetchCategories = createAsyncThunk<Category[], void, { state: RootState }>(
+export const fetchCategories = createAsyncThunk<CategoryGroup[], void, { state: RootState }>(
   'categories/list',
   async (_, { getState }) => {
     const state = getState();
@@ -90,7 +92,7 @@ export const fetchCategories = createAsyncThunk<Category[], void, { state: RootS
   }
 );
 
-export const createCategory = createAsyncThunk<Category[], CreateCategory, { state: RootState }>(
+export const createCategory = createAsyncThunk<CategoryGroup[], CreateCategory, { state: RootState }>(
   'categories/create',
   async (data: CreateCategory, { getState, dispatch }) => {
     const state = getState();
@@ -100,7 +102,7 @@ export const createCategory = createAsyncThunk<Category[], CreateCategory, { sta
   }
 );
 
-export const updateCategory = createAsyncThunk<Category[], UpdateCategory, { state: RootState }>(
+export const updateCategory = createAsyncThunk<CategoryGroup[], UpdateCategory, { state: RootState }>(
   'categories/update',
   async (data: UpdateCategory, { getState, dispatch }) => {
     const state = getState();
@@ -111,7 +113,7 @@ export const updateCategory = createAsyncThunk<Category[], UpdateCategory, { sta
   }
 );
 
-export const deleteCategory = createAsyncThunk<Category[], number, { state: RootState }>(
+export const deleteCategory = createAsyncThunk<CategoryGroup[], number, { state: RootState }>(
   'categories/delete',
   async (id: number, { getState, dispatch }) => {
     const state = getState();
@@ -121,7 +123,7 @@ export const deleteCategory = createAsyncThunk<Category[], number, { state: Root
   }
 );
 
-export const fetchAccounts = createAsyncThunk<Account[], void, { state: RootState }>(
+export const fetchAccounts = createAsyncThunk<AccountGroup[], void, { state: RootState }>(
   'accounts/list',
   async (_, { getState }) => {
     const state = getState();
@@ -169,10 +171,17 @@ export const createTransfer = createAsyncThunk<Transaction[], CreateTransfer, { 
   }
 );
 
+export const updateTransfer = createAsyncThunk<Transaction[], UpdateTransfer, { state: RootState }>(
+  'transactions/update',
+  async () => {
+    return [];
+  }
+);
+
 type DailyExpenses = {
   section: Section;
-  categories: Category[];
-  accounts: Account[];
+  categoryGroups: CategoryGroup[];
+  accountGroups: AccountGroup[];
   yearmonth: [number, number];
   summary: TransactionSummary;
   transactions: Transaction[];
@@ -191,8 +200,8 @@ const dailyExpenseSlice = createSlice<
   name: 'dailyExpenses',
   initialState: {
     section: 'EXPENSE',
-    categories: [],
-    accounts: [],
+    categoryGroups: [],
+    accountGroups: [],
     yearmonth: [new Date().getFullYear(), new Date().getMonth()],
     summary: {
       balance: 0,
@@ -211,16 +220,16 @@ const dailyExpenseSlice = createSlice<
   },
   extraReducers: (builder) => {
     builder.addCase(fetchCategories.fulfilled, (state, action) => {
-      state.categories = action.payload;
+      state.categoryGroups = action.payload;
     });
     builder.addCase(createCategory.fulfilled, (state, action) => {
-      state.categories = action.payload;
+      state.categoryGroups = action.payload;
     });
     builder.addCase(updateCategory.fulfilled, (state, action) => {
-      state.categories = action.payload;
+      state.categoryGroups = action.payload;
     });
     builder.addCase(fetchAccounts.fulfilled, (state, action) => {
-      state.accounts = action.payload;
+      state.accountGroups = action.payload;
     });
     builder.addCase(fetchTransactions.fulfilled, (state, action) => {
       state.transactions = action.payload;

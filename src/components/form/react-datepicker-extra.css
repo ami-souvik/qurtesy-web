@@ -5,6 +5,10 @@
   height: 100%;
 }
 
+.react-datepicker__input-container {
+  position: static;
+}
+
 .react-datepicker-wrapper input {
   padding: 0 0.25rem;
   text-align: right;

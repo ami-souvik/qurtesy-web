@@ -8,6 +8,8 @@ import {
   Account,
   CreateAccount,
   TransactionSummary,
+  CategoryGroup,
+  AccountGroup,
 } from '../types/daily-expenses';
 
 export const getTransactions =
@@ -28,20 +30,10 @@ export const getTransactions =
 export const postTransaction =
   (section: Section) =>
   async (data: CreateTransaction): Promise<Transaction | null> => {
-    const { date, amount, category, account } = data;
     return axios
-      .post(
-        'http://localhost:8000/transactions',
-        {
-          date: date,
-          amount: Number(amount),
-          category: Number(category),
-          account: Number(account),
-        },
-        {
-          params: { section },
-        }
-      )
+      .post('http://localhost:8000/transactions', data, {
+        params: { section },
+      })
       .then((resp) => resp.data)
       .catch((err) => {
         console.log(err);
@@ -83,9 +75,9 @@ export const getTransactionsSummary = (section: Section) => async (): Promise<Tr
     });
 };
 
-export const getCategories = (section: Section) => async (): Promise<Category[]> => {
+export const getCategories = (section: Section) => async (): Promise<CategoryGroup[]> => {
   return axios
-    .get('http://localhost:8000/categories', {
+    .get('http://localhost:8000/category_groups', {
       params: { section },
     })
     .then((resp) => resp.data)
@@ -129,9 +121,9 @@ export const deleteCategory = (section: Section) => async (id: number) => {
   });
 };
 
-export const getAccounts = (section: Section) => async (): Promise<Account[]> => {
+export const getAccounts = (section: Section) => async (): Promise<AccountGroup[]> => {
   return axios
-    .get('http://localhost:8000/accounts', {
+    .get('http://localhost:8000/account_groups', {
       params: { section },
     })
     .then((resp) => resp.data)
