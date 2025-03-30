@@ -55,10 +55,17 @@ const AudioRecorder = () => {
     }
   };
 
+  const transcribe = () => {
+    if (audioBlob) {
+      queueTranscribe(new File([audioBlob], 'audio.wav', { type: 'audio/wav' }));
+    }
+  };
+
   const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       setRecording(false);
+      transcribe();
     }
   };
 
@@ -77,12 +84,6 @@ const AudioRecorder = () => {
   const toggleRecording = () => {
     if (recording) stopRecording();
     else startRecording();
-  };
-
-  const transcribe = () => {
-    if (audioBlob) {
-      queueTranscribe(new File([audioBlob], 'audio.wav', { type: 'audio/wav' }));
-    }
   };
 
   return (
@@ -115,9 +116,6 @@ const AudioRecorder = () => {
           )}
         </div>
         {transcripts && Object.keys(transcripts).map((key: string) => <p key={key}>{transcripts[key]}</p>)}
-        <button className="py-1 border" onClick={transcribe}>
-          Check
-        </button>
       </div>
     </div>
   );
