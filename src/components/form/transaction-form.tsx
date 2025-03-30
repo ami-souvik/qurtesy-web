@@ -58,7 +58,7 @@ export function TransactionForm({ formRef }) {
       account_group: accountGroups[0].id,
     });
   };
-  if (formRef) {
+  if (formRef && formRef.current) {
     formRef.current.set = (data: TransactionFormProps) => {
       reset(data);
     };

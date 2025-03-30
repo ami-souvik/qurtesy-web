@@ -59,7 +59,7 @@ export function TransferForm({ formRef }) {
       to_account: accountGroups[0].id,
     });
   };
-  if (formRef) {
+  if (formRef && formRef.current) {
     formRef.current.set = (data: TransferFormProps) => {
       reset(data);
     };
