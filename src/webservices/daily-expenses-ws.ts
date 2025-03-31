@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { BASE_URL } from '../config';
 import {
   Section,
   Transaction,
@@ -17,7 +18,7 @@ export const getTransactions =
   async (year: number, month: number): Promise<Transaction[]> => {
     const yearmonth = `${year}-${(month + 1).toString().padStart(2, '0')}`;
     return axios
-      .get('http://localhost:8000/transactions', {
+      .get(`${BASE_URL}/transactions`, {
         params: { section, yearmonth },
       })
       .then((resp) => resp.data)
@@ -31,7 +32,7 @@ export const postTransaction =
   (section: Section) =>
   async (data: CreateTransaction): Promise<Transaction | null> => {
     return axios
-      .post('http://localhost:8000/transactions', data, {
+      .post(`${BASE_URL}/transactions`, data, {
         params: { section },
       })
       .then((resp) => resp.data)
@@ -45,7 +46,7 @@ export const putTransaction =
   (section: Section) =>
   async (id: number, data: CreateTransaction): Promise<Transaction | null> => {
     return axios
-      .put(`http://localhost:8000/transactions/${id}`, data, {
+      .put(`${BASE_URL}/transactions/${id}`, data, {
         params: { section },
       })
       .then((resp) => resp.data)
@@ -56,14 +57,14 @@ export const putTransaction =
   };
 
 export const deleteTransaction = (section: Section) => async (id: number) => {
-  return axios.delete(`http://localhost:8000/transactions/${id}`, {
+  return axios.delete(`${BASE_URL}/transactions/${id}`, {
     params: { section },
   });
 };
 
 export const getTransactionsSummary = (section: Section) => async (): Promise<TransactionSummary> => {
   return axios
-    .get(`http://localhost:8000/transactions/summary`, {
+    .get(`${BASE_URL}/transactions/summary`, {
       params: { section },
     })
     .then((resp) => resp.data)
@@ -77,7 +78,7 @@ export const getTransactionsSummary = (section: Section) => async (): Promise<Tr
 
 export const getCategories = (section: Section) => async (): Promise<CategoryGroup[]> => {
   return axios
-    .get('http://localhost:8000/category_groups', {
+    .get(`${BASE_URL}/category_groups`, {
       params: { section },
     })
     .then((resp) => resp.data)
@@ -91,7 +92,7 @@ export const postCategory =
   (section: Section) =>
   async (data: CreateCategory): Promise<Category | null> => {
     return axios
-      .post('http://localhost:8000/categories', data, {
+      .post(`${BASE_URL}/categories`, data, {
         params: { section },
       })
       .then((resp) => resp.data)
@@ -105,7 +106,7 @@ export const putCategory =
   (section: Section) =>
   async (id: number, data: CreateCategory): Promise<Category | null> => {
     return axios
-      .put(`http://localhost:8000/categories/${id}`, data, {
+      .put(`${BASE_URL}/categories/${id}`, data, {
         params: { section },
       })
       .then((resp) => resp.data)
@@ -116,14 +117,14 @@ export const putCategory =
   };
 
 export const deleteCategory = (section: Section) => async (id: number) => {
-  return axios.delete(`http://localhost:8000/categories/${id}`, {
+  return axios.delete(`${BASE_URL}/categories/${id}`, {
     params: { section },
   });
 };
 
 export const getAccounts = (section: Section) => async (): Promise<AccountGroup[]> => {
   return axios
-    .get('http://localhost:8000/account_groups', {
+    .get(`${BASE_URL}/account_groups`, {
       params: { section },
     })
     .then((resp) => resp.data)
@@ -137,7 +138,7 @@ export const postAccount =
   (section: Section) =>
   async (data: CreateAccount): Promise<Account | null> => {
     return axios
-      .post('http://localhost:8000/accounts', data, {
+      .post(`${BASE_URL}/accounts`, data, {
         params: { section },
       })
       .then((resp) => resp.data)
@@ -151,7 +152,7 @@ export const putAccount =
   (section: Section) =>
   async (id: number, data: CreateAccount): Promise<Account | null> => {
     return axios
-      .put(`http://localhost:8000/accounts/${id}`, data, {
+      .put(`${BASE_URL}/accounts/${id}`, data, {
         params: { section },
       })
       .then((resp) => resp.data)
@@ -162,7 +163,7 @@ export const putAccount =
   };
 
 export const deleteAccount = (section: Section) => async (id: number) => {
-  return axios.delete(`http://localhost:8000/accounts/${id}`, {
+  return axios.delete(`${BASE_URL}/accounts/${id}`, {
     params: { section },
   });
 };
