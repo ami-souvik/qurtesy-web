@@ -46,6 +46,9 @@ const AudioRecorder = () => {
         setAudioBlob(wavBlob);
         // setAudioUrl(URL.createObjectURL(wavBlob)); // Create audio URL for playback
         audioChunksRef.current = [];
+        stream
+          .getTracks() // get all tracks from the MediaStream
+          .forEach((track) => track.stop()); // stop each of them
       };
 
       mediaRecorderRef.current.start();
