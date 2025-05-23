@@ -9,19 +9,25 @@ import {
   Account,
   CreateAccount,
   TransactionSummary,
-  CategoryGroup,
-  AccountGroup,
 } from '../types/daily-expenses';
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 export const getTransactions =
   (section: Section) =>
   async (year: number, month: number): Promise<Transaction[]> => {
     const yearmonth = `${year}-${(month + 1).toString().padStart(2, '0')}`;
     return axios
-      .get(`${BASE_URL}/transactions`, {
+      .get(`${BASE_URL}/api/transactions`, {
         params: { section, yearmonth },
       })
-      .then((resp) => resp.data)
+      .then((resp) => {
+        // Handle the new API response structure with pagination
+        if (resp.data.transactions) {
+          return resp.data.transactions;
+        }
+        return resp.data;
+      })
       .catch((err) => {
         console.log(err);
         return [];
@@ -32,7 +38,7 @@ export const postTransaction =
   (section: Section) =>
   async (data: CreateTransaction): Promise<Transaction | null> => {
     return axios
-      .post(`${BASE_URL}/transactions`, data, {
+      .post(`${BASE_URL}/api/transactions`, data, {
         params: { section },
       })
       .then((resp) => resp.data)
@@ -43,12 +49,10 @@ export const postTransaction =
   };
 
 export const putTransaction =
-  (section: Section) =>
-  async (id: number, data: CreateTransaction): Promise<Transaction | null> => {
+  (_section: Section) =>
+  async (id: number, data: Partial<CreateTransaction>): Promise<Transaction | null> => {
     return axios
-      .put(`${BASE_URL}/transactions/${id}`, data, {
-        params: { section },
-      })
+      .put(`${BASE_URL}/api/transactions/${id}`, data)
       .then((resp) => resp.data)
       .catch((err) => {
         console.log(err);
@@ -56,29 +60,29 @@ export const putTransaction =
       });
   };
 
-export const deleteTransaction = (section: Section) => async (id: number) => {
-  return axios.delete(`${BASE_URL}/transactions/${id}`, {
-    params: { section },
-  });
+export const deleteTransaction = (_section: Section) => async (id: number) => {
+  return axios.delete(`${BASE_URL}/api/transactions/${id}`);
 };
 
-export const getTransactionsSummary = (section: Section) => async (): Promise<TransactionSummary> => {
+export const getTransactionsSummary = (_section: Section) => async (): Promise<TransactionSummary> => {
   return axios
-    .get(`${BASE_URL}/transactions/summary`, {
-      params: { section },
-    })
+    .get(`${BASE_URL}/api/transactions/summary`)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log(err);
       return {
         balance: 0,
+        expense: 0,
+        income: 0,
+        investment: 0,
+        net_worth: 0,
       };
     });
 };
 
-export const getCategories = (section: Section) => async (): Promise<CategoryGroup[]> => {
+export const getCategories = (section: Section) => async (): Promise<Category[]> => {
   return axios
-    .get(`${BASE_URL}/category_groups`, {
+    .get(`${BASE_URL}/api/categories`, {
       params: { section },
     })
     .then((resp) => resp.data)
@@ -92,7 +96,7 @@ export const postCategory =
   (section: Section) =>
   async (data: CreateCategory): Promise<Category | null> => {
     return axios
-      .post(`${BASE_URL}/categories`, data, {
+      .post(`${BASE_URL}/api/categories`, data, {
         params: { section },
       })
       .then((resp) => resp.data)
@@ -103,12 +107,10 @@ export const postCategory =
   };
 
 export const putCategory =
-  (section: Section) =>
-  async (id: number, data: CreateCategory): Promise<Category | null> => {
+  (_section: Section) =>
+  async (id: number, data: Partial<CreateCategory>): Promise<Category | null> => {
     return axios
-      .put(`${BASE_URL}/categories/${id}`, data, {
-        params: { section },
-      })
+      .put(`${BASE_URL}/api/categories/${id}`, data)
       .then((resp) => resp.data)
       .catch((err) => {
         console.log(err);
@@ -116,17 +118,13 @@ export const putCategory =
       });
   };
 
-export const deleteCategory = (section: Section) => async (id: number) => {
-  return axios.delete(`${BASE_URL}/categories/${id}`, {
-    params: { section },
-  });
+export const deleteCategory = (_section: Section) => async (id: number) => {
+  return axios.delete(`${BASE_URL}/api/categories/${id}`);
 };
 
-export const getAccounts = (section: Section) => async (): Promise<AccountGroup[]> => {
+export const getAccounts = (_section: Section) => async (): Promise<Account[]> => {
   return axios
-    .get(`${BASE_URL}/account_groups`, {
-      params: { section },
-    })
+    .get(`${BASE_URL}/api/accounts`)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log(err);
@@ -135,12 +133,10 @@ export const getAccounts = (section: Section) => async (): Promise<AccountGroup[
 };
 
 export const postAccount =
-  (section: Section) =>
+  (_section: Section) =>
   async (data: CreateAccount): Promise<Account | null> => {
     return axios
-      .post(`${BASE_URL}/accounts`, data, {
-        params: { section },
-      })
+      .post(`${BASE_URL}/api/accounts`, data)
       .then((resp) => resp.data)
       .catch((err) => {
         console.log(err);
@@ -149,12 +145,10 @@ export const postAccount =
   };
 
 export const putAccount =
-  (section: Section) =>
-  async (id: number, data: CreateAccount): Promise<Account | null> => {
+  (_section: Section) =>
+  async (id: number, data: Partial<CreateAccount>): Promise<Account | null> => {
     return axios
-      .put(`${BASE_URL}/accounts/${id}`, data, {
-        params: { section },
-      })
+      .put(`${BASE_URL}/api/accounts/${id}`, data)
       .then((resp) => resp.data)
       .catch((err) => {
         console.log(err);
@@ -162,8 +156,41 @@ export const putAccount =
       });
   };
 
-export const deleteAccount = (section: Section) => async (id: number) => {
-  return axios.delete(`${BASE_URL}/accounts/${id}`, {
-    params: { section },
-  });
+export const deleteAccount = (_section: Section) => async (id: number) => {
+  return axios.delete(`${BASE_URL}/api/accounts/${id}`);
+};
+
+// New API functions for enhanced features
+export const getSpendingByCategory = async (yearmonth: string, section: Section = 'EXPENSE') => {
+  return axios
+    .get(`${BASE_URL}/api/transactions/analytics/spending-by-category`, {
+      params: { yearmonth, section },
+    })
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      return [];
+    });
+};
+
+export const getSpendingTrends = async (months: number = 6) => {
+  return axios
+    .get(`${BASE_URL}/api/transactions/analytics/trends`, {
+      params: { months },
+    })
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      return { trends: {} };
+    });
+};
+
+export const bulkCreateTransactions = async (transactions: CreateTransaction[]) => {
+  return axios
+    .post(`${BASE_URL}/api/transactions/bulk`, transactions)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
 };

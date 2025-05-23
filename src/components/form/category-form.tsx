@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { MdEdit, MdDeleteOutline } from 'react-icons/md';
 import { AppDispatch, RootState } from '../../store.types';
-import { Category, CategoryGroup, CreateCategory, UpdateCategory } from '../../types/daily-expenses';
+import { Category, CreateCategory, UpdateCategory } from '../../types/daily-expenses';
 import { createCategory, updateCategory, deleteCategory } from '../../slices/daily-expenses-slice';
 import { EmojiPicker } from './emoji-picker';
 
@@ -25,7 +25,6 @@ export function CategoryForm() {
   }, [visible]);
   const dispatch = useDispatch<AppDispatch>();
   const { categories } = useSelector((state: RootState) => state.dailyExpenses);
-  const [group, setGroup] = useState<CategoryGroup>();
   const { register, handleSubmit, control, reset, setValue } = useForm<CreateCategory | UpdateCategory>();
   const add = () => {
     reset({
@@ -52,50 +51,18 @@ export function CategoryForm() {
       <div ref={modalRef} className="relative">
         {visible && (
           <div className="absolute top-0 w-2xl translate-x-[-50%] border border-[#687384] rounded-md top-3 bg-black px-4 py-2">
-            <div className="grid grid-cols-[1.5fr_1.5fr_1fr]">
-              <div className="flex flex-col gap-2 border-r border-[#687384] pr-2 mr-2">
-                <p className="font-bold text-lg">Category Groups</p>
-                {categories.map((c: CategoryGroup, i: number) => (
-                  <div
-                    className="flex justify-between border-[#20242a]"
-                    style={{
-                      borderBottomWidth: categories.length - 1 != i ? 1 : 0,
-                    }}
-                  >
-                    <div
-                      key={i}
-                      className="w-full cursor-pointer"
-                      onClick={() => {
-                        // setValue('id', c.id);
-                        // setValue('emoji', c.emoji);
-                        // setValue('value', c.value);
-                        setGroup(c);
-                      }}
-                    >
-                      <p>
-                        {c.emoji} {c.value}
-                      </p>
-                    </div>
-                    <button onClick={() => handleDelete(c.id)}>
-                      <MdDeleteOutline size={18} />
-                    </button>
-                  </div>
-                ))}
-                <button className="border rounded px-2" onClick={add}>
-                  Add
-                </button>
-              </div>
+            <div className="grid grid-cols-[2fr_1fr]">
               <div className="flex flex-col gap-2 border-r border-[#687384] pr-2 mr-2">
                 <p className="font-bold text-lg">Categories</p>
-                {group?.categories.map((c: Category, i: number) => (
+                {categories.map((c: Category, i: number) => (
                   <div
+                    key={i}
                     className="flex justify-between border-[#20242a]"
                     style={{
                       borderBottomWidth: categories.length - 1 != i ? 1 : 0,
                     }}
                   >
                     <div
-                      key={i}
                       className="w-full cursor-pointer"
                       onClick={() => {
                         setValue('id', c.id);

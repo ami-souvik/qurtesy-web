@@ -27,9 +27,7 @@ import {
   UpdateAccount,
   TransactionSummary,
   CreateTransfer,
-  UpdateTransfer,
-  CategoryGroup,
-  AccountGroup,
+  Category,
 } from '../types';
 import { RootState } from '../store.types';
 
@@ -83,7 +81,7 @@ export const fetchTransactionsSummary = createAsyncThunk<TransactionSummary, voi
   }
 );
 
-export const fetchCategories = createAsyncThunk<CategoryGroup[], void, { state: RootState }>(
+export const fetchCategories = createAsyncThunk<Category[], void, { state: RootState }>(
   'categories/list',
   async (_, { getState }) => {
     const state = getState();
@@ -92,7 +90,7 @@ export const fetchCategories = createAsyncThunk<CategoryGroup[], void, { state: 
   }
 );
 
-export const createCategory = createAsyncThunk<CategoryGroup[], CreateCategory, { state: RootState }>(
+export const createCategory = createAsyncThunk<Category[], CreateCategory, { state: RootState }>(
   'categories/create',
   async (data: CreateCategory, { getState, dispatch }) => {
     const state = getState();
@@ -102,7 +100,7 @@ export const createCategory = createAsyncThunk<CategoryGroup[], CreateCategory, 
   }
 );
 
-export const updateCategory = createAsyncThunk<CategoryGroup[], UpdateCategory, { state: RootState }>(
+export const updateCategory = createAsyncThunk<Category[], UpdateCategory, { state: RootState }>(
   'categories/update',
   async (data: UpdateCategory, { getState, dispatch }) => {
     const state = getState();
@@ -113,7 +111,7 @@ export const updateCategory = createAsyncThunk<CategoryGroup[], UpdateCategory, 
   }
 );
 
-export const deleteCategory = createAsyncThunk<CategoryGroup[], number, { state: RootState }>(
+export const deleteCategory = createAsyncThunk<Category[], number, { state: RootState }>(
   'categories/delete',
   async (id: number, { getState, dispatch }) => {
     const state = getState();
@@ -123,7 +121,7 @@ export const deleteCategory = createAsyncThunk<CategoryGroup[], number, { state:
   }
 );
 
-export const fetchAccounts = createAsyncThunk<AccountGroup[], void, { state: RootState }>(
+export const fetchAccounts = createAsyncThunk<Account[], void, { state: RootState }>(
   'accounts/list',
   async (_, { getState }) => {
     const state = getState();
@@ -171,17 +169,10 @@ export const createTransfer = createAsyncThunk<Transaction[], CreateTransfer, { 
   }
 );
 
-export const updateTransfer = createAsyncThunk<Transaction[], UpdateTransfer, { state: RootState }>(
-  'transactions/update',
-  async () => {
-    return [];
-  }
-);
-
 type DailyExpenses = {
   section: Section;
-  categoryGroups: CategoryGroup[];
-  accountGroups: AccountGroup[];
+  categories: Category[];
+  accounts: Account[];
   yearmonth: [number, number];
   summary: TransactionSummary;
   transactions: Transaction[];
@@ -200,13 +191,15 @@ const dailyExpenseSlice = createSlice<
   name: 'dailyExpenses',
   initialState: {
     section: 'EXPENSE',
-    categoryGroups: [],
-    accountGroups: [],
+    categories: [],
+    accounts: [],
     yearmonth: [new Date().getFullYear(), new Date().getMonth()],
     summary: {
       balance: 0,
       expense: 0,
       income: 0,
+      investment: 0,
+      net_worth: 0,
     },
     transactions: [],
   },
@@ -220,16 +213,16 @@ const dailyExpenseSlice = createSlice<
   },
   extraReducers: (builder) => {
     builder.addCase(fetchCategories.fulfilled, (state, action) => {
-      state.categoryGroups = action.payload;
+      state.categories = action.payload;
     });
     builder.addCase(createCategory.fulfilled, (state, action) => {
-      state.categoryGroups = action.payload;
+      state.categories = action.payload;
     });
     builder.addCase(updateCategory.fulfilled, (state, action) => {
-      state.categoryGroups = action.payload;
+      state.categories = action.payload;
     });
     builder.addCase(fetchAccounts.fulfilled, (state, action) => {
-      state.accountGroups = action.payload;
+      state.accounts = action.payload;
     });
     builder.addCase(fetchTransactions.fulfilled, (state, action) => {
       state.transactions = action.payload;
