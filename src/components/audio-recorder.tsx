@@ -43,6 +43,9 @@ const AudioRecorder = () => {
         const wavBlob = await convertToWav(audioBlob, sampleRate);
         setAudioBlob(wavBlob);
         audioChunksRef.current = [];
+        stream
+          .getTracks() // get all tracks from the MediaStream
+          .forEach((track) => track.stop()); // stop each of them
       };
 
       mediaRecorderRef.current.start();
