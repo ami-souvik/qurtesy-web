@@ -16,6 +16,19 @@ import {
 } from '../webservices/daily-expenses-ws';
 import { postTransfer } from '../webservices/transfers-ws';
 import {
+  getBudgets,
+  createBudget as createBudgetWS,
+  updateBudget as updateBudgetWS,
+  deleteBudget as deleteBudgetWS,
+} from '../webservices/budgets-ws';
+import {
+  getRecurringTransactions,
+  createRecurringTransaction as createRecurringWS,
+  updateRecurringTransaction as updateRecurringWS,
+  deleteRecurringTransaction as deleteRecurringWS,
+  getRecurringTransactionsDueToday,
+} from '../webservices/recurring-transactions-ws';
+import {
   Section,
   Transaction,
   CreateTransaction,
@@ -28,6 +41,12 @@ import {
   TransactionSummary,
   CreateTransfer,
   Category,
+  Budget,
+  CreateBudget,
+  UpdateBudget,
+  RecurringTransaction,
+  CreateRecurringTransaction,
+  UpdateRecurringTransaction,
 } from '../types';
 import { RootState } from '../store.types';
 
@@ -169,6 +188,82 @@ export const createTransfer = createAsyncThunk<Transaction[], CreateTransfer, { 
   }
 );
 
+// Budget async thunks
+export const fetchBudgets = createAsyncThunk<Budget[], void, { state: RootState }>(
+  'budgets/list',
+  async (_, { getState }) => {
+    const state = getState();
+    const [year, month] = state.dailyExpenses.yearmonth;
+    return await getBudgets(month + 1, year); // month is 0-indexed, API expects 1-indexed
+  }
+);
+
+export const createBudget = createAsyncThunk<Budget[], CreateBudget, { state: RootState }>(
+  'budgets/create',
+  async (data: CreateBudget, { dispatch }) => {
+    await createBudgetWS(data);
+    return dispatch(fetchBudgets()).unwrap();
+  }
+);
+
+export const updateBudget = createAsyncThunk<Budget[], { id: number; data: UpdateBudget }, { state: RootState }>(
+  'budgets/update',
+  async ({ id, data }, { dispatch }) => {
+    await updateBudgetWS(id, data);
+    return dispatch(fetchBudgets()).unwrap();
+  }
+);
+
+export const deleteBudget = createAsyncThunk<Budget[], number, { state: RootState }>(
+  'budgets/delete',
+  async (id: number, { dispatch }) => {
+    await deleteBudgetWS(id);
+    return dispatch(fetchBudgets()).unwrap();
+  }
+);
+
+// Recurring transactions async thunks
+export const fetchRecurringTransactions = createAsyncThunk<RecurringTransaction[], void, { state: RootState }>(
+  'recurring/list',
+  async (_, { getState }) => {
+    const state = getState();
+    const section = state.dailyExpenses.section;
+    return await getRecurringTransactions(true, section);
+  }
+);
+
+export const createRecurringTransaction = createAsyncThunk<
+  RecurringTransaction[],
+  CreateRecurringTransaction,
+  { state: RootState }
+>('recurring/create', async (data: CreateRecurringTransaction, { getState, dispatch }) => {
+  const state = getState();
+  const section = state.dailyExpenses.section;
+  await createRecurringWS(section, data);
+  return dispatch(fetchRecurringTransactions()).unwrap();
+});
+
+export const updateRecurringTransaction = createAsyncThunk<
+  RecurringTransaction[],
+  { id: number; data: UpdateRecurringTransaction },
+  { state: RootState }
+>('recurring/update', async ({ id, data }, { dispatch }) => {
+  await updateRecurringWS(id, data);
+  return dispatch(fetchRecurringTransactions()).unwrap();
+});
+
+export const deleteRecurringTransaction = createAsyncThunk<RecurringTransaction[], number, { state: RootState }>(
+  'recurring/delete',
+  async (id: number, { dispatch }) => {
+    await deleteRecurringWS(id);
+    return dispatch(fetchRecurringTransactions()).unwrap();
+  }
+);
+
+export const fetchRecurringTransactionsDueToday = createAsyncThunk('recurring/due-today', async () => {
+  return await getRecurringTransactionsDueToday();
+});
+
 type DailyExpenses = {
   section: Section;
   categories: Category[];
@@ -176,6 +271,19 @@ type DailyExpenses = {
   yearmonth: [number, number];
   summary: TransactionSummary;
   transactions: Transaction[];
+  budgets: Budget[];
+  recurringTransactions: RecurringTransaction[];
+  recurringDueToday: Array<{
+    id: number;
+    name: string;
+    amount: number;
+    section: Section;
+    category?: { id: number; value: string; emoji?: string };
+    account?: { id: number; value: string };
+    frequency: string;
+    next_execution: string;
+    days_overdue: number;
+  }>;
 };
 
 const dailyExpenseSlice = createSlice<
@@ -202,6 +310,9 @@ const dailyExpenseSlice = createSlice<
       net_worth: 0,
     },
     transactions: [],
+    budgets: [],
+    recurringTransactions: [],
+    recurringDueToday: [],
   },
   reducers: {
     setSection: (state, action: PayloadAction<Section>) => {
@@ -238,6 +349,35 @@ const dailyExpenseSlice = createSlice<
     });
     builder.addCase(createTransfer.fulfilled, (state, action) => {
       state.transactions = action.payload;
+    });
+    // Budget reducers
+    builder.addCase(fetchBudgets.fulfilled, (state, action) => {
+      state.budgets = action.payload;
+    });
+    builder.addCase(createBudget.fulfilled, (state, action) => {
+      state.budgets = action.payload;
+    });
+    builder.addCase(updateBudget.fulfilled, (state, action) => {
+      state.budgets = action.payload;
+    });
+    builder.addCase(deleteBudget.fulfilled, (state, action) => {
+      state.budgets = action.payload;
+    });
+    // Recurring transaction reducers
+    builder.addCase(fetchRecurringTransactions.fulfilled, (state, action) => {
+      state.recurringTransactions = action.payload;
+    });
+    builder.addCase(createRecurringTransaction.fulfilled, (state, action) => {
+      state.recurringTransactions = action.payload;
+    });
+    builder.addCase(updateRecurringTransaction.fulfilled, (state, action) => {
+      state.recurringTransactions = action.payload;
+    });
+    builder.addCase(deleteRecurringTransaction.fulfilled, (state, action) => {
+      state.recurringTransactions = action.payload;
+    });
+    builder.addCase(fetchRecurringTransactionsDueToday.fulfilled, (state, action) => {
+      state.recurringDueToday = action.payload;
     });
   },
 });
