@@ -14,6 +14,8 @@ import { DAYS, MONTHS, formatdate } from '../../utils/datetime';
 import { TransactionFormModal, type TransactionFormProps } from '../form/transaction-form-modal';
 import { Modal } from '../ui/modal';
 import { Transaction } from './transaction';
+import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
 
 export function Transactions() {
   const dispatch = useDispatch<AppDispatch>();
@@ -71,6 +73,12 @@ export function Transactions() {
     setIsModalOpen(true);
   };
 
+  // Keyboard shortcuts
+  useKeyboardShortcuts(
+    [commonShortcuts.newTransaction(handleOpenNewTransaction), commonShortcuts.escape(handleCloseModal)],
+    true
+  );
+
   const handleDelete = (id: number) => {
     if (confirm('Do you want to delete this transaction?')) dispatch(deleteTransaction(id));
   };
@@ -115,12 +123,15 @@ export function Transactions() {
         </div>
 
         <div className="flex items-center space-x-2">
+          <KeyboardShortcutsHelp />
           <button
             onClick={handleOpenNewTransaction}
-            className="flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all duration-200 shadow-lg shadow-emerald-500/20"
+            className="flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all duration-200 shadow-lg shadow-emerald-500/20 group"
+            title="Add Transaction (Ctrl+N)"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Add Transaction</span>
+            <span className="hidden lg:inline text-xs opacity-70 ml-1">(Ctrl+N)</span>
           </button>
           <button
             onClick={nextMonth}

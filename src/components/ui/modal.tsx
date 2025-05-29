@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -10,6 +10,19 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true);
+      setTimeout(() => setIsAnimating(true), 10); // Small delay for smooth animation
+    } else {
+      setIsAnimating(false);
+      setTimeout(() => setIsVisible(false), 200); // Wait for animation to complete
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -27,7 +40,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
       document.body.style.overflow = 'unset';
     };
   }, [isOpen, onClose]);
-  if (!isOpen) return null;
+  if (!isVisible) return null;
 
   const sizeClasses = {
     sm: 'max-w-md',
@@ -37,8 +50,18 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   };
 
   return (
-    <div className="fixed max-h-[100vh] inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className={`glass-card rounded-xl w-full ${sizeClasses[size]}`} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`h-screen fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-200 ${
+        isAnimating ? 'bg-black/50 backdrop-blur-sm' : 'bg-black/0 backdrop-blur-none'
+      }`}
+      onClick={onClose}
+    >
+      <div
+        className={`glass-card rounded-xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden transition-all duration-200 transform ${
+          isAnimating ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
           <h2 className="text-xl font-semibold text-white">{title}</h2>
