@@ -70,8 +70,11 @@ export function Tabs() {
   return (
     <div className="h-full flex flex-col">
       {/* Tab Navigation */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-white mb-4">Financial Overview</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2">
+          <PiggyBank className="h-6 w-6 text-blue-400" />
+          <h2 className="text-xl font-semibold text-white">Transaction Overview</h2>
+        </div>
         <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
           {sections.map((s: Section) => {
             const meta = sectionsMeta[s];
