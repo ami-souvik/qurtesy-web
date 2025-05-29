@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Plus } from 'lucide-react';
 import {
   fetchTransactions,
   deleteTransaction,
@@ -11,13 +11,15 @@ import {
 import { AppDispatch, RootState } from '../../store.types';
 import { groupByDate } from '../../utils/transaction';
 import { DAYS, MONTHS, formatdate } from '../../utils/datetime';
-import { TransactionForm, type TransactionFormProps } from '../form/transaction-form';
+import { TransactionFormModal, type TransactionFormProps } from '../form/transaction-form-modal';
+import { Modal } from '../ui/modal';
 import { Transaction } from './transaction';
 
 export function Transactions() {
   const dispatch = useDispatch<AppDispatch>();
   const { section, yearmonth, transactions } = useSelector((state: RootState) => state.dailyExpenses);
-  const formRef = useRef();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<TransactionFormProps | undefined>(undefined);
 
   const setMonth = (m: number) => dispatch(setYearMonth([yearmonth[0], m]));
   const setYear = (y: number) => dispatch(setYearMonth([y, yearmonth[1]]));
@@ -55,7 +57,18 @@ export function Transactions() {
   }, [yearmonth, section, dispatch]);
 
   const handleSelect = (data: TransactionFormProps) => {
-    formRef.current.set(data);
+    setEditingTransaction(data);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingTransaction(undefined);
+  };
+
+  const handleOpenNewTransaction = () => {
+    setEditingTransaction(undefined);
+    setIsModalOpen(true);
   };
 
   const handleDelete = (id: number) => {
@@ -64,7 +77,7 @@ export function Transactions() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with Month Navigation */}
+      {/* Header with Month Navigation and Add Button */}
       <div className="flex items-center justify-between mb-6 p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl">
         <button
           onClick={prevMonth}
@@ -101,17 +114,21 @@ export function Transactions() {
           </div>
         </div>
 
-        <button
-          onClick={nextMonth}
-          className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Transaction Form */}
-      <div className="mb-6">
-        <TransactionForm formRef={formRef} />
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handleOpenNewTransaction}
+            className="flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all duration-200 shadow-lg shadow-emerald-500/20"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Add Transaction</span>
+          </button>
+          <button
+            onClick={nextMonth}
+            className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Transactions List */}
@@ -168,6 +185,16 @@ export function Transactions() {
           })
         )}
       </div>
+
+      {/* Transaction Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
+        size="md"
+      >
+        <TransactionFormModal initialData={editingTransaction} onSuccess={handleCloseModal} />
+      </Modal>
     </div>
   );
 }

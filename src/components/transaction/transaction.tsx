@@ -1,6 +1,6 @@
 import { Edit3, Trash2 } from 'lucide-react';
 import { type Transaction as TransactionType } from '../../types';
-import { TransactionFormProps } from '../form/transaction-form';
+import { TransactionFormProps } from '../form/transaction-form-modal';
 
 export function Transaction({
   data,
