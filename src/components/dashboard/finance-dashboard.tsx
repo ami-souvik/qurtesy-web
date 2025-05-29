@@ -14,30 +14,31 @@ import { ExportManager } from '../export';
 import { PhonePeImporter } from '../import';
 import { NotificationPanel, NotificationSettingsPanel, notificationService } from '../notifications';
 import { CurrencyDisplay, CurrencySettings } from '../currency';
+import { LeftSidebar } from './left-sidebar';
 import {
-  BarChart3,
-  PiggyBank,
-  Repeat,
-  Download,
-  Upload,
-  Settings,
   TrendingUp,
-  DollarSign,
+  PiggyBank,
   Calendar,
+  Target,
+  Wallet,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  Activity,
+  Award,
 } from 'lucide-react';
+import { TransactionTracker } from '../home/transaction-tracker';
 
 export const FinanceDashboard: React.FC = () => {
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState<'overview' | 'budget' | 'recurring' | 'export' | 'import' | 'settings'>(
-    'overview'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'home' | 'budget' | 'recurring' | 'goals' | 'investments' | 'export' | 'import' | 'settings'
+  >('overview');
 
   const transactions = useSelector((state: RootState) => state.dailyExpenses.transactions);
   const budgets = useSelector((state: RootState) => state.dailyExpenses.budgets);
   const summary = useSelector((state: RootState) => state.dailyExpenses.summary);
   const recurringDueToday = useSelector((state: RootState) => state.dailyExpenses.recurringDueToday);
   const [year, month] = useSelector((state: RootState) => state.dailyExpenses.yearmonth);
-
   useEffect(() => {
     // Load initial data
     dispatch(fetchTransactions());
@@ -52,6 +53,7 @@ export const FinanceDashboard: React.FC = () => {
       notificationService.checkBudgetWarnings(budgets);
     }
   }, [budgets]);
+
   // Check for large expenses when transactions change
   useEffect(() => {
     const recentTransactions = transactions.filter((t) => {
@@ -67,117 +69,211 @@ export const FinanceDashboard: React.FC = () => {
     });
   }, [transactions]);
 
-  const tabConfig = [
-    { key: 'overview', label: 'Overview', icon: BarChart3 },
-    { key: 'budget', label: 'Budget', icon: PiggyBank },
-    { key: 'recurring', label: 'Recurring', icon: Repeat },
-    { key: 'export', label: 'Export', icon: Download },
-    { key: 'import', label: 'Import', icon: Upload },
-    { key: 'settings', label: 'Settings', icon: Settings },
-  ] as const;
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+  // Enhanced overview component with better layout
+  const OverviewContent = () => (
+    <div className="space-y-6">
       {/* Header */}
-      <header className="glass-card border-b border-white/10 p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-slate-400">
-              {new Date(year, month).toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric',
-              })}
-            </p>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">Financial Overview</h1>
+          <p className="text-slate-400">
+            Track your finances for{' '}
+            {new Date(year, month).toLocaleDateString('en-US', {
+              month: 'long',
+              year: 'numeric',
+            })}
+          </p>
+        </div>
+        <div className="hidden lg:flex items-center space-x-4">
+          <NotificationPanel />
+        </div>
+      </div>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <div className="glass-card rounded-xl p-6 hover:bg-slate-800/60 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                <ArrowUpCircle className="h-5 w-5 text-green-400" />
+              </div>
+              <span className="text-sm text-slate-400">Total Income</span>
+            </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <NotificationPanel />
-          </div>
+          <p className="text-2xl font-bold text-white mb-1">
+            <CurrencyDisplay amount={summary.income} />
+          </p>
+          <p className="text-xs text-green-400">+12% from last month</p>
         </div>
 
-        {/* Navigation Tabs */}
-        <nav className="flex flex-wrap space-x-1 mt-4">
-          {tabConfig.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => setActiveTab(key)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                activeTab === key ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              <span>{label}</span>
-            </button>
-          ))}
-        </nav>
-      </header>
+        <div className="glass-card rounded-xl p-6 hover:bg-slate-800/60 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center">
+                <ArrowDownCircle className="h-5 w-5 text-red-400" />
+              </div>
+              <span className="text-sm text-slate-400">Total Expenses</span>
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-white mb-1">
+            <CurrencyDisplay amount={summary.expense} />
+          </p>
+          <p className="text-xs text-red-400">+5% from last month</p>
+        </div>
+
+        <div className="glass-card rounded-xl p-6 hover:bg-slate-800/60 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                <Wallet className="h-5 w-5 text-blue-400" />
+              </div>
+              <span className="text-sm text-slate-400">Balance</span>
+            </div>
+          </div>
+          <p className={`text-2xl font-bold mb-1 ${summary.balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <CurrencyDisplay amount={summary.balance} />
+          </p>
+          <p className="text-xs text-slate-400">Available funds</p>
+        </div>
+
+        <div className="glass-card rounded-xl p-6 hover:bg-slate-800/60 transition-colors">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                <Activity className="h-5 w-5 text-purple-400" />
+              </div>
+              <span className="text-sm text-slate-400">Savings Rate</span>
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-white mb-1">
+            {summary.income > 0 ? Math.round((summary.balance / summary.income) * 100) : 0}%
+          </p>
+          <p className="text-xs text-purple-400">Of total income</p>
+        </div>
+      </div>
+      {/* Alerts */}
+      {recurringDueToday.length > 0 && (
+        <div className="glass-card rounded-xl p-6 border border-orange-500/30 bg-orange-500/5">
+          <div className="flex items-center space-x-3 mb-3">
+            <div className="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center">
+              <Calendar className="h-5 w-5 text-orange-400" />
+            </div>
+            <div>
+              <h3 className="font-medium text-white">Recurring Transactions Due</h3>
+              <p className="text-sm text-slate-400">
+                {recurringDueToday.length} transaction{recurringDueToday.length > 1 ? 's' : ''} need attention
+              </p>
+            </div>
+          </div>
+          <button className="text-sm text-orange-400 hover:text-orange-300 font-medium">Review Now →</button>
+        </div>
+      )}
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <SpendingTrendsChart />
+        <CategoryBreakdownChart />
+      </div>
+
+      {/* Quick Actions */}
+      <div className="glass-card rounded-xl p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button
+            onClick={() => setActiveTab('home')}
+            className="flex flex-col items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 transition-colors group"
+          >
+            <TrendingUp className="h-6 w-6 text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm text-white">Add Transaction</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('budget')}
+            className="flex flex-col items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 transition-colors group"
+          >
+            <PiggyBank className="h-6 w-6 text-green-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm text-white">Manage Budget</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('goals')}
+            className="flex flex-col items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 transition-colors group"
+          >
+            <Target className="h-6 w-6 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm text-white">Set Goals</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('export')}
+            className="flex flex-col items-center p-4 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 transition-colors group"
+          >
+            <Award className="h-6 w-6 text-yellow-400 mb-2 group-hover:scale-110 transition-transform" />
+            <span className="text-sm text-white">Export Data</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+  // Placeholder components for new features
+  const GoalsContent = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-white">Financial Goals</h1>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          + New Goal
+        </button>
+      </div>
+      <div className="glass-card rounded-xl p-8 text-center">
+        <Target className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-white mb-2">Set Your Financial Goals</h3>
+        <p className="text-slate-400 mb-6">Track progress towards emergency fund, vacation, or retirement savings</p>
+        <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          Create Your First Goal
+        </button>
+      </div>
+    </div>
+  );
+
+  const InvestmentsContent = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-white">Investment Portfolio</h1>
+        <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+          + Add Investment
+        </button>
+      </div>
+      <div className="glass-card rounded-xl p-8 text-center">
+        <TrendingUp className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-white mb-2">Track Your Investments</h3>
+        <p className="text-slate-400 mb-6">Monitor stocks, mutual funds, and other investment performance</p>
+        <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+          Connect Your Portfolio
+        </button>
+      </div>
+    </div>
+  );
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex">
+      {/* Left Sidebar */}
+      <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} summary={summary} year={year} month={month} />
+
       {/* Main Content */}
-      <main className="p-6">
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="glass-card rounded-xl p-6">
-                <div className="flex items-center space-x-2 mb-2">
-                  <TrendingUp className="h-5 w-5 text-green-400" />
-                  <span className="text-sm text-slate-400">Income</span>
-                </div>
-                <p className="text-2xl font-bold text-white">
-                  <CurrencyDisplay amount={summary.income} />
-                </p>
+      <main className="flex-1 lg:ml-72 transition-all duration-300 ease-in-out">
+        <div className="p-6 pt-20 lg:pt-6">
+          {activeTab === 'overview' && <OverviewContent />}
+          {activeTab === 'home' && <TransactionTracker />}
+          {activeTab === 'budget' && <BudgetTracker />}
+          {activeTab === 'recurring' && <RecurringTransactionManager />}
+          {activeTab === 'goals' && <GoalsContent />}
+          {activeTab === 'investments' && <InvestmentsContent />}
+          {activeTab === 'export' && <ExportManager />}
+          {activeTab === 'import' && <PhonePeImporter />}
+          {activeTab === 'settings' && (
+            <div className="space-y-8">
+              <div>
+                <h1 className="text-3xl font-bold text-white mb-6">Settings</h1>
               </div>
-
-              <div className="glass-card rounded-xl p-6">
-                <div className="flex items-center space-x-2 mb-2">
-                  <DollarSign className="h-5 w-5 text-red-400" />
-                  <span className="text-sm text-slate-400">Expenses</span>
-                </div>
-                <p className="text-2xl font-bold text-white">
-                  <CurrencyDisplay amount={summary.expense} />
-                </p>
-              </div>
-
-              <div className="glass-card rounded-xl p-6">
-                <div className="flex items-center space-x-2 mb-2">
-                  <PiggyBank className="h-5 w-5 text-blue-400" />
-                  <span className="text-sm text-slate-400">Balance</span>
-                </div>
-                <p className={`text-2xl font-bold ${summary.balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  <CurrencyDisplay amount={summary.balance} />
-                </p>
-              </div>
+              <CurrencySettings />
+              <NotificationSettingsPanel />
             </div>
-
-            {/* Alerts */}
-            {recurringDueToday.length > 0 && (
-              <div className="glass-card rounded-xl p-4 border-orange-500/50">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Calendar className="h-5 w-5 text-orange-400" />
-                  <span className="font-medium text-white">Recurring Transactions Due</span>
-                </div>
-                <p className="text-sm text-slate-400">
-                  {recurringDueToday.length} recurring transaction{recurringDueToday.length > 1 ? 's' : ''} need
-                  {recurringDueToday.length === 1 ? 's' : ''} attention
-                </p>
-              </div>
-            )}
-
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <SpendingTrendsChart />
-              <CategoryBreakdownChart />
-            </div>
-          </div>
-        )}
-        {activeTab === 'budget' && <BudgetTracker />}
-        {activeTab === 'recurring' && <RecurringTransactionManager />}
-        {activeTab === 'export' && <ExportManager />}
-        {activeTab === 'import' && <PhonePeImporter />}
-        {activeTab === 'settings' && (
-          <div className="space-y-8">
-            <CurrencySettings />
-            <NotificationSettingsPanel />
-          </div>
-        )}
+          )}
+        </div>
       </main>
     </div>
   );
