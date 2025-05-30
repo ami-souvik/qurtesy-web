@@ -14,6 +14,7 @@ import { ExportManager } from '../export';
 import { PhonePeImporter } from '../import';
 import { NotificationPanel, NotificationSettingsPanel, notificationService } from '../notifications';
 import { CurrencyDisplay, CurrencySettings } from '../currency';
+import { AccountSettings } from '../settings';
 import { LeftSidebar } from './left-sidebar';
 import {
   TrendingUp,
@@ -291,6 +292,7 @@ export const FinanceDashboard: React.FC = () => {
               <div>
                 <h1 className="text-2xl font-bold text-white mb-4">Settings</h1>
               </div>
+              <AccountSettings />
               <CurrencySettings />
               <NotificationSettingsPanel />
             </div>

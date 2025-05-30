@@ -21,15 +21,18 @@ export type UpdateCategory = {
 export type Account = {
   id: number;
   value: string;
+  balance?: number;
 };
 
 export type CreateAccount = {
   value: string;
+  balance?: number;
 };
 
 export type UpdateAccount = {
   id: number;
-  value: string;
+  value?: string;
+  balance?: number;
 };
 
 export type Transaction = {

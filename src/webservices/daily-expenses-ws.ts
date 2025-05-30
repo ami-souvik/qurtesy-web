@@ -156,6 +156,16 @@ export const putAccount =
       });
   };
 
+export const updateAccountBalance = async (id: number, balance: number): Promise<Account | null> => {
+  return axios
+    .patch(`${BASE_URL}/api/accounts/${id}/balance`, { balance })
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      return null;
+    });
+};
+
 export const deleteAccount = (_section: Section) => async (id: number) => {
   return axios.delete(`${BASE_URL}/api/accounts/${id}`);
 };
