@@ -5,6 +5,7 @@ import { fetchAccounts, createAccount, updateAccount, deleteAccount } from '../.
 import { Account, CreateAccount, UpdateAccount } from '../../types/daily-expenses';
 import { CurrencyDisplay } from '../currency';
 import { Button } from '../action/button';
+import { PageWrapper, StatCard } from '../layout';
 import {
   Plus,
   Edit2,
@@ -97,51 +98,37 @@ export const AccountSettings: React.FC = () => {
     return accounts.reduce((total, account) => total + (account.balance || 0), 0);
   };
 
+  const statCards: StatCard[] = [
+    {
+      label: 'Total Accounts',
+      value: accounts.length,
+      icon: Wallet,
+      iconColor: 'text-blue-400',
+      iconBgColor: 'bg-blue-500/20',
+    },
+    {
+      label: 'Total Balance',
+      value: <CurrencyDisplay amount={getTotalBalance()} />,
+      icon: DollarSign,
+      iconColor: 'text-green-400',
+      iconBgColor: 'bg-green-500/20',
+      valueColor: getTotalBalance() >= 0 ? 'text-green-400' : 'text-red-400',
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Account Management</h1>
-        <p className="text-slate-400">Manage your financial accounts and keep your balances in sync</p>
-      </div>
-
-      {/* Summary Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-            <Wallet className="h-6 w-6 text-blue-400" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-white">
-              {accounts.length} Account{accounts.length !== 1 ? 's' : ''}
-            </h2>
-            <p className="text-sm text-slate-400">Track balances across all your financial accounts</p>
-          </div>
-        </div>
-
-        {/* Total Balance Card */}
-        <div className="glass-card rounded-lg p-4 lg:min-w-[240px]">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <DollarSign className="h-5 w-5 text-green-400" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-400 mb-1">Total Balance</p>
-              <p className="text-xl font-bold text-white">
-                <CurrencyDisplay amount={getTotalBalance()} />
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Create New Account Button */}
-      {!isCreating && (
-        <Button onClick={() => setIsCreating(true)} leftIcon={<Plus className="h-4 w-4" />}>
-          <span className="hidden sm:inline">Add New Account</span>
-        </Button>
-      )}
-
+    <PageWrapper
+      title="Account Management"
+      subtitle="Manage your financial accounts and keep your balances in sync"
+      statCards={statCards}
+      headerActions={
+        !isCreating ? (
+          <Button onClick={() => setIsCreating(true)} leftIcon={<Plus className="h-4 w-4" />}>
+            Add New Account
+          </Button>
+        ) : null
+      }
+    >
       {/* Create Account Form */}
       {isCreating && (
         <div className="glass-card rounded-lg p-6 border border-blue-500/30">
@@ -303,6 +290,6 @@ export const AccountSettings: React.FC = () => {
           <p>• Account balances are independent of your transaction history</p>
         </div>
       </div>
-    </div>
+    </PageWrapper>
   );
 };

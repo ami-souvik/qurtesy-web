@@ -13,6 +13,7 @@ import { Repeat, Plus, Edit, Trash2, Clock, AlertCircle, Calendar, Play, Pause }
 import { format, parseISO } from 'date-fns';
 import { Button } from '../action/button';
 import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
+import { PageWrapper, StatCard } from '../layout';
 
 export const RecurringTransactionManager: React.FC = () => {
   const dispatch = useDispatch();
@@ -123,52 +124,93 @@ export const RecurringTransactionManager: React.FC = () => {
     }
   };
 
+  const activeTransactions = recurringTransactions.filter((t) => t.is_active);
+  const monthlyValue = activeTransactions.reduce((sum, t) => {
+    const amount = t.amount;
+    switch (t.frequency) {
+      case 'daily':
+        return sum + amount * 30;
+      case 'weekly':
+        return sum + amount * 4;
+      case 'monthly':
+        return sum + amount;
+      case 'yearly':
+        return sum + amount / 12;
+      default:
+        return sum + amount;
+    }
+  }, 0);
+
+  const statCards: StatCard[] = [
+    {
+      label: 'Active Transactions',
+      value: activeTransactions.length,
+      icon: Repeat,
+      iconColor: 'text-green-400',
+      iconBgColor: 'bg-green-500/20',
+    },
+    {
+      label: 'Due Today',
+      value: recurringDueToday.length,
+      icon: AlertCircle,
+      iconColor: 'text-orange-400',
+      iconBgColor: 'bg-orange-500/20',
+    },
+    {
+      label: 'Monthly Value',
+      value: `$${monthlyValue.toFixed(0)}`,
+      icon: Calendar,
+      iconColor: 'text-blue-400',
+      iconBgColor: 'bg-blue-500/20',
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Due Today Section */}
-      {recurringDueToday.length > 0 && (
-        <div className="glass-card rounded-xl p-6 border-orange-500/50">
-          <div className="flex items-center space-x-2 mb-4">
-            <AlertCircle className="h-5 w-5 text-orange-400" />
-            <h3 className="text-lg font-semibold text-white">Due Today</h3>
-          </div>
-          <div className="space-y-3">
-            {recurringDueToday.map((item) => (
-              <div key={item.id} className="glass-card rounded-lg p-3 border-orange-500/30">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-lg">{item.category?.emoji || '💰'}</span>
-                    <div>
-                      <p className="font-medium text-white">{item.name}</p>
-                      <p className="text-sm text-slate-400">
-                        ${item.amount.toFixed(2)} • {item.frequency}
-                        {item.days_overdue > 0 && (
-                          <span className="text-red-400 ml-2">({item.days_overdue} days overdue)</span>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {/* Main Recurring Transactions */}
-      <div className="rounded-2xl h-full animate-slide-in">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
-            <Repeat className="h-6 w-6 text-blue-400" />
-            <h2 className="text-xl font-semibold text-white">Recurring Transactions</h2>
-          </div>
+    <>
+      <PageWrapper
+        title="Recurring Transactions"
+        subtitle="Manage your automated transactions and recurring payments"
+        statCards={statCards}
+        headerActions={
           <div className="flex items-center space-x-2">
             <KeyboardShortcutsHelp />
             <Button onClick={() => setShowForm(true)} leftIcon={<Plus className="h-4 w-4 mr-2" />}>
               <span className="hidden sm:inline">Add Recurring</span>
             </Button>
           </div>
-        </div>
+        }
+      >
+        {/* Due Today Section */}
+        {recurringDueToday.length > 0 && (
+          <div className="glass-card rounded-xl p-6 border-orange-500/50">
+            <div className="flex items-center space-x-2 mb-4">
+              <AlertCircle className="h-5 w-5 text-orange-400" />
+              <h3 className="text-lg font-semibold text-white">Due Today</h3>
+            </div>
+            <div className="space-y-3">
+              {recurringDueToday.map((item) => (
+                <div key={item.id} className="glass-card rounded-lg p-3 border-orange-500/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg">{item.category?.emoji || '💰'}</span>
+                      <div>
+                        <p className="font-medium text-white">{item.name}</p>
+                        <p className="text-sm text-slate-400">
+                          ${item.amount.toFixed(2)} • {item.frequency}
+                          {item.days_overdue > 0 && (
+                            <span className="text-red-400 ml-2">({item.days_overdue} days overdue)</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
+        {/* Recurring Transactions List */}
         <div className="space-y-4">
           {recurringTransactions.length === 0 ? (
             <div className="text-center py-8">
@@ -240,7 +282,7 @@ export const RecurringTransactionManager: React.FC = () => {
             ))
           )}
         </div>
-      </div>
+      </PageWrapper>
 
       {/* Form Modal */}
       {showForm && (
@@ -399,6 +441,6 @@ export const RecurringTransactionManager: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

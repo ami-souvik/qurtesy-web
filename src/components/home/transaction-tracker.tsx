@@ -1,27 +1,15 @@
 import { Tabs } from '../../components/tabs';
+import { PageWrapper } from '../layout';
 
 export const TransactionTracker: React.FC = () => {
   return (
-    <div className="space-y-6">
-      {/* Current Activity */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-8"> */}
-      {/* Left Panel - Summary & Tools */}
-      {/* <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-card rounded-2xl p-6 animate-slide-in">
-                    <Summary />
-                    </div>
-                    <div className="glass-card rounded-2xl p-6 animate-slide-in" style={{ animationDelay: '0.1s' }}>
-                    <AudioRecorder />
-                    </div>
-                </div> */}
-
-      {/* Right Panel - Transactions */}
-      {/* <div className="lg:col-span-2"> */}
+    <PageWrapper
+      title="Transaction Management"
+      subtitle="Track and manage your income, expenses, transfers, and investments"
+    >
       <div className="rounded-2xl h-full animate-slide-in">
         <Tabs />
       </div>
-      {/* </div> */}
-      {/* </div> */}
-    </div>
+    </PageWrapper>
   );
 };

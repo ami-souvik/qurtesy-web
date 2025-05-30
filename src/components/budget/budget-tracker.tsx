@@ -8,6 +8,7 @@ import { CurrencyDisplay } from '../currency';
 import { Modal } from '../ui/modal';
 import { Button } from '../action/button';
 import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
+import { PageWrapper, StatCard } from '../layout';
 
 export const BudgetTracker: React.FC = () => {
   const dispatch = useDispatch();
@@ -77,53 +78,49 @@ export const BudgetTracker: React.FC = () => {
   const totalSpent = budgets.reduce((sum, budget) => sum + budget.spent_amount, 0);
   const totalRemaining = budgets.reduce((sum, budget) => sum + budget.remaining_amount, 0);
 
+  const statCards: StatCard[] = [
+    {
+      label: 'Total Budgeted',
+      value: <CurrencyDisplay amount={totalBudgeted} />,
+      icon: DollarSign,
+      iconColor: 'text-blue-400',
+      iconBgColor: 'bg-blue-500/20',
+    },
+    {
+      label: 'Total Spent',
+      value: <CurrencyDisplay amount={totalSpent} />,
+      icon: TrendingUp,
+      iconColor: 'text-orange-400',
+      iconBgColor: 'bg-orange-500/20',
+    },
+    {
+      label: 'Remaining',
+      value: <CurrencyDisplay amount={totalRemaining} />,
+      icon: PiggyBank,
+      iconColor: 'text-green-400',
+      iconBgColor: 'bg-green-500/20',
+      valueColor: totalRemaining >= 0 ? 'text-green-400' : 'text-red-400',
+    },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Budget Overview */}
-      <div className="rounded-2xl h-full animate-slide-in">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
-            <PiggyBank className="h-6 w-6 text-blue-400" />
-            <h2 className="text-xl font-semibold text-white">Budget Overview</h2>
-          </div>
+    <>
+      <PageWrapper
+        title="Budget Overview"
+        subtitle={`Manage your budget for ${new Date(year, month).toLocaleDateString('en-US', {
+          month: 'long',
+          year: 'numeric',
+        })}`}
+        statCards={statCards}
+        headerActions={
           <div className="flex items-center space-x-2">
             <KeyboardShortcutsHelp />
             <Button onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="h-4 w-4 mr-2" />}>
               <span className="hidden sm:inline">Add Budget</span>
             </Button>
           </div>
-        </div>
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="glass-card rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <DollarSign className="h-4 w-4 text-blue-400" />
-              <span className="text-sm text-slate-400">Total Budgeted</span>
-            </div>
-            <p className="text-2xl font-bold text-white">
-              <CurrencyDisplay amount={totalBudgeted} />
-            </p>
-          </div>
-          <div className="glass-card rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <TrendingUp className="h-4 w-4 text-orange-400" />
-              <span className="text-sm text-slate-400">Total Spent</span>
-            </div>
-            <p className="text-2xl font-bold text-white">
-              <CurrencyDisplay amount={totalSpent} />
-            </p>
-          </div>
-          <div className="glass-card rounded-lg p-4">
-            <div className="flex items-center space-x-2 mb-2">
-              <PiggyBank className="h-4 w-4 text-green-400" />
-              <span className="text-sm text-slate-400">Remaining</span>
-            </div>
-            <p className="text-2xl font-bold text-white">
-              <CurrencyDisplay amount={totalRemaining} />
-            </p>
-          </div>
-        </div>
-
+        }
+      >
         {/* Budget List */}
         <div className="space-y-4">
           {budgets.length === 0 ? (
@@ -191,7 +188,8 @@ export const BudgetTracker: React.FC = () => {
             ))
           )}
         </div>
-      </div>
+      </PageWrapper>
+
       {/* Budget Form Modal */}
       <Modal
         isOpen={isModalOpen}
@@ -265,6 +263,6 @@ export const BudgetTracker: React.FC = () => {
           </div>
         </form>
       </Modal>
-    </div>
+    </>
   );
 };
