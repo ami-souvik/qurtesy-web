@@ -6,6 +6,8 @@ import { CreateBudget, UpdateBudget, Budget } from '../../types';
 import { PiggyBank, Plus, Edit, Trash2, AlertTriangle, TrendingUp, DollarSign } from 'lucide-react';
 import { CurrencyDisplay } from '../currency';
 import { Modal } from '../ui/modal';
+import { Button } from '../action/button';
+import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
 
 export const BudgetTracker: React.FC = () => {
   const dispatch = useDispatch();
@@ -84,13 +86,12 @@ export const BudgetTracker: React.FC = () => {
             <PiggyBank className="h-6 w-6 text-blue-400" />
             <h2 className="text-xl font-semibold text-white">Budget Overview</h2>
           </div>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="glass-button px-4 py-2 rounded-lg text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Budget
-          </button>
+          <div className="flex items-center space-x-2">
+            <KeyboardShortcutsHelp />
+            <Button onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="h-4 w-4 mr-2" />}>
+              <span className="hidden sm:inline">Add Budget</span>
+            </Button>
+          </div>
         </div>
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

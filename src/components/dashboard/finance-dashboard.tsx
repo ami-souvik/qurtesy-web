@@ -25,8 +25,11 @@ import {
   ArrowDownCircle,
   Activity,
   Award,
+  Plus,
 } from 'lucide-react';
 import { TransactionTracker } from '../home/transaction-tracker';
+import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
+import { Button } from '../action/button';
 
 export const FinanceDashboard: React.FC = () => {
   const dispatch = useDispatch();
@@ -231,9 +234,12 @@ export const FinanceDashboard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-white">Financial Goals</h1>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-          + New Goal
-        </button>
+        <div className="flex items-center space-x-2">
+          <KeyboardShortcutsHelp />
+          <Button leftIcon={<Plus className="h-4 w-4 mr-2" />}>
+            <span className="hidden sm:inline">New Goal</span>
+          </Button>
+        </div>
       </div>
       <div className="glass-card rounded-xl p-8 text-center">
         <Target className="h-12 w-12 text-slate-400 mx-auto mb-4" />

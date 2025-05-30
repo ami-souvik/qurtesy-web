@@ -9,6 +9,7 @@ import { createTransfer } from '../../slices/daily-expenses-slice';
 import { AppDispatch, RootState } from '../../store.types';
 
 export type TransferFormProps = {
+  id?: string;
   date: Date;
   amount: number;
   from_account_id: number;

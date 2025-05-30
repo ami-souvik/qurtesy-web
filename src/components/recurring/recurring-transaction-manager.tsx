@@ -11,6 +11,8 @@ import {
 import { CreateRecurringTransaction, UpdateRecurringTransaction, RecurringTransaction } from '../../types';
 import { Repeat, Plus, Edit, Trash2, Clock, AlertCircle, Calendar, Play, Pause } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { Button } from '../action/button';
+import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
 
 export const RecurringTransactionManager: React.FC = () => {
   const dispatch = useDispatch();
@@ -159,13 +161,12 @@ export const RecurringTransactionManager: React.FC = () => {
             <Repeat className="h-6 w-6 text-blue-400" />
             <h2 className="text-xl font-semibold text-white">Recurring Transactions</h2>
           </div>
-          <button
-            onClick={() => setShowForm(true)}
-            className="glass-button px-4 py-2 rounded-lg text-blue-400 hover:text-blue-300 transition-colors"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Recurring
-          </button>
+          <div className="flex items-center space-x-2">
+            <KeyboardShortcutsHelp />
+            <Button onClick={() => setShowForm(true)} leftIcon={<Plus className="h-4 w-4 mr-2" />}>
+              <span className="hidden sm:inline">Add Recurring</span>
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-4">

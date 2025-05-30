@@ -17,6 +17,7 @@ import { Transaction } from './transaction';
 import { TransactionHeader } from './transaction-header';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
+import { Button } from '../action/button';
 
 export function Transactions() {
   const dispatch = useDispatch<AppDispatch>();
@@ -125,15 +126,9 @@ export function Transactions() {
 
         <div className="flex items-center space-x-2">
           <KeyboardShortcutsHelp />
-          <button
-            onClick={handleOpenNewTransaction}
-            className="flex items-center space-x-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-all duration-200 shadow-lg shadow-emerald-500/20 group"
-            title="Add Transaction (Ctrl+N)"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Transaction</span>
-            <span className="hidden lg:inline text-xs opacity-70 ml-1">(Ctrl+N)</span>
-          </button>
+          <Button leftIcon={<Plus className="h-4 w-4 mr-2" />}>
+            <span className="hidden sm:inline">Add Budget</span>
+          </Button>
           <button
             onClick={nextMonth}
             className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"

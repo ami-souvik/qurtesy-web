@@ -61,8 +61,8 @@ export function Transfer() {
       reset({
         date: new Date(),
         amount: 0,
-        from_account: accounts[0].id,
-        to_account: accounts[0].id,
+        from_account_id: accounts[0].id,
+        to_account_id: accounts[0].id,
       });
     }
   }, [accounts, reset]);
@@ -207,8 +207,8 @@ export function Transfer() {
                                     Number(v.date.substring(0, 2))
                                   ),
                                   amount: v.amount,
-                                  from_account: v.category.id,
-                                  to_account: v.account.id,
+                                  from_account_id: v.category.id,
+                                  to_account_id: v.account.id,
                                 })
                               }
                               title="Edit transfer"
