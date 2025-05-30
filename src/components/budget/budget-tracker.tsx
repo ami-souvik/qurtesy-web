@@ -5,13 +5,14 @@ import { fetchBudgets, createBudget, updateBudget, deleteBudget } from '../../sl
 import { CreateBudget, UpdateBudget, Budget } from '../../types';
 import { PiggyBank, Plus, Edit, Trash2, AlertTriangle, TrendingUp, DollarSign } from 'lucide-react';
 import { CurrencyDisplay } from '../currency';
+import { Modal } from '../ui/modal';
 
 export const BudgetTracker: React.FC = () => {
   const dispatch = useDispatch();
   const budgets = useSelector((state: RootState) => state.dailyExpenses.budgets);
   const categories = useSelector((state: RootState) => state.dailyExpenses.categories);
   const [year, month] = useSelector((state: RootState) => state.dailyExpenses.yearmonth);
-  const [showForm, setShowForm] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [formData, setFormData] = useState({
     category_id: 0,
@@ -21,6 +22,10 @@ export const BudgetTracker: React.FC = () => {
   useEffect(() => {
     dispatch(fetchBudgets());
   }, [dispatch, year, month]);
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +45,7 @@ export const BudgetTracker: React.FC = () => {
       await dispatch(createBudget(newBudget));
     }
 
-    setShowForm(false);
+    setIsModalOpen(false);
     setEditingBudget(null);
     setFormData({ category_id: 0, budgeted_amount: 0 });
   };
@@ -50,7 +55,7 @@ export const BudgetTracker: React.FC = () => {
       category_id: budget.category.id,
       budgeted_amount: budget.budgeted_amount,
     });
-    setShowForm(true);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (budgetId: number) => {
@@ -80,7 +85,7 @@ export const BudgetTracker: React.FC = () => {
             <h2 className="text-xl font-semibold text-white">Budget Overview</h2>
           </div>
           <button
-            onClick={() => setShowForm(true)}
+            onClick={() => setIsModalOpen(true)}
             className="glass-button px-4 py-2 rounded-lg text-blue-400 hover:text-blue-300 transition-colors"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -187,79 +192,78 @@ export const BudgetTracker: React.FC = () => {
         </div>
       </div>
       {/* Budget Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="glass-card rounded-xl p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-white mb-4">{editingBudget ? 'Edit Budget' : 'Create Budget'}</h3>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!editingBudget && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Category</label>
-                  <select
-                    value={formData.category_id}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        category_id: parseInt(e.target.value),
-                      })
-                    }
-                    className="w-full glass-input rounded-lg px-3 py-2 text-white"
-                    required
-                  >
-                    <option value={0}>Select a category</option>
-                    {categories
-                      .filter((cat) => cat.section === 'EXPENSE')
-                      .map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.emoji} {category.value}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Budget Amount</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={formData.budgeted_amount}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      budgeted_amount: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  className="w-full glass-input rounded-lg px-3 py-2 text-white"
-                  placeholder="Enter budget amount"
-                  required
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingBudget(null);
-                    setFormData({ category_id: 0, budgeted_amount: 0 });
-                  }}
-                  className="flex-1 glass-button px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 glass-button px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors"
-                >
-                  {editingBudget ? 'Update' : 'Create'}
-                </button>
-              </div>
-            </form>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={editingBudget ? 'Edit Budget' : 'Add New Budget'}
+        size="md"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {!editingBudget && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Category</label>
+              <select
+                value={formData.category_id}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    category_id: parseInt(e.target.value),
+                  })
+                }
+                className="w-full glass-input rounded-lg px-3 py-2 text-white"
+                required
+              >
+                <option value={0}>Select a category</option>
+                {categories
+                  .filter((cat) => cat.section === 'EXPENSE')
+                  .map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.emoji} {category.value}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Budget Amount</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.budgeted_amount}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  budgeted_amount: parseFloat(e.target.value) || 0,
+                })
+              }
+              className="w-full glass-input rounded-lg px-3 py-2 text-white"
+              placeholder="Enter budget amount"
+              required
+            />
           </div>
-        </div>
-      )}
+
+          <div className="flex space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setIsModalOpen(false);
+                setEditingBudget(null);
+                setFormData({ category_id: 0, budgeted_amount: 0 });
+              }}
+              className="flex-1 glass-button px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 glass-button px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors"
+            >
+              {editingBudget ? 'Update' : 'Create'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };

@@ -14,6 +14,7 @@ import { DAYS, MONTHS, formatdate } from '../../utils/datetime';
 import { TransactionFormModal, type TransactionFormProps } from '../form/transaction-form-modal';
 import { Modal } from '../ui/modal';
 import { Transaction } from './transaction';
+import { TransactionHeader } from './transaction-header';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
 import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
 
@@ -143,7 +144,7 @@ export function Transactions() {
       </div>
 
       {/* Transactions List */}
-      <div className="flex-1 overflow-auto space-y-6">
+      <div className="flex-1 overflow-auto">
         {groupByDate(transactions).length === 0 ? (
           <div className="flex items-center justify-center h-64 text-slate-400">
             <div className="text-center">
@@ -155,45 +156,59 @@ export function Transactions() {
             </div>
           </div>
         ) : (
-          groupByDate(transactions).map(({ date, total, data }, i: number) => {
-            const sectionDate = new Date(
-              Number(date.substring(6, 10)),
-              Number(date.substring(3, 5)) - 1,
-              Number(date.substring(0, 2))
-            );
+          <div className="space-y-4">
+            {/* Transaction Header with Search and Stats */}
+            <TransactionHeader
+              totalTransactions={transactions.length}
+              totalAmount={transactions.reduce((sum, t) => sum + t.amount, 0)}
+              onSearch={(term) => console.log('Search:', term)}
+              onSort={(field) => console.log('Sort by:', field)}
+              onFilter={() => console.log('Filter clicked')}
+            />
 
-            return (
-              <div key={i} className="animate-slide-in">
-                {/* Date Header */}
-                <div className="flex items-center justify-between mb-4 p-3 bg-slate-800/20 border border-slate-700/30 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-500/20 border border-blue-500/30 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-400 font-bold text-sm">{date.substring(0, 2)}</span>
+            {/* Transaction Groups */}
+            <div className="space-y-4">
+              {groupByDate(transactions).map(({ date, total, data }, i: number) => {
+                const sectionDate = new Date(
+                  Number(date.substring(6, 10)),
+                  Number(date.substring(3, 5)) - 1,
+                  Number(date.substring(0, 2))
+                );
+
+                return (
+                  <div key={i} className="animate-slide-in mb-4">
+                    {/* Compact Date Header */}
+                    <div className="flex items-center justify-between mb-3 p-2 bg-slate-800/10 border border-slate-700/20 rounded-lg backdrop-blur-sm">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-blue-500/20 border border-blue-500/30 rounded-md flex items-center justify-center">
+                          <span className="text-blue-400 font-bold text-xs">{date.substring(0, 2)}</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-white text-sm">
+                            {DAYS[sectionDate.getDay()].substring(0, 3)}, {formatdate(sectionDate)}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            {data.length} item{data.length > 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-white text-sm">₹ {total.toLocaleString()}</p>
+                        <p className="text-xs text-slate-400">Total</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-white">
-                        {DAYS[sectionDate.getDay()].substring(0, 3)}, {formatdate(sectionDate)}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        {data.length} transaction{data.length > 1 ? 's' : ''}
-                      </p>
+
+                    {/* Compact Transactions List */}
+                    <div className="space-y-2">
+                      {data.map((v, i) => (
+                        <Transaction key={i} data={v} handleSelect={handleSelect} handleDelete={handleDelete} />
+                      ))}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-white">₹ {total.toLocaleString()}</p>
-                    <p className="text-xs text-slate-400">Total</p>
-                  </div>
-                </div>
-
-                {/* Transactions for this date */}
-                <div className="space-y-2 ml-6">
-                  {data.map((v, i) => (
-                    <Transaction key={i} data={v} handleSelect={handleSelect} handleDelete={handleDelete} />
-                  ))}
-                </div>
-              </div>
-            );
-          })
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
 

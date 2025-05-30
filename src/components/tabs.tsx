@@ -69,13 +69,17 @@ export function Tabs() {
 
   return (
     <div className="h-full flex flex-col">
-      {/* Tab Navigation */}
-      <div className="flex items-center justify-between mb-6">
+      {/* Compact Tab Navigation */}
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <PiggyBank className="h-6 w-6 text-blue-400" />
-          <h2 className="text-xl font-semibold text-white">Transaction Overview</h2>
+          <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+            <PiggyBank className="h-4 w-4 text-blue-400" />
+          </div>
+          <h2 className="text-lg font-semibold text-white">Transaction Overview</h2>
         </div>
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
+
+        {/* Modern Tab Pills */}
+        <div className="flex items-center bg-slate-800/30 rounded-lg p-1 gap-1">
           {sections.map((s: Section) => {
             const meta = sectionsMeta[s];
             const Icon = meta.icon;
@@ -85,22 +89,14 @@ export function Tabs() {
               <button
                 key={s}
                 className={`
-                  group relative p-3 rounded-xl border backdrop-blur-sm transition-all duration-200
-                  ${
-                    isActive
-                      ? `${meta.bgColor} ${meta.color} shadow-lg scale-105`
-                      : 'bg-slate-800/50 border-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700/50'
-                  }
+                  relative px-3 py-2 rounded-md transition-all duration-200 flex items-center space-x-1.5
+                  ${isActive ? 'bg-white/10 text-white shadow-sm' : 'text-slate-400 hover:text-white hover:bg-white/5'}
                 `}
                 onClick={() => dispatch(setSection(s))}
               >
-                <div className="flex flex-col items-center space-y-1">
-                  <Icon className="w-4 h-4" />
-                  <span className="text-xs font-medium">{meta.label}</span>
-                </div>
-                {isActive && (
-                  <div className="absolute inset-0 rounded-xl ring-2 ring-white/20 ring-offset-2 ring-offset-transparent"></div>
-                )}
+                <Icon className="w-3.5 h-3.5" />
+                <span className="text-xs font-medium hidden sm:inline">{meta.label}</span>
+                {isActive && <div className="absolute inset-0 rounded-md ring-1 ring-white/20"></div>}
               </button>
             );
           })}

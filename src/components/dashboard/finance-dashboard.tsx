@@ -198,28 +198,28 @@ export const FinanceDashboard: React.FC = () => {
             onClick={() => setActiveTab('home')}
             className="flex flex-col items-center p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-colors group"
           >
-            <TrendingUp className="h-4 w-4 text-blue-400 mb-1 group-hover:scale-110 transition-transform" />
+            <TrendingUp className="h-8 w-8 text-blue-400 mb-1 group-hover:scale-110 transition-transform" />
             <span className="text-xs text-white">Add</span>
           </button>
           <button
             onClick={() => setActiveTab('budget')}
             className="flex flex-col items-center p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-colors group"
           >
-            <PiggyBank className="h-4 w-4 text-green-400 mb-1 group-hover:scale-110 transition-transform" />
+            <PiggyBank className="h-8 w-8 text-green-400 mb-1 group-hover:scale-110 transition-transform" />
             <span className="text-xs text-white">Budget</span>
           </button>
           <button
             onClick={() => setActiveTab('goals')}
             className="flex flex-col items-center p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-colors group"
           >
-            <Target className="h-4 w-4 text-purple-400 mb-1 group-hover:scale-110 transition-transform" />
+            <Target className="h-8 w-8 text-purple-400 mb-1 group-hover:scale-110 transition-transform" />
             <span className="text-xs text-white">Goals</span>
           </button>
           <button
             onClick={() => setActiveTab('export')}
             className="flex flex-col items-center p-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 transition-colors group"
           >
-            <Award className="h-4 w-4 text-yellow-400 mb-1 group-hover:scale-110 transition-transform" />
+            <Award className="h-8 w-8 text-yellow-400 mb-1 group-hover:scale-110 transition-transform" />
             <span className="text-xs text-white">Export</span>
           </button>
         </div>
