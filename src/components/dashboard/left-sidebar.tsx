@@ -13,6 +13,7 @@ import {
   X,
   ChevronRight,
   Target,
+  Wallet,
 } from 'lucide-react';
 import { CurrencySelector, CurrencyDisplay } from '../currency';
 import { NotificationPanel } from '../notifications';
@@ -52,6 +53,13 @@ export const LeftSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, s
       label: 'Budgets',
       icon: PiggyBank,
       description: 'Manage budgets',
+      category: 'planning',
+    },
+    {
+      key: 'accounts',
+      label: 'Accounts',
+      icon: Wallet,
+      description: 'Manage accounts',
       category: 'planning',
     },
     {

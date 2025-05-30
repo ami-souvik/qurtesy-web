@@ -99,24 +99,35 @@ export const AccountSettings: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
+      {/* Page Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">Account Management</h1>
+        <p className="text-slate-400">Manage your financial accounts and keep your balances in sync</p>
+      </div>
+
+      {/* Summary Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-white mb-2">Account Management</h2>
-          <p className="text-sm text-slate-400">
-            Manage your accounts and adjust balances to keep your finances in sync
-          </p>
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+            <Wallet className="h-6 w-6 text-blue-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-white">
+              {accounts.length} Account{accounts.length !== 1 ? 's' : ''}
+            </h2>
+            <p className="text-sm text-slate-400">Track balances across all your financial accounts</p>
+          </div>
         </div>
 
         {/* Total Balance Card */}
-        <div className="glass-card rounded-lg p-4 lg:min-w-[200px]">
+        <div className="glass-card rounded-lg p-4 lg:min-w-[240px]">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <Wallet className="h-5 w-5 text-green-400" />
+              <DollarSign className="h-5 w-5 text-green-400" />
             </div>
             <div>
               <p className="text-xs text-slate-400 mb-1">Total Balance</p>
-              <p className="text-lg font-bold text-white">
+              <p className="text-xl font-bold text-white">
                 <CurrencyDisplay amount={getTotalBalance()} />
               </p>
             </div>
@@ -126,12 +137,8 @@ export const AccountSettings: React.FC = () => {
 
       {/* Create New Account Button */}
       {!isCreating && (
-        <Button
-          onClick={() => setIsCreating(true)}
-          leftIcon={<Plus className="h-4 w-4" />}
-          className="w-full lg:w-auto"
-        >
-          Add New Account
+        <Button onClick={() => setIsCreating(true)} leftIcon={<Plus className="h-4 w-4" />}>
+          <span className="hidden sm:inline">Add New Account</span>
         </Button>
       )}
 

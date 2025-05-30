@@ -35,7 +35,16 @@ import { Button } from '../action/button';
 export const FinanceDashboard: React.FC = () => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'home' | 'budget' | 'recurring' | 'goals' | 'investments' | 'export' | 'import' | 'settings'
+    | 'overview'
+    | 'home'
+    | 'budget'
+    | 'accounts'
+    | 'recurring'
+    | 'goals'
+    | 'investments'
+    | 'export'
+    | 'import'
+    | 'settings'
   >('overview');
 
   const transactions = useSelector((state: RootState) => state.dailyExpenses.transactions);
@@ -282,6 +291,7 @@ export const FinanceDashboard: React.FC = () => {
           {activeTab === 'overview' && <OverviewContent />}
           {activeTab === 'home' && <TransactionTracker />}
           {activeTab === 'budget' && <BudgetTracker />}
+          {activeTab === 'accounts' && <AccountSettings />}
           {activeTab === 'recurring' && <RecurringTransactionManager />}
           {activeTab === 'goals' && <GoalsContent />}
           {activeTab === 'investments' && <InvestmentsContent />}
@@ -292,7 +302,6 @@ export const FinanceDashboard: React.FC = () => {
               <div>
                 <h1 className="text-2xl font-bold text-white mb-4">Settings</h1>
               </div>
-              <AccountSettings />
               <CurrencySettings />
               <NotificationSettingsPanel />
             </div>
