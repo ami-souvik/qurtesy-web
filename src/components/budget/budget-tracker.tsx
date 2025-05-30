@@ -80,7 +80,7 @@ export const BudgetTracker: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Budget Overview */}
-      <div className="glass-card rounded-xl p-6">
+      <div className="rounded-2xl h-full animate-slide-in">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <PiggyBank className="h-6 w-6 text-blue-400" />

@@ -155,7 +155,7 @@ export const RecurringTransactionManager: React.FC = () => {
         </div>
       )}
       {/* Main Recurring Transactions */}
-      <div className="glass-card rounded-xl p-6">
+      <div className="rounded-2xl h-full animate-slide-in">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <Repeat className="h-6 w-6 text-blue-400" />

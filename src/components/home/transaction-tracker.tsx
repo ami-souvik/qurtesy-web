@@ -17,7 +17,7 @@ export const TransactionTracker: React.FC = () => {
 
       {/* Right Panel - Transactions */}
       {/* <div className="lg:col-span-2"> */}
-      <div className="glass-card rounded-2xl p-6 h-full animate-slide-in" style={{ animationDelay: '0.2s' }}>
+      <div className="rounded-2xl h-full animate-slide-in">
         <Tabs />
       </div>
       {/* </div> */}

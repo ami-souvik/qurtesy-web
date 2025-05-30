@@ -127,7 +127,7 @@ export function Transactions() {
         <div className="flex items-center space-x-2">
           <KeyboardShortcutsHelp />
           <Button leftIcon={<Plus className="h-4 w-4 mr-2" />}>
-            <span className="hidden sm:inline">Add Budget</span>
+            <span className="hidden sm:inline">Add Transaction</span>
           </Button>
           <button
             onClick={nextMonth}
