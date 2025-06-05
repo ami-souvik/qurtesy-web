@@ -98,6 +98,14 @@ export const AccountSettings: React.FC = () => {
     return accounts.reduce((total, account) => total + (account.balance || 0), 0);
   };
 
+  const getTotalCalculatedBalance = () => {
+    return accounts.reduce((total, account) => total + (account.calculated_balance || 0), 0);
+  };
+
+  const getTotalBalanceDifference = () => {
+    return getTotalBalance() - getTotalCalculatedBalance();
+  };
+
   const statCards: StatCard[] = [
     {
       label: 'Total Accounts',
@@ -107,13 +115,33 @@ export const AccountSettings: React.FC = () => {
       iconBgColor: 'bg-blue-500/20',
     },
     {
-      label: 'Total Balance',
+      label: 'Manual Balance',
       value: <CurrencyDisplay amount={getTotalBalance()} />,
       icon: DollarSign,
       iconColor: 'text-green-400',
       iconBgColor: 'bg-green-500/20',
       valueColor: getTotalBalance() >= 0 ? 'text-green-400' : 'text-red-400',
     },
+    {
+      label: 'From Transactions',
+      value: <CurrencyDisplay amount={getTotalCalculatedBalance()} />,
+      icon: TrendingUp,
+      iconColor: 'text-blue-400',
+      iconBgColor: 'bg-blue-500/20',
+      valueColor: getTotalCalculatedBalance() >= 0 ? 'text-green-400' : 'text-red-400',
+    },
+    ...(Math.abs(getTotalBalanceDifference()) > 0.01
+      ? [
+          {
+            label: 'Balance Difference',
+            value: <CurrencyDisplay amount={getTotalBalanceDifference()} />,
+            icon: AlertTriangle,
+            iconColor: 'text-amber-400',
+            iconBgColor: 'bg-amber-500/20',
+            valueColor: 'text-amber-400',
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -244,15 +272,40 @@ export const AccountSettings: React.FC = () => {
                     </div>
 
                     <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <p className="text-sm text-slate-400 mb-1">Balance</p>
-                        <p
-                          className={`text-lg font-semibold ${
-                            (account.balance || 0) >= 0 ? 'text-green-400' : 'text-red-400'
-                          }`}
-                        >
-                          <CurrencyDisplay amount={account.balance || 0} />
-                        </p>
+                      <div className="text-right space-y-2">
+                        {/* Manual Balance */}
+                        <div>
+                          <p className="text-xs text-slate-400 mb-1">Manual Balance</p>
+                          <p
+                            className={`text-lg font-semibold ${
+                              (account.balance || 0) >= 0 ? 'text-green-400' : 'text-red-400'
+                            }`}
+                          >
+                            <CurrencyDisplay amount={account.balance || 0} />
+                          </p>
+                        </div>
+
+                        {/* Calculated Balance */}
+                        <div>
+                          <p className="text-xs text-slate-400 mb-1">From Transactions</p>
+                          <p
+                            className={`text-sm font-medium ${
+                              (account.calculated_balance || 0) >= 0 ? 'text-green-300' : 'text-red-300'
+                            }`}
+                          >
+                            <CurrencyDisplay amount={account.calculated_balance || 0} />
+                          </p>
+                        </div>
+
+                        {/* Balance Difference Alert */}
+                        {Math.abs(account.balance_difference || 0) > 0.01 && (
+                          <div className="flex items-center space-x-1">
+                            <AlertTriangle className="w-3 h-3 text-amber-400" />
+                            <p className="text-xs text-amber-400">
+                              Diff: <CurrencyDisplay amount={account.balance_difference || 0} />
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex space-x-2">
@@ -284,10 +337,17 @@ export const AccountSettings: React.FC = () => {
       <div className="glass-card rounded-lg p-4 bg-slate-800/30 border border-slate-700/50">
         <h4 className="text-sm font-medium text-white mb-2">💡 Tips for Account Management</h4>
         <div className="text-xs text-slate-400 space-y-1">
-          <p>• Create separate accounts for different purposes (savings, checking, credit cards)</p>
-          <p>• Regularly update balances to keep your financial overview accurate</p>
-          <p>• Use descriptive names like "Chase Checking" or "Emergency Savings"</p>
-          <p>• Account balances are independent of your transaction history</p>
+          <p>
+            • <strong>Manual Balance:</strong> The balance you set manually for reconciliation
+          </p>
+          <p>
+            • <strong>From Transactions:</strong> Calculated by summing all your recorded transactions
+          </p>
+          <p>
+            • <strong>Balance Difference:</strong> Shows discrepancies between manual and calculated balances
+          </p>
+          <p>• Use balance adjustments to sync your accounts with bank statements</p>
+          <p>• Regularly check that both balances match for accurate financial tracking</p>
         </div>
       </div>
     </PageWrapper>

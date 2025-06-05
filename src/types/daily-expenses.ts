@@ -22,6 +22,8 @@ export type Account = {
   id: number;
   value: string;
   balance?: number;
+  calculated_balance?: number;
+  balance_difference?: number;
 };
 
 export type CreateAccount = {
