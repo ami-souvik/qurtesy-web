@@ -1,10 +1,13 @@
+import { forwardRef, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Section } from '../types/daily-expenses';
 import { Transactions } from './transaction/transactions';
 import { Transfer } from './transfer/transfer';
 import { AppDispatch, RootState } from '../store.types';
 import { setSection } from '../slices/daily-expenses-slice';
-import { CreditCard, TrendingDown, TrendingUp, ArrowLeftRight, PiggyBank, HandHeart, Users } from 'lucide-react';
+import { CreditCard, TrendingDown, TrendingUp, ArrowLeftRight, PiggyBank, HandHeart, Users, Plus } from 'lucide-react';
+import { Button } from './action/button';
+import { KeyboardShortcutsHelp } from './ui/keyboard-shortcuts-help';
 
 const sections: Section[] = ['EXPENSE', 'INCOME', 'TRANSFER', 'INVESTMENT', 'LEND', 'SPLIT'];
 
@@ -47,9 +50,9 @@ const sectionsMeta = {
   },
 };
 
-export function Tab({ active }: { active: string }) {
-  if (active == 'EXPENSE' || active == 'INCOME' || active == 'INVESTMENT') return <Transactions />;
-  else if (active == 'TRANSFER') return <Transfer />;
+export const Tab = forwardRef(function Tab({ active }: { active: string }, ref) {
+  if (active == 'EXPENSE' || active == 'INCOME' || active == 'INVESTMENT') return <Transactions ref={ref} />;
+  else if (active == 'TRANSFER') return <Transfer ref={ref} />;
   else
     return (
       <div className="flex items-center justify-center h-64 text-slate-400">
@@ -61,23 +64,17 @@ export function Tab({ active }: { active: string }) {
         </div>
       </div>
     );
-}
+});
 
 export function Tabs() {
+  const tabRef = useRef(null);
   const dispatch = useDispatch<AppDispatch>();
   const section = useSelector((state: RootState) => state.dailyExpenses.section);
-
+  const handleAdd = () => tabRef.current.handleAdd();
   return (
     <div className="h-full flex flex-col">
       {/* Compact Tab Navigation */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-            <PiggyBank className="h-4 w-4 text-blue-400" />
-          </div>
-          <h2 className="text-lg font-semibold text-white">Transaction Overview</h2>
-        </div>
-
         {/* Modern Tab Pills */}
         <div className="flex items-center bg-slate-800/30 rounded-lg p-1 gap-1">
           {sections.map((s: Section) => {
@@ -101,11 +98,17 @@ export function Tabs() {
             );
           })}
         </div>
+        <div>
+          <KeyboardShortcutsHelp />
+          <Button onClick={handleAdd} leftIcon={<Plus className="h-4 w-4 mr-2" />}>
+            <span className="hidden sm:inline">Add Transaction</span>
+          </Button>
+        </div>
       </div>
 
       {/* Tab Content */}
       <div className="flex-1 overflow-hidden">
-        <Tab active={section} />
+        <Tab ref={tabRef} active={section} />
       </div>
     </div>
   );

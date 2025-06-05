@@ -89,7 +89,7 @@ export const SpendingTrendsChart: React.FC = () => {
         <TrendingUp className="h-5 w-5 text-blue-400" />
         <h3 className="text-lg font-semibold text-white">Spending Trends</h3>
       </div>
-      <div className="h-64">
+      <div className="h-96">
         <Line data={getDailySpendingData()} options={chartOptions} />
       </div>
     </div>

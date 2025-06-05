@@ -17,7 +17,7 @@ export type TransferFormProps = {
   note?: string;
 };
 
-export function TransferForm({ formRef }) {
+export function TransferFormModal() {
   const dispatch = useDispatch<AppDispatch>();
   const { accounts } = useSelector((state: RootState) => state.dailyExpenses);
   const { register, handleSubmit, control, reset } = useForm<TransferFormProps>();
@@ -49,29 +49,8 @@ export function TransferForm({ formRef }) {
     });
   };
 
-  if (formRef && formRef.current) {
-    formRef.current.set = (data: TransferFormProps) => {
-      reset(data);
-    };
-    formRef.current.reset = () => {
-      reset({
-        date: new Date(),
-        amount: 0,
-        from_account_id: accounts[0]?.id,
-        to_account_id: accounts[0]?.id,
-      });
-    };
-  }
-
   return (
-    <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
-          <ArrowLeftRight className="w-5 h-5" />
-          <span>Transfer Funds</span>
-        </h3>
-      </div>
-
+    <div className="space-y-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* First Row - Date and Amount */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

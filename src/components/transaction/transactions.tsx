@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Calendar, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import {
   fetchTransactions,
   deleteTransaction,
@@ -16,10 +16,8 @@ import { Modal } from '../ui/modal';
 import { Transaction } from './transaction';
 import { TransactionHeader } from './transaction-header';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
-import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
-import { Button } from '../action/button';
 
-export function Transactions() {
+export const Transactions = forwardRef(function Transactions(props, ref) {
   const dispatch = useDispatch<AppDispatch>();
   const { section, yearmonth, transactions } = useSelector((state: RootState) => state.dailyExpenses);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,21 +63,22 @@ export function Transactions() {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
+  const handleClose = () => {
     setIsModalOpen(false);
     setEditingTransaction(undefined);
   };
 
-  const handleOpenNewTransaction = () => {
+  const handleAdd = () => {
     setEditingTransaction(undefined);
     setIsModalOpen(true);
   };
 
   // Keyboard shortcuts
-  useKeyboardShortcuts(
-    [commonShortcuts.newTransaction(handleOpenNewTransaction), commonShortcuts.escape(handleCloseModal)],
-    true
-  );
+  useKeyboardShortcuts([commonShortcuts.newTransaction(handleAdd), commonShortcuts.escape(handleClose)], true);
+
+  useImperativeHandle(ref, () => ({
+    handleAdd,
+  }));
 
   const handleDelete = (id: number) => {
     if (confirm('Do you want to delete this transaction?')) dispatch(deleteTransaction(id));
@@ -125,10 +124,6 @@ export function Transactions() {
         </div>
 
         <div className="flex items-center space-x-2">
-          <KeyboardShortcutsHelp />
-          <Button leftIcon={<Plus className="h-4 w-4 mr-2" />}>
-            <span className="hidden sm:inline">Add Transaction</span>
-          </Button>
           <button
             onClick={nextMonth}
             className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
@@ -210,12 +205,12 @@ export function Transactions() {
       {/* Transaction Modal */}
       <Modal
         isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        onClose={handleClose}
         title={editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
         size="md"
       >
-        <TransactionFormModal initialData={editingTransaction} onSuccess={handleCloseModal} />
+        <TransactionFormModal initialData={editingTransaction} onSuccess={handleClose} />
       </Modal>
     </div>
   );
-}
+});

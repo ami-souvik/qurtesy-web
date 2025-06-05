@@ -31,6 +31,7 @@ import {
 import { TransactionTracker } from '../home/transaction-tracker';
 import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
 import { Button } from '../action/button';
+import { PhonePeImporter } from '../import';
 
 export const FinanceDashboard: React.FC = () => {
   const dispatch = useDispatch();
@@ -150,24 +151,8 @@ export const FinanceDashboard: React.FC = () => {
 
         {/* Compact Charts Section */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <div className="glass-card rounded-lg p-4">
-            <h3 className="text-base font-medium text-white mb-3 flex items-center">
-              <TrendingUp className="w-4 h-4 mr-2 text-blue-400" />
-              Spending Trends
-            </h3>
-            <div className="">
-              <SpendingTrendsChart />
-            </div>
-          </div>
-          <div className="glass-card rounded-lg p-4">
-            <h3 className="text-base font-medium text-white mb-3 flex items-center">
-              <Activity className="w-4 h-4 mr-2 text-purple-400" />
-              Category Breakdown
-            </h3>
-            <div className="">
-              <CategoryBreakdownChart />
-            </div>
-          </div>
+          <SpendingTrendsChart />
+          <CategoryBreakdownChart />
         </div>
 
         {/* Streamlined Quick Actions */}

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { Edit3, ChevronLeft, ChevronRight, Trash2, ArrowLeftRight } from 'lucide-react';
@@ -12,12 +12,15 @@ import {
 import { AppDispatch, RootState } from '../../store.types';
 import { groupByDate } from '../../utils/transaction';
 import { DAYS, MONTHS, formatdate } from '../../utils/datetime';
-import { TransferForm, type TransferFormProps } from '../form/transfer-form';
+import { TransferFormModal, type TransferFormProps } from '../form/transfer-form-modal';
+import { Modal } from '../ui/modal';
+import { commonShortcuts, useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
-export function Transfer() {
+export const Transfer = forwardRef(function Transfer(props, ref) {
   const dispatch = useDispatch<AppDispatch>();
   const { section, accounts, yearmonth, transactions } = useSelector((state: RootState) => state.dailyExpenses);
-  const formRef = useRef();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTransfer, setEditingTransfer] = useState<TransferFormProps | undefined>(undefined);
 
   const setMonth = (m: number) => dispatch(setYearMonth([yearmonth[0], m]));
   const setYear = (y: number) => dispatch(setYearMonth([y, yearmonth[1]]));
@@ -66,6 +69,23 @@ export function Transfer() {
       });
     }
   }, [accounts, reset]);
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setEditingTransfer(undefined);
+  };
+
+  const handleAdd = () => {
+    setEditingTransfer(undefined);
+    setIsModalOpen(true);
+  };
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([commonShortcuts.newTransaction(handleAdd), commonShortcuts.escape(handleClose)], true);
+
+  useImperativeHandle(ref, () => ({
+    handleAdd,
+  }));
 
   const handleDelete = (id: number) => {
     if (confirm('Do you want to delete this transfer?')) dispatch(deleteTransaction(id));
@@ -119,9 +139,14 @@ export function Transfer() {
       </div>
 
       {/* Transfer Form */}
-      <div className="mb-6">
-        <TransferForm formRef={formRef} />
-      </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleClose}
+        title={editingTransfer ? 'Edit Transaction' : 'Add New Transaction'}
+        size="md"
+      >
+        <TransferFormModal initialData={editingTransfer} onSuccess={handleClose} />
+      </Modal>
 
       {/* Transfers List */}
       <div className="flex-1 overflow-auto space-y-6">
@@ -235,4 +260,4 @@ export function Transfer() {
       </div>
     </div>
   );
-}
+});
