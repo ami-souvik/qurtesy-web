@@ -21,6 +21,7 @@ interface TransactionFormModalProps {
   initialData?: TransactionFormProps;
   onSuccess: () => void;
 }
+
 export function TransactionFormModal({ initialData, onSuccess }: TransactionFormModalProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
@@ -39,16 +40,44 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
     formState: { errors, isValid },
   } = useForm<TransactionFormProps>({
     mode: 'onChange',
+    defaultValues: {
+      id: undefined,
+      date: new Date(),
+      amount: 0,
+      category_id: undefined,
+      account_id: undefined,
+      note: '',
+    },
   });
 
   // Auto-save draft functionality
   const watchedData = watch();
+
+  // Additional effect to ensure form is clean when switching modes
+  useEffect(() => {
+    // If we're switching from editing to adding (initialData changes from having id to undefined)
+    if (!initialData) {
+      // Force clear the id field to ensure we're not editing
+      setValue('id', undefined);
+    }
+  }, [initialData, setValue]);
+
+  // Cleanup effect to reset form when component unmounts
+  useEffect(() => {
+    return () => {
+      // Clear any drafts when component unmounts
+      if (!initialData) {
+        localStorage.removeItem('transaction-draft');
+      }
+    };
+  }, [initialData]);
 
   useEffect(() => {
     if (!initialData && watchedData.amount > 0) {
       const draftKey = 'transaction-draft';
       const draftData = {
         ...watchedData,
+        id: undefined, // Never save id in drafts
         date: watchedData.date?.toISOString(),
       };
       localStorage.setItem(draftKey, JSON.stringify(draftData));
@@ -71,6 +100,16 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
     if (initialData) {
       reset(initialData);
     } else {
+      // For new transactions, explicitly clear the id and load fresh data
+      const baseFormData = {
+        id: undefined, // Explicitly clear the id for new transactions
+        date: new Date(),
+        amount: 0,
+        category_id: categories.length > 0 ? categories[0]?.id : undefined,
+        account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+        note: '',
+      };
+
       // Try to load draft
       const draftKey = 'transaction-draft';
       const savedDraft = localStorage.getItem(draftKey);
@@ -78,17 +117,15 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
         try {
           const draft = JSON.parse(savedDraft);
           if (draft.date) draft.date = new Date(draft.date);
-          reset(draft);
+          // Ensure no id is carried over from drafts
+          draft.id = undefined;
+          reset({ ...baseFormData, ...draft });
         } catch (e) {
           console.error('Failed to load draft:', e);
+          reset(baseFormData);
         }
-      } else if (categories.length > 0 && accounts.length > 0) {
-        reset({
-          date: new Date(),
-          amount: 0,
-          category_id: categories[0]?.id,
-          account_id: accounts[0]?.id,
-        });
+      } else {
+        reset(baseFormData);
       }
     }
   }, [categories, accounts, initialData, reset]);
@@ -97,16 +134,21 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
     setError(null);
 
     const { id, date, ...rest } = data;
+
+    // Determine if this is an edit or create operation
+    const isEditOperation = id && id > 0;
+
     try {
-      if (id) {
+      if (isEditOperation) {
         await dispatch(
           updateTransaction({
-            id,
+            id: id!,
             date: date.toLocaleDateString('en-GB'),
             ...rest,
           })
         ).unwrap();
       } else {
+        // Ensure we're creating a new transaction (no id)
         await dispatch(
           createTransaction({
             date: date.toLocaleDateString('en-GB'),
@@ -117,7 +159,7 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
         // Save to recent transactions
         const recent = JSON.parse(localStorage.getItem('recent-transactions') || '[]') as TransactionFormProps[];
         const newRecent = [
-          data,
+          { ...data, id: undefined }, // Remove any id when saving to recent
           ...recent.filter(
             (t: TransactionFormProps) => !(t.category_id === data.category_id && t.account_id === data.account_id)
           ),
@@ -127,6 +169,19 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
         // Clear draft
         localStorage.removeItem('transaction-draft');
       }
+
+      // Reset form to initial clean state for new transactions
+      if (!isEditOperation) {
+        reset({
+          id: undefined,
+          date: new Date(),
+          amount: 0,
+          category_id: categories.length > 0 ? categories[0]?.id : undefined,
+          account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+          note: '',
+        });
+      }
+
       onSuccess();
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save transaction. Please try again.';
@@ -143,7 +198,9 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
     setValue('amount', recent.amount);
   };
 
-  const isEditing = !!watch('id');
+  const currentFormData = watch();
+  const isEditing = !!(initialData?.id || currentFormData.id);
+
   return (
     <div className="space-y-6">
       {/* Error Display */}
@@ -192,6 +249,9 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
         </div>
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Hidden ID field for form state management */}
+        <input type="hidden" {...register('id')} />
+
         {/* First Row - Date and Amount */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
