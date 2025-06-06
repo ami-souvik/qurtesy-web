@@ -18,6 +18,8 @@ import {
   CreditCard,
   Landmark,
   PiggyBank,
+  TrendingUp,
+  AlertTriangle,
 } from 'lucide-react';
 
 const accountIcons = {
