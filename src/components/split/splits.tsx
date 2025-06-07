@@ -289,7 +289,7 @@ export const Splits = forwardRef(function Splits(props, ref) {
                               className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg"
                             >
                               <div>
-                                <p className="text-sm font-medium text-white">{participant.account.value}</p>
+                                <p className="text-sm font-medium text-white">{participant.profile.name}</p>
                                 <p className="text-xs text-slate-400">₹{participant.share_amount.toFixed(2)}</p>
                               </div>
                               <button

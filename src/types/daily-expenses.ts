@@ -156,9 +156,36 @@ export type UpdateRecurringTransaction = {
   note?: string;
 };
 
+export type Profile = {
+  id: number;
+  name: string;
+  email?: string;
+  phone?: string;
+  avatar_url?: string;
+  default_account?: Account;
+  is_self: boolean;
+};
+
+export type CreateProfile = {
+  name: string;
+  email?: string;
+  phone?: string;
+  avatar_url?: string;
+  default_account_id?: number;
+  is_self?: boolean;
+};
+
+export type UpdateProfile = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  avatar_url?: string;
+  default_account_id?: number;
+};
+
 export type SplitParticipant = {
   id?: number;
-  account: Account;
+  profile: Profile;
   share_amount: number;
   is_paid: boolean;
 };
@@ -178,7 +205,7 @@ export type SplitTransaction = {
 };
 
 export type CreateSplitParticipant = {
-  account_id: number;
+  profile_id: number;
 };
 
 export type CreateSplitTransaction = {

@@ -12,6 +12,9 @@ import {
   CreateSplitTransaction,
   UpdateSplitTransaction,
   SplitTransaction,
+  Profile,
+  CreateProfile,
+  UpdateProfile,
 } from '../types/daily-expenses';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -261,6 +264,47 @@ export const updateParticipantPaymentStatus = async (
 ): Promise<{ message: string }> => {
   return axios
     .patch(`${BASE_URL}/api/splits/${splitId}/participants/${participantId}`, { is_paid: isPaid })
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+// Profile APIs
+export const getProfiles = async (): Promise<Profile[]> => {
+  return axios
+    .get(`${BASE_URL}/api/profiles/`)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      return [];
+    });
+};
+
+export const createProfile = async (data: CreateProfile): Promise<{ message: string; profile_id: number }> => {
+  return axios
+    .post(`${BASE_URL}/api/profiles/`, data)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const updateProfile = async (id: number, data: UpdateProfile): Promise<{ message: string }> => {
+  return axios
+    .put(`${BASE_URL}/api/profiles/${id}`, data)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const deleteProfile = async (id: number): Promise<{ message: string }> => {
+  return axios
+    .delete(`${BASE_URL}/api/profiles/${id}`)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log(err);

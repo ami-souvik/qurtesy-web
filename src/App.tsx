@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import store from './store';
 import './utils/firebase';
 import { MainPage, LandingPage } from './pages';
+import SplitTester from './components/SplitTester';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Routes>
             <Route path="/" element={<MainPage />} />
             <Route path="/landing" element={<LandingPage />} />
+            <Route path="/test-split" element={<SplitTester />} />
             <Route
               path="*"
               element={

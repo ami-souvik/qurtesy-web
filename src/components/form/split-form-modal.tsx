@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
 import { X, Users, Calendar, DollarSign, Loader2, AlertCircle, UserPlus } from 'lucide-react';
 import { RootState } from '../../store.types';
+import { Profile } from '../../types/daily-expenses';
 
 export type SplitFormProps = {
   name: string;
@@ -13,7 +14,7 @@ export type SplitFormProps = {
   date: Date;
   category_id?: number;
   created_by_account_id: number;
-  participants: { account_id: number }[];
+  participants: { profile_id: number }[];
   note?: string;
 };
 
@@ -23,8 +24,11 @@ interface SplitFormModalProps {
 
 export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
   const { categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showNewProfileForm, setShowNewProfileForm] = useState(false);
+  const [newProfileName, setNewProfileName] = useState('');
 
   const {
     register,
@@ -41,7 +45,7 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
       date: new Date(),
       category_id: undefined,
       created_by_account_id: undefined,
-      participants: [{ account_id: 0 }],
+      participants: [{ profile_id: 0 }],
       note: '',
     },
   });
@@ -54,19 +58,36 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
   const watchedData = watch();
   const shareAmount = watchedData.total_amount && fields.length > 0 ? watchedData.total_amount / fields.length : 0;
 
+  // Load profiles on component mount
   useEffect(() => {
-    if (accounts.length > 0) {
+    const loadProfiles = async () => {
+      try {
+        const { getProfiles } = await import('../../webservices/daily-expenses-ws');
+        const profileData = await getProfiles();
+        setProfiles(profileData);
+      } catch (error) {
+        console.error('Failed to load profiles:', error);
+      }
+    };
+    loadProfiles();
+  }, []);
+
+  useEffect(() => {
+    if (accounts.length > 0 && profiles.length > 0) {
+      // Find the self profile to use as default participant
+      const selfProfile = profiles.find((p) => p.is_self);
+
       reset({
         name: '',
         total_amount: 0,
         date: new Date(),
         category_id: categories.find((c) => c.section === 'EXPENSE')?.id,
         created_by_account_id: accounts[0]?.id,
-        participants: [{ account_id: accounts[0]?.id }],
+        participants: selfProfile ? [{ profile_id: selfProfile.id }] : [{ profile_id: profiles[0]?.id || 0 }],
         note: '',
       });
     }
-  }, [categories, accounts, reset]);
+  }, [categories, accounts, profiles, reset]);
 
   const onSubmit = async (data: SplitFormProps) => {
     setIsLoading(true);
@@ -87,13 +108,14 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
       });
 
       // Reset form
+      const selfProfile = profiles.find((p) => p.is_self);
       reset({
         name: '',
         total_amount: 0,
         date: new Date(),
         category_id: categories.find((c) => c.section === 'EXPENSE')?.id,
         created_by_account_id: accounts[0]?.id,
-        participants: [{ account_id: accounts[0]?.id }],
+        participants: selfProfile ? [{ profile_id: selfProfile.id }] : [{ profile_id: profiles[0]?.id || 0 }],
         note: '',
       });
 
@@ -107,12 +129,12 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
   };
 
   const addParticipant = () => {
-    if (accounts.length > fields.length) {
-      // Find an account that's not already added
-      const usedAccountIds = fields.map((field) => field.account_id);
-      const availableAccount = accounts.find((account) => !usedAccountIds.includes(account.id));
-      if (availableAccount) {
-        append({ account_id: availableAccount.id });
+    if (profiles.length > fields.length) {
+      // Find a profile that's not already added
+      const usedProfileIds = fields.map((field) => field.profile_id);
+      const availableProfile = profiles.find((profile) => !usedProfileIds.includes(profile.id));
+      if (availableProfile) {
+        append({ profile_id: availableProfile.id });
       }
     }
   };
@@ -120,6 +142,26 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
   const removeParticipant = (index: number) => {
     if (fields.length > 1) {
       remove(index);
+    }
+  };
+
+  const createNewProfile = async () => {
+    if (!newProfileName.trim()) return;
+
+    try {
+      const { createProfile } = await import('../../webservices/daily-expenses-ws');
+      await createProfile({ name: newProfileName.trim(), is_self: false });
+
+      // Reload profiles
+      const { getProfiles } = await import('../../webservices/daily-expenses-ws');
+      const profileData = await getProfiles();
+      setProfiles(profileData);
+
+      setNewProfileName('');
+      setShowNewProfileForm(false);
+    } catch (error) {
+      console.error('Failed to create profile:', error);
+      setError('Failed to create new profile');
     }
   };
 
@@ -261,16 +303,60 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
         <div>
           <div className="flex items-center justify-between mb-4">
             <label className="block text-sm font-medium text-slate-300">Participants ({fields.length})</label>
-            <button
-              type="button"
-              onClick={addParticipant}
-              disabled={accounts.length <= fields.length}
-              className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <UserPlus className="w-3 h-3" />
-              <span>Add</span>
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={() => setShowNewProfileForm(!showNewProfileForm)}
+                className="flex items-center space-x-1 px-3 py-1 text-sm bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg transition-colors"
+              >
+                <UserPlus className="w-3 h-3" />
+                <span>New Profile</span>
+              </button>
+              <button
+                type="button"
+                onClick={addParticipant}
+                disabled={profiles.length <= fields.length}
+                className="flex items-center space-x-1 px-3 py-1 text-sm bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <UserPlus className="w-3 h-3" />
+                <span>Add</span>
+              </button>
+            </div>
           </div>
+
+          {/* Quick Profile Creation */}
+          {showNewProfileForm && (
+            <div className="mb-4 p-3 bg-slate-700/30 rounded-lg border border-slate-600/50">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  value={newProfileName}
+                  onChange={(e) => setNewProfileName(e.target.value)}
+                  placeholder="Enter profile name"
+                  className="flex-1 px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded text-white focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  onKeyPress={(e) => e.key === 'Enter' && createNewProfile()}
+                />
+                <button
+                  type="button"
+                  onClick={createNewProfile}
+                  disabled={!newProfileName.trim()}
+                  className="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Create
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNewProfileForm(false);
+                    setNewProfileName('');
+                  }}
+                  className="p-2 text-slate-400 hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-3">
             {fields.map((field, index) => (
@@ -278,14 +364,14 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
                 <div className="flex-1">
                   <select
                     className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600/50 rounded text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    {...register(`participants.${index}.account_id` as const, { required: true })}
+                    {...register(`participants.${index}.profile_id` as const, { required: true })}
                   >
                     <option value="" className="bg-slate-800">
                       Select participant
                     </option>
-                    {accounts.map(({ id, value }) => (
+                    {profiles.map(({ id, name }) => (
                       <option key={id} value={id} className="bg-slate-800">
-                        {value}
+                        {name}
                       </option>
                     ))}
                   </select>
