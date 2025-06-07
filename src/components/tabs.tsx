@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Section } from '../types/daily-expenses';
 import { Transactions } from './transaction/transactions';
 import { Transfer } from './transfer/transfer';
+import { Splits } from './split/splits';
 import { AppDispatch, RootState } from '../store.types';
 import { setSection } from '../slices/daily-expenses-slice';
 import { CreditCard, TrendingDown, TrendingUp, ArrowLeftRight, PiggyBank, HandHeart, Users, Plus } from 'lucide-react';
@@ -53,6 +54,7 @@ const sectionsMeta = {
 export const Tab = forwardRef(function Tab({ active }: { active: string }, ref) {
   if (active == 'EXPENSE' || active == 'INCOME' || active == 'INVESTMENT') return <Transactions ref={ref} />;
   else if (active == 'TRANSFER') return <Transfer ref={ref} />;
+  else if (active == 'SPLIT') return <Splits ref={ref} />;
   else
     return (
       <div className="flex items-center justify-center h-64 text-slate-400">

@@ -9,6 +9,9 @@ import {
   Account,
   CreateAccount,
   TransactionSummary,
+  CreateSplitTransaction,
+  UpdateSplitTransaction,
+  SplitTransaction,
 } from '../types/daily-expenses';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -198,6 +201,66 @@ export const getSpendingTrends = async (months: number = 6) => {
 export const bulkCreateTransactions = async (transactions: CreateTransaction[]) => {
   return axios
     .post(`${BASE_URL}/api/transactions/bulk`, transactions)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+// Split Transaction APIs
+export const getSplitTransactions = async (): Promise<SplitTransaction[]> => {
+  return axios
+    .get(`${BASE_URL}/api/splits/`)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      return [];
+    });
+};
+
+export const createSplitTransaction = async (
+  data: CreateSplitTransaction
+): Promise<{ message: string; split_transaction_id: number; share_amount: number }> => {
+  return axios
+    .post(`${BASE_URL}/api/splits/`, data)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const updateSplitTransaction = async (
+  id: number,
+  data: UpdateSplitTransaction
+): Promise<{ message: string }> => {
+  return axios
+    .put(`${BASE_URL}/api/splits/${id}`, data)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const deleteSplitTransaction = async (id: number): Promise<{ message: string }> => {
+  return axios
+    .delete(`${BASE_URL}/api/splits/${id}`)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const updateParticipantPaymentStatus = async (
+  splitId: number,
+  participantId: number,
+  isPaid: boolean
+): Promise<{ message: string }> => {
+  return axios
+    .patch(`${BASE_URL}/api/splits/${splitId}/participants/${participantId}`, { is_paid: isPaid })
     .then((resp) => resp.data)
     .catch((err) => {
       console.log(err);
