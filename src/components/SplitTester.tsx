@@ -26,7 +26,6 @@ const SplitTester = () => {
   const runTest = async () => {
     setLoading(true);
     setTestResults([]);
-
     try {
       // Test 1: Check profiles API
       addResult('info', 'Testing profiles API...');
@@ -125,13 +124,15 @@ const SplitTester = () => {
               <span className="text-white">{result.message}</span>
               <span className="text-slate-400 text-sm">{result.timestamp}</span>
             </div>
-            {result.data && (
+            {result.data ? (
               <details className="mt-2">
                 <summary className="text-slate-300 cursor-pointer">View Data</summary>
                 <pre className="mt-2 p-2 bg-slate-900/50 rounded text-xs text-slate-300 overflow-auto">
                   {JSON.stringify(result.data, null, 2)}
                 </pre>
               </details>
+            ) : (
+              <></>
             )}
           </div>
         ))}

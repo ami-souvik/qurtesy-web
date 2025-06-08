@@ -145,7 +145,10 @@ export const Transfer = forwardRef(function Transfer(_props, ref) {
         title={editingTransfer ? 'Edit Transaction' : 'Add New Transaction'}
         size="md"
       >
-        <TransferFormModal initialData={editingTransfer} onSuccess={handleClose} />
+        <TransferFormModal
+        // initialData={editingTransfer}
+        // onSuccess={handleClose}
+        />
       </Modal>
 
       {/* Transfers List */}
@@ -225,15 +228,15 @@ export const Transfer = forwardRef(function Transfer(_props, ref) {
                               className="p-2 text-slate-400 hover:text-blue-400 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
                               onClick={() =>
                                 reset({
-                                  id: v.id,
+                                  id: String(v.id),
                                   date: new Date(
                                     Number(v.date.substring(6, 10)),
                                     Number(v.date.substring(3, 5)) - 1,
                                     Number(v.date.substring(0, 2))
                                   ),
                                   amount: v.amount,
-                                  from_account_id: v.category.id,
-                                  to_account_id: v.account.id,
+                                  from_account_id: v.category?.id,
+                                  to_account_id: v.account?.id,
                                 })
                               }
                               title="Edit transfer"

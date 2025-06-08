@@ -59,9 +59,19 @@ const addPhonePeTransactions = async () => {
 };
 
 // Categorized summary
-const getCategorySummary = () => {
-  const transactions = addPhonePeTransactions();
-  const categories = {};
+const getCategorySummary = async () => {
+  const transactions: {
+    merchant: string;
+    amount: number;
+    date: string;
+    category: string;
+  }[] = await addPhonePeTransactions();
+  const categories: {
+    [key: string]: {
+      count: number;
+      total: number;
+    };
+  } = {};
 
   transactions.forEach((t) => {
     if (!categories[t.category]) {

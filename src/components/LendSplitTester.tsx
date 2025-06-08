@@ -213,13 +213,15 @@ const LendSplitTester = () => {
               <span className="text-white font-medium">{result.message}</span>
               <span className="text-slate-400 text-sm">{result.timestamp}</span>
             </div>
-            {result.data && (
+            {result.data ? (
               <details className="mt-2">
                 <summary className="text-slate-300 cursor-pointer text-sm hover:text-white">View Details</summary>
                 <pre className="mt-2 p-3 bg-slate-900/50 rounded text-xs text-slate-300 overflow-auto max-h-40">
                   {JSON.stringify(result.data, null, 2)}
                 </pre>
               </details>
+            ) : (
+              <></>
             )}
           </div>
         ))}

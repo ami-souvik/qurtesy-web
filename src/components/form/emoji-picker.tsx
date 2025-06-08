@@ -12,9 +12,10 @@ import {
 } from 'react-icons/io5';
 import { PiDogBold } from 'react-icons/pi';
 import { RiEmojiStickerLine } from 'react-icons/ri';
+import { IconType } from 'react-icons/lib';
 import { emojis } from './emojis';
 
-const cats = {
+const cats: { [k: string]: IconType } = {
   'Smileys & Emotion': FaRegSmile,
   'People & Body': IoPeopleOutline,
   'Animals & Nature': PiDogBold,
@@ -26,7 +27,7 @@ const cats = {
   Flags: IoFlagOutline,
 };
 
-export function EmojiPicker({ name, control }) {
+export function EmojiPicker({ name, control }: { name: string; control: unknown }) {
   const modalRef = useRef(null);
   const [visible, setVisible] = useState(false);
   const [category, setCategory] = useState('Smileys & Emotion');

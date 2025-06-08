@@ -29,8 +29,8 @@ export function CategoryForm() {
   const add = () => {
     reset({
       id: null,
-      emoji: null,
       value: null,
+      emoji: null,
     });
   };
   const onSubmit = (data: CreateCategory | UpdateCategory) => {
