@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, Control, FieldValues } from 'react-hook-form';
 import { FaRegSmile } from 'react-icons/fa';
 import {
   IoPeopleOutline,
@@ -27,14 +27,19 @@ const cats: { [k: string]: IconType } = {
   Flags: IoFlagOutline,
 };
 
-export function EmojiPicker({ name, control }: { name: string; control: unknown }) {
-  const modalRef = useRef(null);
+interface EmojiPickerProps<T extends FieldValues = FieldValues> {
+  name: string;
+  control: Control<T>;
+}
+
+export function EmojiPicker<T extends FieldValues = FieldValues>({ name, control }: EmojiPickerProps<T>) {
+  const modalRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [category, setCategory] = useState('Smileys & Emotion');
   const close = () => setVisible(false);
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         close();
       }
     };
@@ -65,9 +70,10 @@ export function EmojiPicker({ name, control }: { name: string; control: unknown 
               <div className="absolute top-0 translate-x-[-25%] bg-black border border-[#687384] rounded-md top-3 p-2">
                 <div className="flex items-center gap-2 pb-2 border-b border-[#687384]">
                   {Object.keys(emojis).map((cat) => {
-                    const Category = cats[cat];
+                    const Category = cats[cat as keyof typeof cats];
                     return (
                       <div
+                        key={cat}
                         className="p-1 cursor-pointer rounded-xl"
                         style={{
                           backgroundColor: category === cat ? '#687384' : undefined,
@@ -83,19 +89,23 @@ export function EmojiPicker({ name, control }: { name: string; control: unknown 
                   <p>{category}</p>
                 </div>
                 <div className="h-[16rem] flex flex-wrap gap-2 overflow-auto">
-                  {Object.values(emojis[category]).map((array) =>
-                    array.map((v) => (
-                      <div
-                        className="cursor-pointer"
-                        onClick={() => {
-                          onChange(v.emoji);
-                          close();
-                        }}
-                      >
-                        <p className="text-2xl">{v.emoji}</p>
-                      </div>
-                    ))
-                  )}
+                  {emojis[category as keyof typeof emojis] &&
+                    Object.values(emojis[category as keyof typeof emojis]).map(
+                      (array: unknown) =>
+                        Array.isArray(array) &&
+                        array.map((v: { emoji: string; name: string }) => (
+                          <div
+                            key={v.name}
+                            className="cursor-pointer"
+                            onClick={() => {
+                              onChange(v.emoji);
+                              close();
+                            }}
+                          >
+                            <p className="text-2xl">{v.emoji}</p>
+                          </div>
+                        ))
+                    )}
                 </div>
               </div>
             )}

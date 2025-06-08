@@ -17,7 +17,11 @@ export type TransactionFormProps = {
   note?: string;
 };
 
-export function TransactionForm({ formRef }) {
+interface TransactionFormComponentProps {
+  formRef: React.RefObject<HTMLFormElement>;
+}
+
+export function TransactionForm({ formRef }: TransactionFormComponentProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
   const { register, handleSubmit, control, watch, reset } = useForm<TransactionFormProps>();

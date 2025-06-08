@@ -7,12 +7,18 @@ import { Category, CreateCategory, UpdateCategory } from '../../types/daily-expe
 import { createCategory, updateCategory, deleteCategory } from '../../slices/daily-expenses-slice';
 import { EmojiPicker } from './emoji-picker';
 
+interface CategoryFormData {
+  id?: number;
+  value: string;
+  emoji?: string;
+}
+
 export function CategoryForm() {
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         setVisible(false);
       }
     };
@@ -25,20 +31,20 @@ export function CategoryForm() {
   }, [visible]);
   const dispatch = useDispatch<AppDispatch>();
   const { categories } = useSelector((state: RootState) => state.dailyExpenses);
-  const { register, handleSubmit, control, reset, setValue } = useForm<CreateCategory | UpdateCategory>();
+  const { register, handleSubmit, control, reset, setValue } = useForm<CategoryFormData>();
   const add = () => {
     reset({
-      id: null,
-      value: null,
-      emoji: null,
+      value: '',
+      emoji: undefined,
     });
   };
-  const onSubmit = (data: CreateCategory | UpdateCategory) => {
+  const onSubmit = (data: CategoryFormData) => {
     if (data?.id) {
-      dispatch(updateCategory(data));
+      dispatch(updateCategory(data as UpdateCategory));
     } else {
-      dispatch(createCategory(data));
+      dispatch(createCategory(data as CreateCategory));
     }
+    reset();
   };
   const handleDelete = (id: number) => {
     if (confirm('Do you want to delete this category?')) dispatch(deleteCategory(id));

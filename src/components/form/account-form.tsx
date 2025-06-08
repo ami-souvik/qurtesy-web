@@ -6,13 +6,19 @@ import { AppDispatch, RootState } from '../../store.types';
 import { Account, CreateAccount, UpdateAccount } from '../../types/daily-expenses';
 import { createAccount, updateAccount, deleteAccount } from '../../slices/daily-expenses-slice';
 
+interface AccountFormData {
+  id?: number;
+  value: string;
+  balance?: number;
+}
+
 export function AccountForm() {
-  const modalRef = useRef(null);
+  const modalRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         setVisible(false);
       }
     };
@@ -26,20 +32,20 @@ export function AccountForm() {
 
   const dispatch = useDispatch<AppDispatch>();
   const { accounts } = useSelector((state: RootState) => state.dailyExpenses);
-  const { register, handleSubmit, reset, setValue } = useForm<CreateAccount | UpdateAccount>();
+  const { register, handleSubmit, reset, setValue } = useForm<AccountFormData>();
 
   const add = () => {
     reset({
-      id: null,
       value: '',
+      balance: undefined,
     });
   };
 
-  const onSubmit = (data: CreateAccount | UpdateAccount) => {
+  const onSubmit = (data: AccountFormData) => {
     if (data?.id) {
-      dispatch(updateAccount(data));
+      dispatch(updateAccount(data as UpdateAccount));
     } else {
-      dispatch(createAccount(data));
+      dispatch(createAccount(data as CreateAccount));
     }
     reset();
   };

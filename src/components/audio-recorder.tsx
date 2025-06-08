@@ -5,12 +5,12 @@ import { Mic, MicOff, Loader2, MessageSquare } from 'lucide-react';
 import { queueTranscribe } from '../webservices/transcribes-ws';
 
 const AudioRecorder = () => {
-  const [transcripts, setTranscripts] = useState({});
+  const [transcripts, setTranscripts] = useState<Record<string, unknown>>({});
   const [recording, setRecording] = useState(false);
-  const [audioBlob, setAudioBlob] = useState(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder>(null);
-  const audioChunksRef = useRef([]);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     const db = getDatabase();
@@ -70,7 +70,7 @@ const AudioRecorder = () => {
     }
   };
 
-  const convertToWav = async (audioBlob, sampleRate) => {
+  const convertToWav = async (audioBlob: Blob, sampleRate: number): Promise<Blob> => {
     const arrayBuffer = await audioBlob.arrayBuffer();
     const audioBuffer = await new AudioContext({ sampleRate }).decodeAudioData(arrayBuffer);
 
@@ -148,7 +148,7 @@ const AudioRecorder = () => {
               .slice(0, 3)
               .map((key: string) => (
                 <div key={key} className="bg-slate-700/30 rounded-lg p-3 border border-slate-600/30">
-                  <p className="text-sm text-slate-300">{transcripts[key]}</p>
+                  <p className="text-sm text-slate-300">{String(transcripts[key])}</p>
                   <span className="text-xs text-slate-500 mt-1 block">
                     {new Date(parseInt(key)).toLocaleTimeString()}
                   </span>

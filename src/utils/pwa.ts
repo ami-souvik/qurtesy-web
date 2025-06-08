@@ -37,9 +37,9 @@ interface BeforeInstallPromptEvent extends Event {
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 
 export const setupPWAInstall = () => {
-  window.addEventListener('beforeinstallprompt', (e) => {
+  window.addEventListener('beforeinstallprompt', (e: Event) => {
     e.preventDefault();
-    deferredPrompt = e;
+    deferredPrompt = e as BeforeInstallPromptEvent;
     showInstallPromotion();
   });
 
