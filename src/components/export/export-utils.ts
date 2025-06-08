@@ -129,7 +129,7 @@ export const exportToPDF = async (exportData: ExportData, filename: string) => {
       }
 
       const status = budget.is_over_budget ? 'OVER' : 'OK';
-      const statusColor = budget.is_over_budget ? [255, 0, 0] : [0, 128, 0];
+      const statusColor: [number, number, number] = budget.is_over_budget ? [255, 0, 0] : [0, 128, 0];
 
       pdf.text(`${budget.category.value}`, 20, yPos);
       pdf.text(`$${budget.spent_amount.toFixed(2)} / $${budget.budgeted_amount.toFixed(2)}`, 100, yPos);

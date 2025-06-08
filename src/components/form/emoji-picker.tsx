@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Controller, Control, FieldValues } from 'react-hook-form';
+import { Controller, Control } from 'react-hook-form';
 import { FaRegSmile } from 'react-icons/fa';
 import {
   IoPeopleOutline,
@@ -27,12 +27,12 @@ const cats: { [k: string]: IconType } = {
   Flags: IoFlagOutline,
 };
 
-interface EmojiPickerProps<T extends FieldValues = FieldValues> {
+interface EmojiPickerProps {
   name: string;
-  control: Control<T>;
+  control: Control<Record<string, unknown>>;
 }
 
-export function EmojiPicker<T extends FieldValues = FieldValues>({ name, control }: EmojiPickerProps<T>) {
+export function EmojiPicker({ name, control }: EmojiPickerProps) {
   const modalRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [category, setCategory] = useState('Smileys & Emotion');
