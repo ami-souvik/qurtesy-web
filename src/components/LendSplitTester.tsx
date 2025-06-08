@@ -1,10 +1,17 @@
 import { useState } from 'react';
 
+interface TestResult {
+  type: 'success' | 'error' | 'info' | 'warning';
+  message: string;
+  data: unknown;
+  timestamp: string;
+}
+
 const LendSplitTester = () => {
-  const [testResults, setTestResults] = useState([]);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const addResult = (type, message, data = null) => {
+  const addResult = (type: 'success' | 'error' | 'info' | 'warning', message: string, data: unknown = null) => {
     setTestResults((prev) => [
       ...prev,
       {
@@ -36,7 +43,7 @@ const LendSplitTester = () => {
       // Test 3: Check profiles API
       addResult('info', 'Testing profiles API...');
       const profilesRes = await fetch('http://localhost:8085/api/profiles/');
-      const profiles = await profilesRes.json();
+      const profiles: Array<{ id: number; name: string; is_self: boolean }> = await profilesRes.json();
       addResult('success', `✅ Found ${profiles.length} profiles`, profiles);
 
       // Test 4: Check accounts API
@@ -132,10 +139,11 @@ const LendSplitTester = () => {
           // Check if lend records were created
           addResult('info', 'Checking for automatically created lend records...');
           const updatedLendsRes = await fetch('http://localhost:8085/api/lends/');
-          const updatedLends = await updatedLendsRes.json();
+          const updatedLends: Array<{ related_split_transaction_id?: number }> = await updatedLendsRes.json();
 
           const splitLends = updatedLends.filter(
-            (lend) => lend.related_split_transaction_id === splitResult.split_transaction_id
+            (lend: { related_split_transaction_id?: number }) =>
+              lend.related_split_transaction_id === splitResult.split_transaction_id
           );
 
           if (splitLends.length > 0) {
@@ -151,7 +159,7 @@ const LendSplitTester = () => {
 
       addResult('success', '🎉 All frontend tests completed!');
     } catch (error) {
-      addResult('error', `❌ Frontend test failed: ${error.message}`);
+      addResult('error', `❌ Frontend test failed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }

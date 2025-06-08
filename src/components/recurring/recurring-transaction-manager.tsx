@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store.types';
+import { RootState, AppDispatch } from '../../store.types';
 import {
   fetchRecurringTransactions,
   createRecurringTransaction,
@@ -16,7 +16,7 @@ import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
 import { PageWrapper, StatCard } from '../layout';
 
 export const RecurringTransactionManager: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const recurringTransactions = useSelector((state: RootState) => state.dailyExpenses.recurringTransactions);
   const recurringDueToday = useSelector((state: RootState) => state.dailyExpenses.recurringDueToday);
   const categories = useSelector((state: RootState) => state.dailyExpenses.categories);

@@ -1,10 +1,17 @@
 import { useState } from 'react';
 
+interface TestResult {
+  type: 'success' | 'error' | 'info' | 'warning';
+  message: string;
+  data: unknown;
+  timestamp: string;
+}
+
 const SplitTester = () => {
-  const [testResults, setTestResults] = useState([]);
+  const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const addResult = (type, message, data = null) => {
+  const addResult = (type: 'success' | 'error' | 'info' | 'warning', message: string, data: unknown = null) => {
     setTestResults((prev) => [
       ...prev,
       {
@@ -82,7 +89,7 @@ const SplitTester = () => {
         addResult('warning', '⚠️ Insufficient data to create split');
       }
     } catch (error) {
-      addResult('error', `❌ Test failed: ${error.message}`);
+      addResult('error', `❌ Test failed: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setLoading(false);
     }

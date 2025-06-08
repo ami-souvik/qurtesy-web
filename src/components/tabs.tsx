@@ -70,11 +70,15 @@ export const Tab = forwardRef(function Tab({ active }: { active: string }, ref) 
     );
 });
 
+interface TabRef {
+  handleAdd: () => void;
+}
+
 export function Tabs() {
-  const tabRef = useRef(null);
+  const tabRef = useRef<TabRef>(null);
   const dispatch = useDispatch<AppDispatch>();
   const section = useSelector((state: RootState) => state.dailyExpenses.section);
-  const handleAdd = () => tabRef.current.handleAdd();
+  const handleAdd = () => tabRef.current?.handleAdd();
   return (
     <div className="h-full flex flex-col">
       {/* Compact Tab Navigation */}

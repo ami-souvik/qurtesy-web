@@ -8,7 +8,7 @@ import { Modal } from '../ui/modal';
 import { SplitTransaction } from '../../types/daily-expenses';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
 
-export const Splits = forwardRef(function Splits(props, ref) {
+export const Splits = forwardRef(function Splits(_props, ref) {
   const { yearmonth } = useSelector((state: RootState) => state.dailyExpenses);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [splits, setSplits] = useState<SplitTransaction[]>([]);

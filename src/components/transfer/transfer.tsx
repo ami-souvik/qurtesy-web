@@ -16,7 +16,7 @@ import { TransferFormModal, type TransferFormProps } from '../form/transfer-form
 import { Modal } from '../ui/modal';
 import { commonShortcuts, useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
-export const Transfer = forwardRef(function Transfer(props, ref) {
+export const Transfer = forwardRef(function Transfer(_props, ref) {
   const dispatch = useDispatch<AppDispatch>();
   const { section, accounts, yearmonth, transactions } = useSelector((state: RootState) => state.dailyExpenses);
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -17,7 +17,7 @@ import { Transaction } from './transaction';
 import { TransactionHeader } from './transaction-header';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
 
-export const Transactions = forwardRef(function Transactions(props, ref) {
+export const Transactions = forwardRef(function Transactions(_props, ref) {
   const dispatch = useDispatch<AppDispatch>();
   const { section, yearmonth, transactions } = useSelector((state: RootState) => state.dailyExpenses);
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store.types';
+import { RootState, AppDispatch } from '../../store.types';
 import { fetchBudgets, createBudget, updateBudget, deleteBudget } from '../../slices/daily-expenses-slice';
 import { CreateBudget, UpdateBudget, Budget } from '../../types';
 import { PiggyBank, Plus, Edit, Trash2, AlertTriangle, TrendingUp, DollarSign } from 'lucide-react';
@@ -11,7 +11,7 @@ import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
 import { PageWrapper, StatCard } from '../layout';
 
 export const BudgetTracker: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const budgets = useSelector((state: RootState) => state.dailyExpenses.budgets);
   const categories = useSelector((state: RootState) => state.dailyExpenses.categories);
   const [year, month] = useSelector((state: RootState) => state.dailyExpenses.yearmonth);

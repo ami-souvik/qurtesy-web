@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store.types';
+import { RootState, AppDispatch } from '../../store.types';
 import {
   fetchTransactions,
   fetchBudgets,
@@ -34,7 +34,7 @@ import { Button } from '../action/button';
 import { PhonePeImporter } from '../import';
 
 export const FinanceDashboard: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [activeTab, setActiveTab] = useState<
     | 'overview'
     | 'home'
@@ -238,7 +238,13 @@ export const FinanceDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex">
       {/* Left Sidebar */}
-      <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} summary={summary} year={year} month={month} />
+      <LeftSidebar
+        activeTab={activeTab}
+        setActiveTab={(tab: string) => setActiveTab(tab as typeof activeTab)}
+        summary={summary}
+        year={year}
+        month={month}
+      />
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-72 transition-all duration-300 ease-in-out">

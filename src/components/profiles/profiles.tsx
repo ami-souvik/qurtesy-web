@@ -1,9 +1,9 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Users, Plus, Edit2, Trash2, User, Check, X, AlertCircle } from 'lucide-react';
-import { Profile, CreateProfile, UpdateProfile } from '../../types/daily-expenses';
+import { Profile, CreateProfile, UpdateProfileData } from '../../types/daily-expenses';
 import { Modal } from '../ui/modal';
 
-export const Profiles = forwardRef(function Profiles(props, ref) {
+export const Profiles = forwardRef(function Profiles(_props, ref) {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -214,8 +214,8 @@ function ProfileForm({ profile, onSuccess, onCancel }: ProfileFormProps) {
     try {
       if (profile) {
         // Update existing profile
-        const { updateProfile } = await import('../../webservices/daily-expenses-ws');
-        const updateData: UpdateProfile = {
+        const { updateProfile } = await import('../../webservices/profiles-ws');
+        const updateData: UpdateProfileData = {
           name: formData.name.trim(),
           email: formData.email || undefined,
           phone: formData.phone || undefined,
@@ -225,7 +225,7 @@ function ProfileForm({ profile, onSuccess, onCancel }: ProfileFormProps) {
         await updateProfile(profile.id, updateData);
       } else {
         // Create new profile
-        const { createProfile } = await import('../../webservices/daily-expenses-ws');
+        const { createProfile } = await import('../../webservices/profiles-ws');
         const createData: CreateProfile = {
           name: formData.name.trim(),
           email: formData.email || undefined,

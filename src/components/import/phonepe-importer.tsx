@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store.types';
+import { RootState, AppDispatch } from '../../store.types';
 import { createTransaction, createCategory } from '../../slices/daily-expenses-slice';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { CurrencyDisplay, convertCurrency } from '../currency';
 import { currencyService } from '../../services/currency-service';
 
 export const PhonePeImporter: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const categories = useSelector((state: RootState) => state.dailyExpenses.categories);
   const [importing, setImporting] = useState(false);
   const [importResults, setImportResults] = useState<{

@@ -4,7 +4,7 @@ import { NotificationPanel } from '../notifications';
 
 export interface StatCard {
   label: string;
-  value: string | number;
+  value: string | number | ReactNode;
   icon: LucideIcon;
   iconColor: string;
   iconBgColor: string;
