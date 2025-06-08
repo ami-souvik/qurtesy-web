@@ -79,23 +79,6 @@ export type TransactionGroupByDate = {
   data: Transaction[];
 };
 
-export type CreateTransfer = {
-  date: string;
-  amount: number;
-  from_account_id: number;
-  to_account_id: number;
-  note?: string;
-};
-
-export type UpdateTransfer = {
-  id: number;
-  date?: string;
-  amount?: number;
-  from_account_id?: number;
-  to_account_id?: number;
-  note?: string;
-};
-
 export type Budget = {
   id: number;
   category: Category;
@@ -177,6 +160,14 @@ export type CreateProfile = {
 
 export type UpdateProfile = {
   id: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+  avatar_url?: string;
+  default_account_id?: number;
+};
+
+export type UpdateProfileData = {
   name?: string;
   email?: string;
   phone?: string;

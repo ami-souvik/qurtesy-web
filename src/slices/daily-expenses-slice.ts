@@ -45,7 +45,6 @@ import {
   CreateAccount,
   UpdateAccount,
   TransactionSummary,
-  CreateTransfer,
   Category,
   Budget,
   CreateBudget,
@@ -57,6 +56,7 @@ import {
   CreateProfile,
   UpdateProfile,
 } from '../types';
+import { CreateTransfer } from '../types/transfers';
 import { RootState } from '../store.types';
 
 export const fetchTransactions = createAsyncThunk<Transaction[], void, { state: RootState }>(

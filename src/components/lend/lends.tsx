@@ -8,7 +8,7 @@ import { Modal } from '../ui/modal';
 import { LendTransaction } from '../../types/daily-expenses';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
 
-export const Lends = forwardRef(function Lends(props, ref) {
+export const Lends = forwardRef(function Lends(_props, ref) {
   const { yearmonth } = useSelector((state: RootState) => state.dailyExpenses);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lends, setLends] = useState<LendTransaction[]>([]);

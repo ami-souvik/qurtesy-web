@@ -3,6 +3,7 @@ export type CreateTransfer = {
   amount: number;
   from_account_id: number;
   to_account_id: number;
+  note?: string;
 };
 
 export type UpdateTransfer = {
@@ -11,4 +12,5 @@ export type UpdateTransfer = {
   amount?: number;
   from_account_id?: number;
   to_account_id?: number;
+  note?: string;
 };

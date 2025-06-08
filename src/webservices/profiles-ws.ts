@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { BASE_URL } from '../config';
-import { Profile, CreateProfile, UpdateProfile } from '../types/daily-expenses';
+import { Profile, CreateProfile, UpdateProfileData } from '../types/daily-expenses';
 
 export const getProfiles = async (): Promise<Profile[]> => {
   return axios
@@ -22,7 +22,7 @@ export const createProfile = async (data: CreateProfile): Promise<Profile | null
     });
 };
 
-export const updateProfile = async (id: number, data: UpdateProfile): Promise<Profile | null> => {
+export const updateProfile = async (id: number, data: UpdateProfileData): Promise<Profile | null> => {
   return axios
     .put(`${BASE_URL}/api/profiles/${id}`, data)
     .then((resp) => resp.data)
