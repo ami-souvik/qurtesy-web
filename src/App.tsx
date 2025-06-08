@@ -4,6 +4,7 @@ import store from './store';
 import './utils/firebase';
 import { MainPage, LandingPage } from './pages';
 import SplitTester from './components/SplitTester';
+import LendSplitTester from './components/LendSplitTester';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/" element={<MainPage />} />
             <Route path="/landing" element={<LandingPage />} />
             <Route path="/test-split" element={<SplitTester />} />
+            <Route path="/test-lend-split" element={<LendSplitTester />} />
             <Route
               path="*"
               element={

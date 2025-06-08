@@ -15,6 +15,11 @@ import {
   Profile,
   CreateProfile,
   UpdateProfile,
+  LendTransaction,
+  CreateLendTransaction,
+  UpdateLendTransaction,
+  LendRepaymentUpdate,
+  LendSummary,
 } from '../types/daily-expenses';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -309,5 +314,88 @@ export const deleteProfile = async (id: number): Promise<{ message: string }> =>
     .catch((err) => {
       console.log(err);
       throw err;
+    });
+};
+
+// Lend Transaction APIs
+export const getLendTransactions = async (status?: 'pending' | 'repaid'): Promise<LendTransaction[]> => {
+  const params = status ? { status } : {};
+  return axios
+    .get(`${BASE_URL}/api/lends/`, { params })
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      return [];
+    });
+};
+
+export const createLendTransaction = async (
+  data: CreateLendTransaction
+): Promise<{ message: string; lend_transaction_id: number; amount: number; borrower: string }> => {
+  return axios
+    .post(`${BASE_URL}/api/lends/`, data)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const getLendTransaction = async (id: number): Promise<LendTransaction> => {
+  return axios
+    .get(`${BASE_URL}/api/lends/${id}`)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const updateLendTransaction = async (id: number, data: UpdateLendTransaction): Promise<{ message: string }> => {
+  return axios
+    .put(`${BASE_URL}/api/lends/${id}`, data)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const updateLendRepaymentStatus = async (
+  id: number,
+  data: LendRepaymentUpdate
+): Promise<{ message: string }> => {
+  return axios
+    .patch(`${BASE_URL}/api/lends/${id}/repayment`, data)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const deleteLendTransaction = async (id: number): Promise<{ message: string }> => {
+  return axios
+    .delete(`${BASE_URL}/api/lends/${id}`)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+export const getLendSummary = async (): Promise<LendSummary> => {
+  return axios
+    .get(`${BASE_URL}/api/lends/summary/`)
+    .then((resp) => resp.data)
+    .catch((err) => {
+      console.log(err);
+      return {
+        total_lent: 0,
+        total_pending: 0,
+        total_repaid: 0,
+        pending_count: 0,
+        repaid_count: 0,
+      };
     });
 };
