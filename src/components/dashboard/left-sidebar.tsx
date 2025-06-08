@@ -57,9 +57,9 @@ export const LeftSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, s
     },
     {
       key: 'accounts',
-      label: 'Accounts',
+      label: 'Data Management',
       icon: Wallet,
-      description: 'Manage accounts',
+      description: 'Accounts, participants & categories',
       category: 'planning',
     },
     {

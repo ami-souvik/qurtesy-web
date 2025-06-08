@@ -29,6 +29,12 @@ import {
   getRecurringTransactionsDueToday,
 } from '../webservices/recurring-transactions-ws';
 import {
+  getProfiles,
+  createProfile as createProfileWS,
+  updateProfile as updateProfileWS,
+  deleteProfile as deleteProfileWS,
+} from '../webservices/profiles-ws';
+import {
   Section,
   Transaction,
   CreateTransaction,
@@ -47,6 +53,9 @@ import {
   RecurringTransaction,
   CreateRecurringTransaction,
   UpdateRecurringTransaction,
+  Profile,
+  CreateProfile,
+  UpdateProfile,
 } from '../types';
 import { RootState } from '../store.types';
 
@@ -180,6 +189,36 @@ export const deleteAccount = createAsyncThunk<Account[], number, { state: RootSt
   }
 );
 
+// Profile async thunks
+export const fetchProfiles = createAsyncThunk<Profile[], void>('profiles/list', async () => {
+  return await getProfiles();
+});
+
+export const createProfile = createAsyncThunk<Profile[], CreateProfile>(
+  'profiles/create',
+  async (data: CreateProfile, { dispatch }) => {
+    await createProfileWS(data);
+    return dispatch(fetchProfiles()).unwrap();
+  }
+);
+
+export const updateProfile = createAsyncThunk<Profile[], UpdateProfile>(
+  'profiles/update',
+  async (data: UpdateProfile, { dispatch }) => {
+    const { id, ...rest } = data;
+    await updateProfileWS(id, rest);
+    return dispatch(fetchProfiles()).unwrap();
+  }
+);
+
+export const deleteProfile = createAsyncThunk<Profile[], number>(
+  'profiles/delete',
+  async (id: number, { dispatch }) => {
+    await deleteProfileWS(id);
+    return dispatch(fetchProfiles()).unwrap();
+  }
+);
+
 export const createTransfer = createAsyncThunk<Transaction[], CreateTransfer, { state: RootState }>(
   'transfers/create',
   async (data: CreateTransfer, { dispatch }) => {
@@ -268,6 +307,7 @@ type DailyExpenses = {
   section: Section;
   categories: Category[];
   accounts: Account[];
+  profiles: Profile[];
   yearmonth: [number, number];
   summary: TransactionSummary;
   transactions: Transaction[];
@@ -301,6 +341,7 @@ const dailyExpenseSlice = createSlice<
     section: 'EXPENSE',
     categories: [],
     accounts: [],
+    profiles: [],
     yearmonth: [new Date().getFullYear(), new Date().getMonth()],
     summary: {
       balance: 0,
@@ -334,6 +375,19 @@ const dailyExpenseSlice = createSlice<
     });
     builder.addCase(fetchAccounts.fulfilled, (state, action) => {
       state.accounts = action.payload;
+    });
+    // Profile reducers
+    builder.addCase(fetchProfiles.fulfilled, (state, action) => {
+      state.profiles = action.payload;
+    });
+    builder.addCase(createProfile.fulfilled, (state, action) => {
+      state.profiles = action.payload;
+    });
+    builder.addCase(updateProfile.fulfilled, (state, action) => {
+      state.profiles = action.payload;
+    });
+    builder.addCase(deleteProfile.fulfilled, (state, action) => {
+      state.profiles = action.payload;
     });
     builder.addCase(fetchTransactions.fulfilled, (state, action) => {
       state.transactions = action.payload;
