@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Controller, Control } from 'react-hook-form';
+import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 import { FaRegSmile } from 'react-icons/fa';
 import {
   IoPeopleOutline,
@@ -27,12 +27,12 @@ const cats: { [k: string]: IconType } = {
   Flags: IoFlagOutline,
 };
 
-interface EmojiPickerProps {
-  name: string;
-  control: Control<Record<string, unknown>>;
+interface EmojiPickerProps<T extends FieldValues = FieldValues> {
+  name: Path<T>;
+  control: Control<T>;
 }
 
-export function EmojiPicker({ name, control }: EmojiPickerProps) {
+export function EmojiPicker<T extends FieldValues = FieldValues>({ name, control }: EmojiPickerProps<T>) {
   const modalRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [category, setCategory] = useState('Smileys & Emotion');
@@ -90,10 +90,10 @@ export function EmojiPicker({ name, control }: EmojiPickerProps) {
                 </div>
                 <div className="h-[16rem] flex flex-wrap gap-2 overflow-auto">
                   {emojis[category as keyof typeof emojis] &&
-                    Object.values(emojis[category as keyof typeof emojis]).map(
-                      (array: unknown) =>
-                        Array.isArray(array) &&
-                        array.map((v: { emoji: string; name: string }) => (
+                    Object.values(emojis[category as keyof typeof emojis])
+                      .filter((array: unknown) => Array.isArray(array))
+                      .map((array: unknown) =>
+                        (array as { emoji: string; name: string }[]).map((v: { emoji: string; name: string }) => (
                           <div
                             key={v.name}
                             className="cursor-pointer"
@@ -105,7 +105,7 @@ export function EmojiPicker({ name, control }: EmojiPickerProps) {
                             <p className="text-2xl">{v.emoji}</p>
                           </div>
                         ))
-                    )}
+                      )}
                 </div>
               </div>
             )}

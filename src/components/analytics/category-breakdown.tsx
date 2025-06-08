@@ -3,6 +3,7 @@ import { Doughnut } from 'react-chartjs-2';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store.types';
 import { PieChart } from 'lucide-react';
+import { TooltipItem } from 'chart.js';
 
 const doughnutOptions = {
   responsive: true,
@@ -24,7 +25,7 @@ const doughnutOptions = {
       borderColor: 'rgba(59, 130, 246, 0.3)',
       borderWidth: 1,
       callbacks: {
-        label: (context: { label: string; parsed: number; dataset: { data: [] } }) => {
+        label: (context: TooltipItem<'doughnut'>) => {
           const value = context.parsed;
           const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
           const percentage = ((value / total) * 100).toFixed(1);
