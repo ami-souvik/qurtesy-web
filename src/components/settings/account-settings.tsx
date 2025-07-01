@@ -14,6 +14,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
+  setSection,
 } from '../../slices/daily-expenses-slice';
 import {
   Account,
@@ -91,6 +92,15 @@ export const AccountSettings: React.FC = () => {
     dispatch(fetchProfiles());
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  // Sync Redux section state with active tab
+  useEffect(() => {
+    if (activeTab === 'income-categories') {
+      dispatch(setSection('INCOME'));
+    } else if (activeTab === 'expense-categories') {
+      dispatch(setSection('EXPENSE'));
+    }
+  }, [activeTab, dispatch]);
 
   const getAccountIcon = (accountName: string) => {
     const name = accountName.toLowerCase();
@@ -227,7 +237,10 @@ export const AccountSettings: React.FC = () => {
         Participants
       </button>
       <button
-        onClick={() => setActiveTab('income-categories')}
+        onClick={() => {
+          setActiveTab('income-categories');
+          dispatch(setSection('INCOME'));
+        }}
         className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
           activeTab === 'income-categories'
             ? 'bg-green-600 text-white'
@@ -238,7 +251,10 @@ export const AccountSettings: React.FC = () => {
         Income Categories
       </button>
       <button
-        onClick={() => setActiveTab('expense-categories')}
+        onClick={() => {
+          setActiveTab('expense-categories');
+          dispatch(setSection('EXPENSE'));
+        }}
         className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
           activeTab === 'expense-categories'
             ? 'bg-red-600 text-white'
@@ -254,7 +270,6 @@ export const AccountSettings: React.FC = () => {
   return (
     <PageWrapper title="Data Management" subtitle="Manage your accounts, participants, and transaction categories">
       {renderTabButtons()}
-
       {activeTab === 'accounts' && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">

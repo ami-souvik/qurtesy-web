@@ -41,7 +41,7 @@ export const CurrencySelector: React.FC = () => {
 
       {/* Dropdown Menu */}
       {showDropdown && (
-        <div className="absolute right-0 top-12 w-48 glass-card rounded-lg border border-white/10 z-50">
+        <div className="absolute right-0 bottom-12 w-48 glass-card rounded-lg border border-white/10 z-50">
           <div className="p-2">
             {Object.values(CURRENCIES).map((currency) => (
               <button

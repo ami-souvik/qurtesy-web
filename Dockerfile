@@ -53,7 +53,7 @@ server {
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
-    gzip_proxied expired no-cache no-store private must-revalidate max-age=0;
+    gzip_proxied expired no-cache no-store private;
     gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/javascript;
 }
 EOF
@@ -61,8 +61,8 @@ EOF
 # Copy built application from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port 80
-EXPOSE 80
+# Expose port 5174
+EXPOSE 5174
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]

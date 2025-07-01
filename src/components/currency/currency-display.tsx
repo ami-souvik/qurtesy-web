@@ -1,9 +1,9 @@
 import React from 'react';
 import { formatCurrency, formatWithBaseCurrency, Currency } from '../../services/currency-service';
+import { useCurrency } from '../../hooks';
 
 interface CurrencyDisplayProps {
   amount: number;
-  currency?: Currency;
   showConversion?: boolean;
   originalCurrency?: Currency;
   className?: string;
@@ -11,14 +11,15 @@ interface CurrencyDisplayProps {
 
 export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   amount,
-  currency,
   showConversion = false,
   originalCurrency,
   className = '',
 }) => {
+  const { currentCurrency } = useCurrency();
+
   if (showConversion && originalCurrency) {
     return <span className={className}>{formatWithBaseCurrency(amount, originalCurrency)}</span>;
   }
 
-  return <span className={className}>{formatCurrency(amount, currency)}</span>;
+  return <span className={className}>{formatCurrency(amount, currentCurrency)}</span>;
 };

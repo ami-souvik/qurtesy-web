@@ -1,4 +1,4 @@
-import { Tabs } from '../../components/tabs';
+import { Tabs } from '../tabs';
 import { PageWrapper } from '../layout';
 
 export const TransactionTracker: React.FC = () => {

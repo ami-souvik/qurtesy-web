@@ -53,20 +53,20 @@ build_production() {
 # Function to start development environment
 start_dev() {
     print_status "Starting development environment..."
-    docker-compose --profile dev up --build
+    docker compose --profile dev up --build
 }
 
 # Function to start production environment
 start_prod() {
     print_status "Starting production environment..."
-    docker-compose --profile prod up -d
+    docker compose --profile prod up -d
     print_success "Production environment started on http://localhost"
 }
 
 # Function to stop all containers
 stop_containers() {
     print_status "Stopping all containers..."
-    docker-compose down
+    docker compose down
     print_success "All containers stopped!"
 }
 
@@ -76,7 +76,7 @@ clean_up() {
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
         print_status "Cleaning up containers and images..."
-        docker-compose down --rmi all --volumes --remove-orphans
+        docker compose down --rmi all --volumes --remove-orphans
         print_success "Cleanup completed!"
     else
         print_status "Cleanup cancelled."
@@ -85,12 +85,12 @@ clean_up() {
 
 # Function to show logs
 show_logs() {
-    docker-compose logs -f
+    docker compose logs -f
 }
 
 # Function to open shell
 open_shell() {
-    container_id=$(docker-compose ps -q qurtesy-web 2>/dev/null || docker-compose ps -q qurtesy-web-dev 2>/dev/null)
+    container_id=$(docker compose ps -q qurtesy-web 2>/dev/null || docker compose ps -q qurtesy-web-dev 2>/dev/null)
     if [ -n "$container_id" ]; then
         print_status "Opening shell in container..."
         docker exec -it "$container_id" /bin/sh
