@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useForm, Controller } from 'react-hook-form';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useForm, Controller, FieldErrors } from 'react-hook-form';
 import _ from 'lodash';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
-import { Plus, Edit3, Calendar, DollarSign, Loader2, AlertCircle } from 'lucide-react';
-import { createTransaction, createTransfer, updateTransaction } from '../../slices/daily-expenses-slice';
+import { Plus, Edit3, Calendar, DollarSign, Loader2, AlertCircle, Trash2 } from 'lucide-react';
+import {
+  createTransaction,
+  createTransfer,
+  deleteTransaction,
+  updateTransaction,
+} from '../../slices/daily-expenses-slice';
 import { AppDispatch, RootState } from '../../store.types';
 import { CategoryPicker } from './category-picker';
 import { AccountPicker } from './account-picker';
@@ -16,14 +22,14 @@ export type TransactionFormProps = {
   id?: number;
   date: Date;
   amount: number;
-  category: Category;
+  category?: Category;
   category_id?: number;
   account_id?: number;
   note?: string;
 };
 
 export type TransferFormProps = {
-  id?: string;
+  id?: number;
   date: Date;
   amount: number;
   from_account_id: number;
@@ -31,14 +37,53 @@ export type TransferFormProps = {
   note?: string;
 };
 
-interface TransactionFormModalProps {
-  initialData?: TransactionFormProps;
-  onSuccess: () => void;
-}
-
-export function TransactionFormModal({ initialData, onSuccess }: TransactionFormModalProps) {
-  const dispatch = useDispatch<AppDispatch>();
+export function TransactionFormModal() {
   const { section, categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const initialData: TransactionFormProps | TransferFormProps =
+    section === 'TRANSFER'
+      ? {
+          date: new Date(),
+          amount: 0,
+          from_account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+          to_account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+        }
+      : {
+          date: new Date(),
+          amount: 0,
+          category_id: undefined,
+          account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+          note: '',
+        };
+  if (params.get('id')) {
+    initialData.id = Number(params.get('id'));
+  }
+  if (params.get('date')) {
+    initialData.date = new Date(params.get('date') || '');
+  }
+  if (params.get('amount')) {
+    initialData.amount = Number(params.get('amount'));
+  }
+  if (params.get('from_account_id') && section === 'TRANSFER') {
+    (initialData as TransferFormProps).from_account_id = Number(params.get('from_account_id'));
+  }
+  if (params.get('to_account_id') && section === 'TRANSFER') {
+    (initialData as TransferFormProps).to_account_id = Number(params.get('to_account_id'));
+  }
+  if (params.get('category_id') && section !== 'TRANSFER') {
+    const category_id: number = Number(params.get('category_id'));
+    (initialData as TransactionFormProps).category_id = category_id;
+    (initialData as TransactionFormProps).category = categories.filter((c) => c.id === category_id)[0];
+  }
+  if (params.get('account_id') && section !== 'TRANSFER') {
+    (initialData as TransactionFormProps).account_id = Number(params.get('account_id'));
+  }
+  if (params.get('note')) {
+    initialData.note = decodeURIComponent(String(params.get('note')));
+  }
+  console.log(initialData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -47,46 +92,26 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
     control,
     watch,
     reset,
-    setValue,
     formState: { errors, isValid },
   } = useForm<TransactionFormProps | TransferFormProps>({
     mode: 'onChange',
-    defaultValues:
-      section === 'TRANSFER'
-        ? {
-            date: new Date(),
-            amount: 0,
-            from_account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
-            to_account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
-          }
-        : {
-            id: undefined,
-            date: new Date(),
-            amount: 0,
-            category: undefined,
-            account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
-            note: '',
-          },
+    defaultValues: initialData,
   });
 
-  // Additional effect to ensure form is clean when switching modes
-  useEffect(() => {
-    // If we're switching from editing to adding (initialData changes from having id to undefined)
-    if (!initialData) {
-      // Force clear the id field to ensure we're not editing
-      setValue('id', undefined);
-    }
-  }, [initialData, setValue]);
-
+  const onSuccess = () => {
+    navigate(-1);
+  };
   const onSubmit = async (data: TransferFormProps | TransactionFormProps) => {
     setIsLoading(true);
     setError(null);
     if (section === 'TRANSFER') {
-      const { date, ...rest } = data;
+      const { date, from_account_id, to_account_id, ...rest } = data as TransferFormProps;
       try {
         dispatch(
           createTransfer({
             date: date.toLocaleDateString('en-GB'), // DD/MM/YYYY format
+            from_account_id,
+            to_account_id,
             ...rest,
           })
         );
@@ -105,7 +130,7 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
         setIsLoading(false);
       }
     } else {
-      const { id, date, category, ...rest } = data;
+      const { id, date, ...rest } = data as TransactionFormProps;
       // Determine if this is an edit or create operation
       const isEditOperation = id && id > 0;
       try {
@@ -115,7 +140,6 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
               id,
               date: date.toLocaleDateString('en-GB'),
               ...rest,
-              category_id: category.id,
             })
           ).unwrap();
         } else {
@@ -124,7 +148,6 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
             createTransaction({
               date: date.toLocaleDateString('en-GB'),
               ...rest,
-              category_id: category.id,
             })
           ).unwrap();
         }
@@ -148,7 +171,9 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
       }
     }
   };
-
+  const handleDelete = (id: number) => {
+    if (confirm('Do you want to delete this transaction?')) dispatch(deleteTransaction(id));
+  };
   const currentFormData = watch();
   const isEditing = !!(initialData?.id || currentFormData.id);
 
@@ -161,11 +186,11 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
           <span className="text-sm">{error}</span>
         </div>
       )}
-      {!_.isEmpty(errors, true) &&
-        Object.keys(errors).map((key: string) => (
+      {!_.isEmpty(errors) &&
+        Object.entries(errors).map(([key, error]) => (
           <p key={key} className="col-span-2 text-red-400 text-xs flex items-center">
             <AlertCircle className="w-3 h-3 mr-1" />
-            {errors[key].message}
+            {error?.message}
           </p>
         ))}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
@@ -230,7 +255,7 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
                 render={({ field: { onChange, value } }) => (
                   <AccountPicker
                     label="From Account"
-                    error={!!errors.from_account_id}
+                    error={!!(errors as FieldErrors<TransferFormProps>)?.from_account_id}
                     value={value}
                     setValue={onChange}
                   />
@@ -241,7 +266,12 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
                 control={control}
                 rules={{ required: 'To Account is required' }}
                 render={({ field: { onChange, value } }) => (
-                  <AccountPicker label="To Account" error={!!errors.to_account_id} value={value} setValue={onChange} />
+                  <AccountPicker
+                    label="To Account"
+                    error={!!(errors as FieldErrors<TransferFormProps>)?.to_account_id}
+                    value={value}
+                    setValue={onChange}
+                  />
                 )}
               />
             </>
@@ -264,7 +294,12 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
                 control={control}
                 rules={{ required: 'Account is required' }}
                 render={({ field: { onChange, value } }) => (
-                  <AccountPicker label="Account" error={!!errors.account_id} value={value} setValue={onChange} />
+                  <AccountPicker
+                    label="Account"
+                    error={!!(errors as FieldErrors<TransactionFormProps>)?.account_id}
+                    value={value}
+                    setValue={onChange}
+                  />
                 )}
               />
             </>
@@ -283,6 +318,18 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
 
         {/* Submit Button */}
         <div className="flex justify-end space-x-3">
+          {initialData?.id && (
+            <button
+              className="px-3 text-slate-400 text-red-400 bg-red-500/20 rounded-md transition-all duration-200"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (initialData?.id) handleDelete(initialData.id);
+              }}
+              title="Delete transaction"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
           <button
             type="submit"
             disabled={isLoading || !isValid}

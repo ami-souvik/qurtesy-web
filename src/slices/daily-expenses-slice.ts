@@ -35,7 +35,7 @@ import {
   deleteProfile as deleteProfileWS,
 } from '../webservices/profiles-ws';
 import {
-  Section,
+  PersonalFinanceSection,
   Transaction,
   CreateTransaction,
   UpdateTransaction,
@@ -298,7 +298,7 @@ export const fetchRecurringTransactionsDueToday = createAsyncThunk('recurring/du
 });
 
 type DailyExpenses = {
-  section: Section;
+  section: PersonalFinanceSection;
   categories: Category[];
   accounts: Account[];
   profiles: Profile[];
@@ -311,7 +311,7 @@ type DailyExpenses = {
     id: number;
     name: string;
     amount: number;
-    section: Section;
+    section: PersonalFinanceSection;
     category?: { id: number; value: string; emoji?: string };
     account?: { id: number; value: string };
     frequency: string;
@@ -323,7 +323,7 @@ type DailyExpenses = {
 const dailyExpenseSlice = createSlice<
   DailyExpenses,
   {
-    setSection: (state: DailyExpenses, action: PayloadAction<Section>) => void;
+    setSection: (state: DailyExpenses, action: PayloadAction<PersonalFinanceSection>) => void;
     setYearMonth: (state: DailyExpenses, action: PayloadAction<[number, number]>) => void;
   },
   'dailyExpenses',
@@ -350,7 +350,7 @@ const dailyExpenseSlice = createSlice<
     recurringDueToday: [],
   },
   reducers: {
-    setSection: (state, action: PayloadAction<Section>) => {
+    setSection: (state, action: PayloadAction<PersonalFinanceSection>) => {
       state.section = action.payload;
     },
     setYearMonth: (state, action: PayloadAction<[number, number]>) => {

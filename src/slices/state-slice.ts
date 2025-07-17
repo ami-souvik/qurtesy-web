@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice, type SliceSelectors } from '@reduxjs/toolkit';
+import { createSlice, type SliceSelectors } from '@reduxjs/toolkit';
 
 type SidebarTab =
   | 'overview'
@@ -21,16 +21,10 @@ const stateSlice = createSlice<State, {}, 'state', SliceSelectors<State>, 'state
   initialState: {
     activeTab: 'overview',
   },
-  reducers: {
-    setActiveTab: (state, action: PayloadAction<SidebarTab>) => {
-      state.activeTab = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: () => {},
 });
 
 // Action creators are generated for each case reducer function
-
-export const { setActiveTab } = stateSlice.actions;
 
 export default stateSlice;

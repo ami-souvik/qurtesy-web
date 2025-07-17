@@ -31,7 +31,7 @@ interface SidebarProps {
 export const LeftSidebar: React.FC<SidebarProps> = ({ summary, year, month }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const pathname = location.pathname.split('/').pop();
+  const pathend = location.pathname.split('/').pop();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -192,7 +192,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({ summary, year, month }) =>
                   className={`w-full flex items-center group relative transition-all duration-200 ${
                     isCollapsed ? 'justify-center p-3' : 'space-x-3 p-3'
                   } rounded-xl ${
-                    pathname === key
+                    pathend === key
                       ? 'bg-blue-600/20 text-blue-400 shadow-lg border border-blue-500/20'
                       : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}

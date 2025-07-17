@@ -1,12 +1,17 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../store.types';
-import { Button } from '../action/button';
-import { Category, CreateCategory, UpdateCategory } from '../../types';
 import { Edit2, Plus, Save, Tag, Trash2, X } from 'lucide-react';
+import { TabHandle } from '../tabs';
+import { Button } from '../action/button';
 import { createCategory, deleteCategory, updateCategory } from '../../slices/daily-expenses-slice';
+import { Category, CreateCategory, PersonalFinanceSection, UpdateCategory } from '../../types';
+import { AppDispatch, RootState } from '../../store.types';
 
-export const Categories = forwardRef(function Categories(_props, ref) {
+export type CategoriesProps = {
+  name: string;
+};
+
+export const Categories = forwardRef<TabHandle, CategoriesProps>(function Categories(_props, ref) {
   const { name } = _props;
   const dispatch = useDispatch<AppDispatch>();
   const categories = useSelector((state: RootState) => state.dailyExpenses.categories);
@@ -44,7 +49,7 @@ export const Categories = forwardRef(function Categories(_props, ref) {
       emoji: category.emoji || '',
     });
   };
-  const getFilteredCategories = (section) => {
+  const getFilteredCategories = (section: PersonalFinanceSection) => {
     return categories.filter((cat) => cat.section === section);
   };
   const handleAdd = () => {

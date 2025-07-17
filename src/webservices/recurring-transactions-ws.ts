@@ -1,10 +1,15 @@
 import axios from 'axios';
-import { RecurringTransaction, CreateRecurringTransaction, UpdateRecurringTransaction, Section } from '../types';
+import {
+  RecurringTransaction,
+  CreateRecurringTransaction,
+  UpdateRecurringTransaction,
+  PersonalFinanceSection,
+} from '../types';
 import { BASE_URL } from '../config';
 
 export const getRecurringTransactions = async (
   isActive?: boolean,
-  section?: Section
+  section?: PersonalFinanceSection
 ): Promise<RecurringTransaction[]> => {
   const params = new URLSearchParams();
   if (isActive !== undefined) params.append('is_active', isActive.toString());
@@ -20,7 +25,7 @@ export const getRecurringTransaction = async (recurringId: number): Promise<Recu
 };
 
 export const createRecurringTransaction = async (
-  section: Section,
+  section: PersonalFinanceSection,
   recurring: CreateRecurringTransaction
 ): Promise<{ id: number; message: string }> => {
   const response = await axios.post(`${BASE_URL}/recurring-transactions/?section=${section}`, recurring);
@@ -54,7 +59,7 @@ export const getRecurringTransactionsDueToday = async (): Promise<
     id: number;
     name: string;
     amount: number;
-    section: Section;
+    section: PersonalFinanceSection;
     category?: { id: number; value: string; emoji?: string };
     account?: { id: number; value: string };
     frequency: string;

@@ -1,10 +1,11 @@
-export type Section = 'EXPENSE' | 'INCOME' | 'TRANSFER' | 'INVESTMENT' | 'LEND' | 'SPLIT';
+export type TransactionSection = 'TRANSACTION' | 'LEND' | 'SPLIT';
+export type PersonalFinanceSection = 'EXPENSE' | 'INCOME' | 'TRANSFER' | 'INVESTMENT';
 
 export type Category = {
   id: number;
   value: string;
   emoji?: string;
-  section?: Section;
+  section?: PersonalFinanceSection;
 };
 
 export type CreateCategory = {
@@ -42,7 +43,7 @@ export type Transaction = {
   date: string;
   credit: boolean;
   amount: number;
-  section: Section;
+  section: PersonalFinanceSection;
   category?: Category;
   account?: Account;
   note?: string;
@@ -106,7 +107,7 @@ export type RecurringTransaction = {
   id: number;
   name: string;
   amount: number;
-  section: Section;
+  section: PersonalFinanceSection;
   category?: Category;
   account?: Account;
   frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';

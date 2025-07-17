@@ -1,47 +1,18 @@
 import { forwardRef, useEffect, useImperativeHandle, useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Check, Clock, Trash2, HandCoins, Filter } from 'lucide-react';
-import { RootState } from '../../store.types';
-import { DAYS, MONTHS, formatdate } from '../../utils/datetime';
+import { Check, Clock, Trash2, HandCoins, Filter, LucideIcon } from 'lucide-react';
+import { DAYS, formatdate } from '../../utils/datetime';
 import { LendFormModal } from '../form/lend-form-modal';
 import { Modal } from '../ui/modal';
 import { LendTransaction } from '../../types/daily-expenses';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { cn } from '../../utils/tailwind';
+import { TransactionYearMonth } from '../home/transaction-yearmonth';
 
 export const Lends = forwardRef(function Lends(_props, ref) {
-  const { yearmonth } = useSelector((state: RootState) => state.dailyExpenses);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lends, setLends] = useState<LendTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'repaid'>('all');
-
-  const setMonth = (m: number) => {
-    // You might want to implement month filtering in the future
-    console.log('Set month:', m);
-  };
-
-  const setYear = (y: number) => {
-    // You might want to implement year filtering in the future
-    console.log('Set year:', y);
-  };
-
-  const yearrange = (year: number, range: number) => {
-    let state = year - range;
-    const years = [state];
-    while (state < year + range) {
-      state += 1;
-      years.push(state);
-    }
-    return years;
-  };
-
-  const nextMonth = () => {
-    // Implement month navigation if needed
-  };
-
-  const prevMonth = () => {
-    // Implement month navigation if needed
-  };
 
   const fetchLendTransactions = useCallback(async () => {
     try {
@@ -147,77 +118,41 @@ export const Lends = forwardRef(function Lends(_props, ref) {
     );
   }
 
+  const SummaryTile = ({
+    icon: Icon,
+    color,
+    label,
+    amount,
+  }: {
+    icon: LucideIcon;
+    color: string;
+    label: string;
+    amount: string;
+  }) => (
+    <div className="p-3 bg-slate-800/20 border border-slate-700/30 rounded-lg">
+      <div className="flex items-center space-x-2 mb-2">
+        <Icon className={cn('w-4 h-4 text-amber-400', color)} />
+        <p className="text-xs text-slate-400">{label}</p>
+      </div>
+      <p className={cn('text-xl font-bold', color)}>₹{amount}</p>
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full">
+      <TransactionYearMonth />
       {/* Header with Month Navigation and Stats */}
       <div className="mb-6 space-y-4">
-        <div className="flex items-center justify-between p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl">
-          <button
-            onClick={prevMonth}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          <div className="flex items-center space-x-3">
-            <HandCoins className="w-5 h-5 text-slate-400" />
-            <div className="flex items-center space-x-2">
-              <select
-                value={yearmonth[1]}
-                onChange={(e) => setMonth(Number(e.target.value))}
-                className="px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {MONTHS.map((m, i) => (
-                  <option key={i} value={i} className="bg-slate-800">
-                    {m}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={yearmonth[0]}
-                onChange={(e) => setYear(Number(e.target.value))}
-                className="px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                {yearrange(yearmonth[0], 10).map((y) => (
-                  <option key={y} value={y} className="bg-slate-800">
-                    {y}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <button
-            onClick={nextMonth}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-
         {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 bg-slate-800/20 border border-slate-700/30 rounded-lg">
-            <div className="flex items-center space-x-2 mb-2">
-              <Clock className="w-4 h-4 text-amber-400" />
-              <p className="text-sm text-slate-400">Pending</p>
-            </div>
-            <p className="text-xl font-bold text-amber-400">₹{totalPending.toLocaleString()}</p>
-          </div>
-          <div className="p-4 bg-slate-800/20 border border-slate-700/30 rounded-lg">
-            <div className="flex items-center space-x-2 mb-2">
-              <Check className="w-4 h-4 text-green-400" />
-              <p className="text-sm text-slate-400">Repaid</p>
-            </div>
-            <p className="text-xl font-bold text-green-400">₹{totalRepaid.toLocaleString()}</p>
-          </div>
-          <div className="p-4 bg-slate-800/20 border border-slate-700/30 rounded-lg">
-            <div className="flex items-center space-x-2 mb-2">
-              <HandCoins className="w-4 h-4 text-cyan-400" />
-              <p className="text-sm text-slate-400">Total Lent</p>
-            </div>
-            <p className="text-xl font-bold text-cyan-400">₹{(totalPending + totalRepaid).toLocaleString()}</p>
-          </div>
+        <div className="grid grid-cols-3 gap-2">
+          <SummaryTile icon={Clock} color="text-amber-400" label="Pending" amount={totalPending.toLocaleString()} />
+          <SummaryTile icon={Check} color="text-green-400" label="Repaid" amount={totalRepaid.toLocaleString()} />
+          <SummaryTile
+            icon={HandCoins}
+            color="text-cyan-400"
+            label="Total Lent"
+            amount={(totalPending + totalRepaid).toLocaleString()}
+          />
         </div>
 
         {/* Filter Options */}
@@ -284,7 +219,7 @@ export const Lends = forwardRef(function Lends(_props, ref) {
                 </div>
 
                 {/* Lends for this date */}
-                <div className="space-y-4 ml-6">
+                <div className="space-y-4">
                   {data.map((lend) => (
                     <div
                       key={lend.id}
@@ -295,7 +230,7 @@ export const Lends = forwardRef(function Lends(_props, ref) {
                           <div className="flex items-center space-x-3 mb-2">
                             <HandCoins className="w-5 h-5 text-cyan-400" />
                             <div>
-                              <h3 className="font-medium text-white text-lg">Lent to {lend.borrower_profile.name}</h3>
+                              <h3 className="font-medium text-white text-sm">Lent to {lend.borrower_profile.name}</h3>
                               <div className="flex items-center space-x-2 text-sm text-slate-400">
                                 {lend.category && (
                                   <span>
@@ -311,10 +246,14 @@ export const Lends = forwardRef(function Lends(_props, ref) {
                               </div>
                             </div>
                           </div>
-                          {lend.note && <p className="text-sm text-slate-300 mt-2 ml-8">{lend.note}</p>}
+                          {lend.note && (
+                            <p className="mt-2 ml-8 text-xs text-slate-300 bg-slate-700/30 px-2 py-1 rounded text-truncate italic">
+                              {lend.note}
+                            </p>
+                          )}
                         </div>
 
-                        <div className="flex items-center space-x-4">
+                        <div className="flex flex-col items-center space-y-4">
                           <div className="text-right">
                             <p className="text-xl font-bold text-white">₹ {lend.amount.toLocaleString()}</p>
                             <p className="text-xs text-slate-400">
@@ -331,7 +270,6 @@ export const Lends = forwardRef(function Lends(_props, ref) {
                               )}
                             </p>
                           </div>
-
                           <div className="flex items-center space-x-2">
                             <button
                               onClick={() => handleMarkAsRepaid(lend.id, !lend.is_repaid)}
@@ -343,7 +281,6 @@ export const Lends = forwardRef(function Lends(_props, ref) {
                             >
                               {lend.is_repaid ? 'Mark Pending' : 'Mark Repaid'}
                             </button>
-
                             {!lend.created_from_split && (
                               <button
                                 className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"

@@ -1,20 +1,20 @@
-import React, { useEffect, Component } from 'react';
+import React, { useEffect, ForwardRefExoticComponent, RefAttributes } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store.types';
 import { fetchAccounts, fetchProfiles, fetchCategories } from '../../slices/daily-expenses-slice';
 import { PageWrapper } from '../layout';
-import { Wallet, Users, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
-import { Tab, Tabs } from '../tabs';
+import { Wallet, Users, ArrowUpCircle, ArrowDownCircle, LucideIcon } from 'lucide-react';
+import { Tab, TabHandle, Tabs } from '../tabs';
 import { Accounts } from './accounts';
 import { Participants } from './participants';
 import { Categories } from './categories';
 
 interface SectionRecord {
   label: string;
-  icon: Component;
+  icon: LucideIcon;
   color: string;
   bgColor: string;
-  component: Component;
+  component: ForwardRefExoticComponent<{ name: string } & RefAttributes<TabHandle>>;
 }
 
 const sections: { [k: string]: SectionRecord } = {
@@ -57,7 +57,6 @@ export const AccountSettings: React.FC = () => {
   }, [dispatch]);
   return (
     <PageWrapper title="Data Management" subtitle="Manage your accounts, participants, and categories">
-      {/* {renderTabButtons()} */}
       <Tabs>
         {Object.keys(sections).map((s) => (
           <Tab name={s} {...sections[s]} />

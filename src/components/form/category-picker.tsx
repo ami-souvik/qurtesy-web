@@ -25,7 +25,7 @@ export function CategoryPicker({
   setValue,
 }: {
   data: Category[];
-  value: Category;
+  value: Category | undefined;
   setValue: (v: Category) => void;
 }) {
   const [showMore, setShowMore] = useState(false);

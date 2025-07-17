@@ -1,6 +1,6 @@
-import { Component } from 'react';
-import { PiggyBank, HandHeart, Users } from 'lucide-react';
-import { Tab, Tabs } from '../tabs';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import { PiggyBank, HandHeart, Users, LucideIcon } from 'lucide-react';
+import { Tab, TabHandle, Tabs } from '../tabs';
 import { PageWrapper } from '../layout';
 
 import { Transactions } from '../transaction/transactions';
@@ -9,10 +9,10 @@ import { Splits } from '../split/splits';
 
 interface SectionRecord {
   label: string;
-  icon: Component;
+  icon: LucideIcon;
   color: string;
   bgColor: string;
-  component: Component;
+  component: ForwardRefExoticComponent<RefAttributes<TabHandle>>;
 }
 
 const sections: { [k: string]: SectionRecord } = {

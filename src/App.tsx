@@ -18,6 +18,7 @@ import { ExportManager } from './components/export';
 import { PhonePeImporter } from './components/import';
 import { CurrencySettings } from './components/currency';
 import { NotificationSettingsPanel } from './components/notifications';
+import { TransactionFormModal } from './components/form/transaction-form-modal';
 
 function App() {
   return (
@@ -28,7 +29,9 @@ function App() {
             <Routes>
               <Route path="f" element={<MainPage />}>
                 <Route path="overview" element={<OverviewContent />} />
-                <Route path="home" element={<TransactionTracker />} />
+                <Route path="home" element={<TransactionTracker />}>
+                  <Route path="modal" element={<TransactionFormModal />} />
+                </Route>
                 <Route path="budget" element={<BudgetTracker />} />
                 <Route path="accounts" element={<AccountSettings />} />
                 <Route path="recurring" element={<RecurringTransactionManager />} />

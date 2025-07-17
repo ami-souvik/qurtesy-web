@@ -1,46 +1,16 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Users, Check, Clock, Trash2 } from 'lucide-react';
-import { RootState } from '../../store.types';
-import { DAYS, MONTHS, formatdate } from '../../utils/datetime';
+import { Users, Check, Clock, Trash2 } from 'lucide-react';
+import { DAYS, formatdate } from '../../utils/datetime';
 import { SplitFormModal } from '../form/split-form-modal';
 import { Modal } from '../ui/modal';
 import { SplitTransaction } from '../../types/daily-expenses';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { TransactionYearMonth } from '../home/transaction-yearmonth';
 
 export const Splits = forwardRef(function Splits(_props, ref) {
-  const { yearmonth } = useSelector((state: RootState) => state.dailyExpenses);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [splits, setSplits] = useState<SplitTransaction[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const setMonth = (m: number) => {
-    // You might want to implement month filtering in the future
-    console.log('Set month:', m);
-  };
-
-  const setYear = (y: number) => {
-    // You might want to implement year filtering in the future
-    console.log('Set year:', y);
-  };
-
-  const yearrange = (year: number, range: number) => {
-    let state = year - range;
-    const years = [state];
-    while (state < year + range) {
-      state += 1;
-      years.push(state);
-    }
-    return years;
-  };
-
-  const nextMonth = () => {
-    // Implement month navigation if needed
-  };
-
-  const prevMonth = () => {
-    // Implement month navigation if needed
-  };
 
   const fetchSplitTransactions = async () => {
     try {
@@ -135,50 +105,7 @@ export const Splits = forwardRef(function Splits(_props, ref) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with Month Navigation */}
-      <div className="flex items-center justify-between mb-6 p-4 bg-slate-800/30 border border-slate-700/50 rounded-xl">
-        <button
-          onClick={prevMonth}
-          className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center space-x-3">
-          <Users className="w-5 h-5 text-slate-400" />
-          <div className="flex items-center space-x-2">
-            <select
-              value={yearmonth[1]}
-              onChange={(e) => setMonth(Number(e.target.value))}
-              className="px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {MONTHS.map((m, i) => (
-                <option key={i} value={i} className="bg-slate-800">
-                  {m}
-                </option>
-              ))}
-            </select>
-            <select
-              value={yearmonth[0]}
-              onChange={(e) => setYear(Number(e.target.value))}
-              className="px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {yearrange(yearmonth[0], 10).map((y) => (
-                <option key={y} value={y} className="bg-slate-800">
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <button
-          onClick={nextMonth}
-          className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+      <TransactionYearMonth />
 
       {/* Split Form Modal */}
       <Modal isOpen={isModalOpen} onClose={handleClose} title="Create Split Transaction" size="lg">

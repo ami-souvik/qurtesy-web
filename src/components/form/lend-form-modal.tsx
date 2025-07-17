@@ -85,10 +85,10 @@ export function LendFormModal({ onSuccess }: LendFormModalProps) {
       const { createLendTransaction } = await import('../../webservices/daily-expenses-ws');
 
       await createLendTransaction({
-        amount: data.amount,
+        amount: Number(data.amount),
         date: data.date.toLocaleDateString('en-GB'),
-        borrower_profile_id: data.borrower_profile_id,
-        category_id: data.category_id,
+        borrower_profile_id: Number(data.borrower_profile_id),
+        category_id: Number(data.category_id),
         account_id: data.account_id,
         note: data.note,
       });

@@ -1,40 +1,51 @@
-import { Children, useState, useRef, Component } from 'react';
-import { Plus } from 'lucide-react';
+import {
+  Children,
+  useState,
+  useRef,
+  ReactNode,
+  isValidElement,
+  ReactElement,
+  ForwardRefExoticComponent,
+  RefAttributes,
+} from 'react';
+import { LucideIcon, Plus } from 'lucide-react';
 import { Button } from './action/button';
 import { KeyboardShortcutsHelp } from './ui/keyboard-shortcuts-help';
 import { cn } from '../utils/tailwind';
 
-export interface TapProps {
+export interface TabHandle {
+  handleAdd: () => void;
+}
+
+export interface TabProps {
   name: string;
   label: string;
-  icon: Component;
+  icon: LucideIcon;
   color: string;
   bgColor: string;
-  component: Component;
+  component: ForwardRefExoticComponent<{ name: string } & RefAttributes<TabHandle>>;
 }
 
 // Tab component - just a configuration component that doesn't render anything
 /* eslint-disable @typescript-eslint/no-unused-vars */
-export const Tab = (_props: TapProps) => {
+export const Tab = (_props: TabProps) => {
   return null;
 };
 
-interface TabRef {
-  handleAdd: () => void;
-}
-
-export function Tabs({ children }) {
-  const tabs = Children.toArray(children).map((child) => child?.props);
-  const tabRef = useRef<TabRef>(null);
+export function Tabs({ children }: { children: ReactNode[] }) {
+  const tabs: TabProps[] = Children.toArray(children)
+    .filter((child): child is ReactElement => isValidElement(child))
+    .map((child) => child.props as TabProps);
+  const tabRef = useRef<TabHandle>(null);
   const handleAdd = () => tabRef.current?.handleAdd();
 
   // Get the first tab name as default active tab
-  const firstTabName = Children.toArray(children)[0]?.props.name;
+  const firstTabName = tabs[0].name;
   const [active, setActive] = useState(firstTabName);
 
   // Find the active tab's component
-  const activeTabData = Children.toArray(children).find((child) => child.props.name === active);
-  const ActiveComponent = activeTabData?.props.component;
+  const activeTabProps: TabProps | undefined = tabs.find(({ name }) => name === active);
+  const ActiveComponent = activeTabProps?.component;
   return (
     <div className="h-full flex flex-col">
       {/* Compact Tab Navigation */}
@@ -69,7 +80,7 @@ export function Tabs({ children }) {
       </div>
 
       {/* Active tab content */}
-      <div className="tab-content">{ActiveComponent && <ActiveComponent ref={tabRef} {...activeTabData?.props} />}</div>
+      {ActiveComponent && <ActiveComponent ref={tabRef} {...activeTabProps} />}
     </div>
   );
 }
