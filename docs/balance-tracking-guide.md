@@ -66,7 +66,7 @@ When a difference is detected, you'll see a confirmation dialog:
 To ensure proper categorization, run this setup script:
 
 ```bash
-cd /Users/souvikdey/Documents/qurtesy/server
+cd server
 python setup_balance_categories.py
 ```
 

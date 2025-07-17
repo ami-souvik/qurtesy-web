@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { RecurringTransaction, CreateRecurringTransaction, UpdateRecurringTransaction, Section } from '../types';
-
-const BASE_URL = 'http://localhost:8085';
+import { BASE_URL } from '../config';
 
 export const getRecurringTransactions = async (
   isActive?: boolean,

@@ -42,8 +42,16 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
 }) => {
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Top Bar for Mobile */}
+      <div className="lg:hidden fixed top-0 right-0 left-0 h-16 glass-card border-b border-slate-700/50 z-30 flex items-center justify-between px-4 space-x-4">
+        <div className="ml-12">
+          <h1 className="text-md font-bold text-white">{title}</h1>
+          {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
+        </div>
+        <NotificationPanel />
+      </div>
       {/* Page Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div className="hidden lg:inline flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">{title}</h1>
           {subtitle && <p className="text-sm text-slate-400">{subtitle}</p>}

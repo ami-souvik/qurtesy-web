@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:5173"
+      - '3000:5173'
     volumes:
       - .:/app
       - /app/node_modules
@@ -15,13 +15,13 @@ services:
     profiles:
       - dev
 
-  # Production service  
+  # Production service
   qurtesy-web:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - '80:80'
     restart: unless-stopped
     profiles:
       - prod
@@ -32,7 +32,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - '8080:80'
     restart: unless-stopped
     profiles:
       - prod-alt

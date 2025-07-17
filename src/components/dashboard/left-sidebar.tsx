@@ -15,12 +15,10 @@ import {
   Target,
   Wallet,
 } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CurrencySelector, CurrencyDisplay } from '../currency';
-import { NotificationPanel } from '../notifications';
 
 interface SidebarProps {
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
   summary: {
     income: number;
     expense: number;
@@ -30,7 +28,11 @@ interface SidebarProps {
   month: number;
 }
 
-export const LeftSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, summary, year, month }) => {
+export const LeftSidebar: React.FC<SidebarProps> = ({ summary, year, month }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pathname = location.pathname.split('/').pop();
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const navigationItems = [
@@ -173,7 +175,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, s
         </div>
       )}
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
+      <nav className={`flex-1 p-4 space-y-6 ${isCollapsed ? '' : 'overflow-y-auto'}`}>
         {Object.entries(categories).map(([categoryKey, category]) => (
           <div key={categoryKey}>
             {!isCollapsed && (
@@ -184,13 +186,13 @@ export const LeftSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, s
                 <button
                   key={key}
                   onClick={() => {
-                    setActiveTab(key);
                     setIsMobileOpen(false);
+                    navigate(key);
                   }}
                   className={`w-full flex items-center group relative transition-all duration-200 ${
                     isCollapsed ? 'justify-center p-3' : 'space-x-3 p-3'
                   } rounded-xl ${
-                    activeTab === key
+                    pathname === key
                       ? 'bg-blue-600/20 text-blue-400 shadow-lg border border-blue-500/20'
                       : 'text-slate-400 hover:text-white hover:bg-white/5'
                   }`}
@@ -267,11 +269,6 @@ export const LeftSidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, s
       >
         <SidebarContent />
       </aside>
-
-      {/* Top Bar for Mobile */}
-      <div className="lg:hidden fixed top-0 right-0 left-0 h-16 glass-card border-b border-slate-700/50 z-30 flex items-center justify-end px-4 space-x-4">
-        <NotificationPanel />
-      </div>
     </>
   );
 };

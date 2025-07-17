@@ -1,19 +1,33 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
+import _ from 'lodash';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
-import { Plus, Edit3, Calendar, DollarSign, Loader2, Clock, AlertCircle } from 'lucide-react';
-import { createTransaction, updateTransaction } from '../../slices/daily-expenses-slice';
+import { Plus, Edit3, Calendar, DollarSign, Loader2, AlertCircle } from 'lucide-react';
+import { createTransaction, createTransfer, updateTransaction } from '../../slices/daily-expenses-slice';
 import { AppDispatch, RootState } from '../../store.types';
+import { CategoryPicker } from './category-picker';
+import { AccountPicker } from './account-picker';
+import { Category } from '../../types';
 
 export type TransactionFormProps = {
   id?: number;
   date: Date;
   amount: number;
+  category: Category;
   category_id?: number;
   account_id?: number;
+  note?: string;
+};
+
+export type TransferFormProps = {
+  id?: string;
+  date: Date;
+  amount: number;
+  from_account_id: number;
+  to_account_id: number;
   note?: string;
 };
 
@@ -24,12 +38,9 @@ interface TransactionFormModalProps {
 
 export function TransactionFormModal({ initialData, onSuccess }: TransactionFormModalProps) {
   const dispatch = useDispatch<AppDispatch>();
-  const { categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
+  const { section, categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isDraftSaved, setIsDraftSaved] = useState(false);
-  const [recentTransactions, setRecentTransactions] = useState<TransactionFormProps[]>([]);
-
   const {
     register,
     handleSubmit,
@@ -38,20 +49,25 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
     reset,
     setValue,
     formState: { errors, isValid },
-  } = useForm<TransactionFormProps>({
+  } = useForm<TransactionFormProps | TransferFormProps>({
     mode: 'onChange',
-    defaultValues: {
-      id: undefined,
-      date: new Date(),
-      amount: 0,
-      category_id: undefined,
-      account_id: undefined,
-      note: '',
-    },
+    defaultValues:
+      section === 'TRANSFER'
+        ? {
+            date: new Date(),
+            amount: 0,
+            from_account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+            to_account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+          }
+        : {
+            id: undefined,
+            date: new Date(),
+            amount: 0,
+            category: undefined,
+            account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+            note: '',
+          },
   });
-
-  // Auto-save draft functionality
-  const watchedData = watch();
 
   // Additional effect to ensure form is clean when switching modes
   useEffect(() => {
@@ -62,147 +78,82 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
     }
   }, [initialData, setValue]);
 
-  // Cleanup effect to reset form when component unmounts
-  useEffect(() => {
-    return () => {
-      // Clear any drafts when component unmounts
-      if (!initialData) {
-        localStorage.removeItem('transaction-draft');
-      }
-    };
-  }, [initialData]);
-
-  useEffect(() => {
-    if (!initialData && watchedData.amount > 0) {
-      const draftKey = 'transaction-draft';
-      const draftData = {
-        ...watchedData,
-        id: undefined, // Never save id in drafts
-        date: watchedData.date?.toISOString(),
-      };
-      localStorage.setItem(draftKey, JSON.stringify(draftData));
-      setIsDraftSaved(true);
-      setTimeout(() => setIsDraftSaved(false), 2000);
-    }
-  }, [watchedData, initialData]);
-
-  // Load recent transactions for quick-fill
-  useEffect(() => {
-    const loadRecentTransactions = () => {
-      const recent = JSON.parse(localStorage.getItem('recent-transactions') || '[]');
-      setRecentTransactions(recent.slice(0, 3));
-    };
-    loadRecentTransactions();
-  }, []);
-
-  // Load draft on mount
-  useEffect(() => {
-    if (initialData) {
-      reset(initialData);
-    } else {
-      // For new transactions, explicitly clear the id and load fresh data
-      const baseFormData = {
-        id: undefined, // Explicitly clear the id for new transactions
-        date: new Date(),
-        amount: 0,
-        category_id: categories.length > 0 ? categories[0]?.id : undefined,
-        account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
-        note: '',
-      };
-
-      // Try to load draft
-      const draftKey = 'transaction-draft';
-      const savedDraft = localStorage.getItem(draftKey);
-      if (savedDraft) {
-        try {
-          const draft = JSON.parse(savedDraft);
-          if (draft.date) draft.date = new Date(draft.date);
-          // Ensure no id is carried over from drafts
-          draft.id = undefined;
-          reset({ ...baseFormData, ...draft });
-        } catch (e) {
-          console.error('Failed to load draft:', e);
-          reset(baseFormData);
-        }
-      } else {
-        reset(baseFormData);
-      }
-    }
-  }, [categories, accounts, initialData, reset]);
-  const onSubmit = async (data: TransactionFormProps) => {
+  const onSubmit = async (data: TransferFormProps | TransactionFormProps) => {
     setIsLoading(true);
     setError(null);
-
-    const { id, date, ...rest } = data;
-
-    // Determine if this is an edit or create operation
-    const isEditOperation = id && id > 0;
-
-    try {
-      if (isEditOperation) {
-        await dispatch(
-          updateTransaction({
-            id: id!,
-            date: date.toLocaleDateString('en-GB'),
+    if (section === 'TRANSFER') {
+      const { date, ...rest } = data;
+      try {
+        dispatch(
+          createTransfer({
+            date: date.toLocaleDateString('en-GB'), // DD/MM/YYYY format
             ...rest,
           })
-        ).unwrap();
-      } else {
-        // Ensure we're creating a new transaction (no id)
-        await dispatch(
-          createTransaction({
-            date: date.toLocaleDateString('en-GB'),
-            ...rest,
-          })
-        ).unwrap();
-
-        // Save to recent transactions
-        const recent = JSON.parse(localStorage.getItem('recent-transactions') || '[]') as TransactionFormProps[];
-        const newRecent = [
-          { ...data, id: undefined }, // Remove any id when saving to recent
-          ...recent.filter(
-            (t: TransactionFormProps) => !(t.category_id === data.category_id && t.account_id === data.account_id)
-          ),
-        ].slice(0, 5);
-        localStorage.setItem('recent-transactions', JSON.stringify(newRecent));
-
-        // Clear draft
-        localStorage.removeItem('transaction-draft');
-      }
-
-      // Reset form to initial clean state for new transactions
-      if (!isEditOperation) {
+        );
         reset({
           id: undefined,
           date: new Date(),
           amount: 0,
-          category_id: categories.length > 0 ? categories[0]?.id : undefined,
-          account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
-          note: '',
+          from_account_id: accounts[0]?.id,
+          to_account_id: accounts[0]?.id,
         });
+        onSuccess();
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to save transfer. Please try again.';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
       }
-
-      onSuccess();
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to save transaction. Please try again.';
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
+    } else {
+      const { id, date, category, ...rest } = data;
+      // Determine if this is an edit or create operation
+      const isEditOperation = id && id > 0;
+      try {
+        if (isEditOperation) {
+          await dispatch(
+            updateTransaction({
+              id,
+              date: date.toLocaleDateString('en-GB'),
+              ...rest,
+              category_id: category.id,
+            })
+          ).unwrap();
+        } else {
+          // Ensure we're creating a new transaction (no id)
+          await dispatch(
+            createTransaction({
+              date: date.toLocaleDateString('en-GB'),
+              ...rest,
+              category_id: category.id,
+            })
+          ).unwrap();
+        }
+        // Reset form to initial clean state for new transactions
+        if (!isEditOperation) {
+          reset({
+            id: undefined,
+            date: new Date(),
+            amount: 0,
+            category_id: undefined,
+            account_id: accounts.length > 0 ? accounts[0]?.id : undefined,
+            note: '',
+          });
+        }
+        onSuccess();
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to save transaction. Please try again.';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  };
-
-  const quickFillFromRecent = (recent: TransactionFormProps) => {
-    setValue('category_id', recent.category_id);
-    setValue('account_id', recent.account_id);
-    setValue('note', recent.note);
-    setValue('amount', recent.amount);
   };
 
   const currentFormData = watch();
   const isEditing = !!(initialData?.id || currentFormData.id);
 
   return (
-    <div className="space-y-6">
+    <div className="relative space-y-2">
       {/* Error Display */}
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 flex items-center space-x-2 text-red-400">
@@ -210,52 +161,20 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
           <span className="text-sm">{error}</span>
         </div>
       )}
-
-      {/* Draft Save Indicator */}
-      {isDraftSaved && !isEditing && (
-        <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-2 flex items-center space-x-2 text-green-400">
-          <Clock className="w-4 h-4" />
-          <span className="text-xs">Draft saved automatically</span>
-        </div>
-      )}
-
-      {/* Recent Transactions Quick Fill */}
-      {!isEditing && recentTransactions.length > 0 && (
-        <div>
-          <h4 className="text-sm font-medium text-slate-300 mb-2">Quick Fill from Recent</h4>
-          <div className="grid grid-cols-1 gap-2">
-            {recentTransactions.map((recent, index) => {
-              const category = categories.find((c) => c.id === recent.category_id);
-              const account = accounts.find((a) => a.id === recent.account_id);
-              return (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => quickFillFromRecent(recent)}
-                  className="flex items-center justify-between p-3 bg-slate-700/30 hover:bg-slate-700/50 rounded-lg transition-colors text-left"
-                >
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg">{category?.emoji}</span>
-                    <div>
-                      <p className="text-sm text-white">{category?.value}</p>
-                      <p className="text-xs text-slate-400">{account?.value}</p>
-                    </div>
-                  </div>
-                  <span className="text-sm font-medium text-emerald-400">₹{recent.amount}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {!_.isEmpty(errors, true) &&
+        Object.keys(errors).map((key: string) => (
+          <p key={key} className="col-span-2 text-red-400 text-xs flex items-center">
+            <AlertCircle className="w-3 h-3 mr-1" />
+            {errors[key].message}
+          </p>
+        ))}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
         {/* Hidden ID field for form state management */}
         <input type="hidden" {...register('id')} />
-
         {/* First Row - Date and Amount */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+          <div className="grid grid-cols-2 items-center">
+            <label className="block text-sm font-medium text-slate-300">
               <Calendar className="w-4 h-4 inline mr-2" />
               Date
             </label>
@@ -281,9 +200,8 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
               </p>
             )}
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+          <div className="grid grid-cols-2 items-center">
+            <label className="block text-sm font-medium text-slate-300">
               <DollarSign className="w-4 h-4 inline mr-2" />
               Amount
             </label>
@@ -299,65 +217,58 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
                 min: { value: 0.01, message: 'Amount must be greater than 0' },
               })}
             />
-            {errors.amount && (
-              <p className="text-red-400 text-xs mt-1 flex items-center">
-                <AlertCircle className="w-3 h-3 mr-1" />
-                {errors.amount.message}
-              </p>
-            )}
           </div>
         </div>
         {/* Second Row - Category and Account */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Category</label>
-            <select
-              className={`w-full px-4 py-2 bg-slate-700/50 border rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.category_id ? 'border-red-500/50' : 'border-slate-600/50'
-              }`}
-              {...register('category_id', { required: 'Category is required' })}
-            >
-              <option value="" className="bg-slate-800">
-                Select category
-              </option>
-              {categories.map(({ id, value, emoji }) => (
-                <option key={id} value={id} className="bg-slate-800">
-                  {emoji} {value}
-                </option>
-              ))}
-            </select>
-            {errors.category_id && (
-              <p className="text-red-400 text-xs mt-1 flex items-center">
-                <AlertCircle className="w-3 h-3 mr-1" />
-                {errors.category_id.message}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Account</label>
-            <select
-              className={`w-full px-4 py-2 bg-slate-700/50 border rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.account_id ? 'border-red-500/50' : 'border-slate-600/50'
-              }`}
-              {...register('account_id', { required: 'Account is required' })}
-            >
-              <option value="" className="bg-slate-800">
-                Select account
-              </option>
-              {accounts.map(({ id, value }) => (
-                <option key={id} value={id} className="bg-slate-800">
-                  {value}
-                </option>
-              ))}
-            </select>
-            {errors.account_id && (
-              <p className="text-red-400 text-xs mt-1 flex items-center">
-                <AlertCircle className="w-3 h-3 mr-1" />
-                {errors.account_id.message}
-              </p>
-            )}
-          </div>
+          {section === 'TRANSFER' ? (
+            <>
+              <Controller
+                name="from_account_id"
+                control={control}
+                rules={{ required: 'From Account is required' }}
+                render={({ field: { onChange, value } }) => (
+                  <AccountPicker
+                    label="From Account"
+                    error={!!errors.from_account_id}
+                    value={value}
+                    setValue={onChange}
+                  />
+                )}
+              />
+              <Controller
+                name="to_account_id"
+                control={control}
+                rules={{ required: 'To Account is required' }}
+                render={({ field: { onChange, value } }) => (
+                  <AccountPicker label="To Account" error={!!errors.to_account_id} value={value} setValue={onChange} />
+                )}
+              />
+            </>
+          ) : (
+            <>
+              <Controller
+                name="category"
+                control={control}
+                rules={{ required: 'Category is required' }}
+                render={({ field: { onChange, value } }) => (
+                  <CategoryPicker
+                    data={categories.filter(({ section: s }) => s === section)}
+                    value={value}
+                    setValue={onChange}
+                  />
+                )}
+              />
+              <Controller
+                name="account_id"
+                control={control}
+                rules={{ required: 'Account is required' }}
+                render={({ field: { onChange, value } }) => (
+                  <AccountPicker label="Account" error={!!errors.account_id} value={value} setValue={onChange} />
+                )}
+              />
+            </>
+          )}
         </div>
         {/* Note Field */}
         <div>
@@ -376,7 +287,7 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
             type="submit"
             disabled={isLoading || !isValid}
             className={`
-              flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 disabled:opacity-50 disabled:cursor-not-allowed
+              flex items-center sm:space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 disabled:opacity-50 disabled:cursor-not-allowed
               ${
                 isEditing
                   ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20'
@@ -387,17 +298,17 @@ export function TransactionFormModal({ initialData, onSuccess }: TransactionForm
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Saving...</span>
+                <span className="ml-2 text-xs">Saving...</span>
               </>
             ) : isEditing ? (
               <>
                 <Edit3 className="w-4 h-4" />
-                <span>Update Transaction</span>
+                <span className="hidden sm:inline">Update</span>
               </>
             ) : (
               <>
                 <Plus className="w-4 h-4" />
-                <span>Add Transaction</span>
+                <span className="hidden sm:inline">Add</span>
               </>
             )}
           </button>

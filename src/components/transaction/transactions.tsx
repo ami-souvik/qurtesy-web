@@ -1,12 +1,13 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, ChevronUp, ChevronDown, PiggyBank, ArrowLeftRight } from 'lucide-react';
 import {
   fetchTransactions,
   deleteTransaction,
   fetchCategories,
   fetchAccounts,
   setYearMonth,
+  setSection,
 } from '../../slices/daily-expenses-slice';
 import { AppDispatch, RootState } from '../../store.types';
 import { groupByDate } from '../../utils/transaction';
@@ -16,6 +17,36 @@ import { Modal } from '../ui/modal';
 import { Transaction } from './transaction';
 import { TransactionHeader } from './transaction-header';
 import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
+
+import { cn } from '../../utils/tailwind';
+import { Section } from '../../types';
+
+const sectionsMeta = {
+  EXPENSE: {
+    label: 'Expenses',
+    icon: ChevronDown,
+    color: 'text-red-400',
+    bgColor: 'bg-red-500/20 border-red-500/30',
+  },
+  INCOME: {
+    label: 'Income',
+    icon: ChevronUp,
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/20 border-emerald-500/30',
+  },
+  TRANSFER: {
+    label: 'Transfers',
+    icon: ArrowLeftRight,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/20 border-blue-500/30',
+  },
+  INVESTMENT: {
+    label: 'Investments',
+    icon: PiggyBank,
+    color: 'text-purple-400',
+    bgColor: 'bg-purple-500/20 border-purple-500/30',
+  },
+};
 
 export const Transactions = forwardRef(function Transactions(_props, ref) {
   const dispatch = useDispatch<AppDispatch>();
@@ -101,7 +132,7 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
             <select
               value={yearmonth[1]}
               onChange={(e) => setMonth(Number(e.target.value))}
-              className="px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="text-xs px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {MONTHS.map((m, i) => (
                 <option key={i} value={i} className="bg-slate-800">
@@ -112,7 +143,7 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
             <select
               value={yearmonth[0]}
               onChange={(e) => setYear(Number(e.target.value))}
-              className="px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="text-xs px-3 py-1 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {yearrange(yearmonth[0], 10).map((y) => (
                 <option key={y} value={y} className="bg-slate-800">
@@ -150,12 +181,11 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
             {/* Transaction Header with Search and Stats */}
             <TransactionHeader
               totalTransactions={transactions.length}
-              totalAmount={transactions.reduce((sum, t) => sum + t.amount, 0)}
+              totalAmount={transactions.reduce((sum, t) => sum + (t.credit ? 1 : -1) * t.amount, 0)}
               onSearch={(term) => console.log('Search:', term)}
               onSort={(field) => console.log('Sort by:', field)}
               onFilter={() => console.log('Filter clicked')}
             />
-
             {/* Transaction Groups */}
             <div className="space-y-4">
               {groupByDate(transactions).map(({ date, total, data }, i: number) => {
@@ -209,6 +239,28 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
         title={editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
         size="md"
       >
+        {/* Modern Tab Pills */}
+        <div className="grid grid-cols-4 bg-slate-800/30 rounded-lg p-1">
+          {['EXPENSE', 'INCOME', 'TRANSFER', 'INVESTMENT'].map((s: Section) => {
+            const meta = sectionsMeta[s];
+            const Icon = meta.icon;
+            const isActive = section === s;
+            return (
+              <button
+                key={s}
+                className={`
+                  relative px-3 py-2 rounded-md transition-all duration-200 flex justify-center items-center sm:space-x-1.5
+                  ${isActive ? 'bg-white/10 text-white shadow-sm' : 'text-slate-400 hover:text-white hover:bg-white/5'}
+                `}
+                onClick={() => dispatch(setSection(s))}
+              >
+                <Icon className={`${cn('w-4 h-4 text-center', meta.color)}`} />
+                <span className="w-full text-xs font-medium hidden sm:inline">{meta.label}</span>
+                {isActive && <div className="absolute inset-0 rounded-md ring-1 ring-white/20"></div>}
+              </button>
+            );
+          })}
+        </div>
         <TransactionFormModal initialData={editingTransaction} onSuccess={handleClose} />
       </Modal>
     </div>

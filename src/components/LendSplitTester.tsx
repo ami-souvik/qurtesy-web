@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BASE_URL } from '../config';
 
 interface TestResult {
   type: 'success' | 'error' | 'info' | 'warning';
@@ -30,31 +31,31 @@ const LendSplitTester = () => {
     try {
       // Test 1: Check lends API
       addResult('info', 'Testing lends API...');
-      const lendsRes = await fetch('http://localhost:8085/api/lends/');
+      const lendsRes = await fetch(`${BASE_URL}/api/lends/`);
       const lends = await lendsRes.json();
       addResult('success', `✅ Found ${lends.length} lend transactions`, lends);
 
       // Test 2: Check lend summary
       addResult('info', 'Testing lend summary...');
-      const summaryRes = await fetch('http://localhost:8085/api/lends/summary/');
+      const summaryRes = await fetch(`${BASE_URL}/api/lends/summary/`);
       const summary = await summaryRes.json();
       addResult('success', '✅ Lend summary retrieved', summary);
 
       // Test 3: Check profiles API
       addResult('info', 'Testing profiles API...');
-      const profilesRes = await fetch('http://localhost:8085/api/profiles/');
+      const profilesRes = await fetch(`${BASE_URL}/api/profiles/`);
       const profiles: Array<{ id: number; name: string; is_self: boolean }> = await profilesRes.json();
       addResult('success', `✅ Found ${profiles.length} profiles`, profiles);
 
       // Test 4: Check accounts API
       addResult('info', 'Testing accounts API...');
-      const accountsRes = await fetch('http://localhost:8085/api/accounts/');
+      const accountsRes = await fetch(`${BASE_URL}/api/accounts/`);
       const accounts = await accountsRes.json();
       addResult('success', `✅ Found ${accounts.length} accounts`, accounts);
 
       // Test 5: Check categories API
       addResult('info', 'Testing categories API...');
-      const categoriesRes = await fetch('http://localhost:8085/api/categories/?section=EXPENSE');
+      const categoriesRes = await fetch(`${BASE_URL}/api/categories/?section=EXPENSE`);
       const categories = await categoriesRes.json();
       addResult('success', `✅ Found ${categories.length} categories`, categories);
 
@@ -73,7 +74,7 @@ const LendSplitTester = () => {
             note: 'Frontend test lend transaction',
           };
 
-          const createRes = await fetch('http://localhost:8085/api/lends/', {
+          const createRes = await fetch(`${BASE_URL}/api/lends/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(lendData),
@@ -126,7 +127,7 @@ const LendSplitTester = () => {
           note: 'Frontend test split for lend integration',
         };
 
-        const splitCreateRes = await fetch('http://localhost:8085/api/splits/', {
+        const splitCreateRes = await fetch(`${BASE_URL}/api/splits/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(splitData),
@@ -138,7 +139,7 @@ const LendSplitTester = () => {
 
           // Check if lend records were created
           addResult('info', 'Checking for automatically created lend records...');
-          const updatedLendsRes = await fetch('http://localhost:8085/api/lends/');
+          const updatedLendsRes = await fetch(`${BASE_URL}/api/lends/`);
           const updatedLends: Array<{ related_split_transaction_id?: number }> = await updatedLendsRes.json();
 
           const splitLends = updatedLends.filter(

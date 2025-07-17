@@ -51,20 +51,20 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
 
   return (
     <div
-      className={`h-screen fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-200 ${
+      className={`h-screen fixed inset-0 flex items-center justify-center z-50 sm:p-4 transition-all duration-200 ${
         isAnimating ? 'bg-black/50 backdrop-blur-sm' : 'bg-black/0 backdrop-blur-none'
       }`}
       onClick={onClose}
     >
       <div
-        className={`glass-card rounded-xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-hidden transition-all duration-200 transform ${
+        className={`glass-card sm:rounded-xl w-full ${sizeClasses[size]} h-full sm:max-h-[90vh] overflow-y-scroll sm:overflow-hidden transition-all duration-200 transform ${
           isAnimating ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
-          <h2 className="text-xl font-semibold text-white">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-2 border-b border-slate-700/50">
+          <h2 className="text-sm font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
@@ -74,7 +74,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         </div>
 
         {/* Modal Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">{children}</div>
+        <div className="p-6 overflow-y-auto sm:max-h-[calc(90vh-120px)]">{children}</div>
       </div>
     </div>
   );

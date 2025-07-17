@@ -19,8 +19,8 @@ export function Transaction({
           {/* Category Icon */}
           <div className="flex-shrink-0">
             {data.category ? (
-              <div className="w-10 h-10 bg-slate-700/50 rounded-lg flex items-center justify-center">
-                <span className="text-lg">{data.category.emoji}</span>
+              <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">{data.category.emoji}</span>
               </div>
             ) : (
               <div className="w-10 h-10 bg-slate-700/50 rounded-lg flex items-center justify-center">
@@ -33,7 +33,10 @@ export function Transaction({
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
               <h4 className="font-medium text-white text-sm truncate">{data.category?.value || 'No category'}</h4>
-              <span className="text-lg font-bold text-white ml-2">₹ {data.amount.toLocaleString()}</span>
+              <span className="text-lg font-bold text-white ml-2">
+                ₹ {!data.credit && '-'}
+                {data.amount.toLocaleString()}
+              </span>
             </div>
 
             <div className="flex items-center text-xs text-slate-400 space-x-3">

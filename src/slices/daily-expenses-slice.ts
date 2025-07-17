@@ -63,9 +63,8 @@ export const fetchTransactions = createAsyncThunk<Transaction[], void, { state: 
   'transactions/list',
   async (_, { getState }) => {
     const state = getState();
-    const section = state.dailyExpenses.section;
     const [year, month] = state.dailyExpenses.yearmonth;
-    return await gtxns(section)(year, month);
+    return await gtxns()(year, month);
   }
 );
 
@@ -109,14 +108,9 @@ export const fetchTransactionsSummary = createAsyncThunk<TransactionSummary, voi
   }
 );
 
-export const fetchCategories = createAsyncThunk<Category[], void, { state: RootState }>(
-  'categories/list',
-  async (_, { getState }) => {
-    const state = getState();
-    const section = state.dailyExpenses.section;
-    return gcats(section)();
-  }
-);
+export const fetchCategories = createAsyncThunk<Category[], void, { state: RootState }>('categories/list', async () => {
+  return gcats()();
+});
 
 export const createCategory = createAsyncThunk<Category[], CreateCategory, { state: RootState }>(
   'categories/create',

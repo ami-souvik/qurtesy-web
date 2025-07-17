@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { Budget, CreateBudget, UpdateBudget } from '../types';
-
-const BASE_URL = 'http://localhost:8085';
+import { BASE_URL } from '../config';
 
 export const getBudgets = async (month?: number, year?: number, categoryId?: number): Promise<Budget[]> => {
   const params = new URLSearchParams();

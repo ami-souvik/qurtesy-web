@@ -104,7 +104,6 @@ export function TransferFormModal() {
               ))}
             </select>
           </div>
-
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">To Account</label>
             <select

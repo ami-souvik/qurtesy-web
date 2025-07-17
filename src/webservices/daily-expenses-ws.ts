@@ -25,7 +25,7 @@ import {
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 export const getTransactions =
-  (section: Section) =>
+  (section?: Section) =>
   async (year: number, month: number): Promise<Transaction[]> => {
     const yearmonth = `${year}-${(month + 1).toString().padStart(2, '0')}`;
     return axios
@@ -91,11 +91,9 @@ export const getTransactionsSummary = (_section: Section) => async (): Promise<T
     });
 };
 
-export const getCategories = (section: Section) => async (): Promise<Category[]> => {
+export const getCategories = () => async (): Promise<Category[]> => {
   return axios
-    .get(`${BASE_URL}/api/categories`, {
-      params: { section },
-    })
+    .get(`${BASE_URL}/api/categories`)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log(err);

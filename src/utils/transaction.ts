@@ -11,9 +11,10 @@ export function groupByDate(transactions: Transaction[]): TransactionGroupByDate
   });
   return Object.keys(grouped)
     .sort()
+    .reverse()
     .map((date) => ({
       date,
-      total: grouped[date].map((d) => d.amount).reduce((sum: number, d) => (sum += d)),
+      total: grouped[date].reduce((sum, t) => sum + (t.credit ? 1 : -1) * t.amount, 0),
       data: grouped[date],
     }));
 }

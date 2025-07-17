@@ -20,10 +20,10 @@ export function KeyboardShortcutsHelp() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
+        className="hidden sm:block p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
         title="Keyboard Shortcuts"
       >
-        <Keyboard className="w-4 h-4" />
+        <Keyboard className="w-5 h-5" />
       </button>
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
