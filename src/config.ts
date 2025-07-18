@@ -1,2 +1,2 @@
-// export const BASE_URL = 'http://localhost:8085';
-export const BASE_URL = 'http://192.168.0.132:8085';
+// export const BASE_URL = `${window.location.protocol}//${window.location.hostname}:8085`;
+export const BASE_URL = 'https://finance-api.qurtesy.com';

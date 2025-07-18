@@ -27,7 +27,7 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
             <Routes>
-              <Route path="f" element={<MainPage />}>
+              <Route path="/" element={<MainPage />}>
                 <Route path="overview" element={<OverviewContent />} />
                 <Route path="home" element={<TransactionTracker />}>
                   <Route path="modal" element={<TransactionFormModal />} />
@@ -52,9 +52,9 @@ function App() {
                   }
                 />
               </Route>
-              <Route path="/landing" element={<LandingPage />} />
-              <Route path="/test/split" element={<SplitTester />} />
-              <Route path="/test/lend-split" element={<LendSplitTester />} />
+              <Route path="/f/landing" element={<LandingPage />} />
+              <Route path="/f/test/split" element={<SplitTester />} />
+              <Route path="/f/test/lend-split" element={<LendSplitTester />} />
               <Route
                 path="*"
                 element={
