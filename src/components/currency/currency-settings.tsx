@@ -21,7 +21,7 @@ export const CurrencySettings: React.FC = () => {
     <div className="glass-card rounded-xl p-6">
       <div className="flex items-center space-x-2 mb-6">
         <Settings className="h-6 w-6 text-blue-400" />
-        <h2 className="text-xl font-semibold text-white">Currency Settings</h2>
+        <h2 className="font-semibold text-white">Currency Settings</h2>
       </div>
 
       <div className="space-y-4">

@@ -81,10 +81,10 @@ export const CategoryBreakdownChart: React.FC = () => {
   };
 
   return (
-    <div className="glass-card rounded-xl p-6">
+    <div className="glass-card rounded-xl p-4">
       <div className="flex items-center space-x-2 mb-4">
         <PieChart className="h-5 w-5 text-green-400" />
-        <h3 className="text-lg font-semibold text-white">Category Breakdown</h3>
+        <h3 className="font-semibold text-white">Category Breakdown</h3>
       </div>
       <div className="h-64">
         <Doughnut data={getCategoryBreakdownData()} options={doughnutOptions} />

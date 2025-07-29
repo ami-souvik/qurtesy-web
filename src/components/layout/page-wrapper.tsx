@@ -22,7 +22,6 @@ export interface ActionButton {
 export interface PageWrapperProps {
   title: string;
   subtitle?: string;
-  showNotifications?: boolean;
   statCards?: StatCard[];
   actionButtons?: ActionButton[];
   headerActions?: ReactNode;
@@ -33,7 +32,6 @@ export interface PageWrapperProps {
 export const PageWrapper: React.FC<PageWrapperProps> = ({
   title,
   subtitle,
-  showNotifications = false,
   statCards = [],
   actionButtons = [],
   headerActions,
@@ -51,20 +49,14 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
         <NotificationPanel />
       </div>
       {/* Page Header */}
-      <div className="hidden lg:inline flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div className="hidden lg:flex lg:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white mb-1">{title}</h1>
           {subtitle && <p className="text-sm text-slate-400">{subtitle}</p>}
         </div>
-        <div className="flex items-center gap-3">
-          {headerActions}
-          {showNotifications && (
-            <div className="hidden lg:flex items-center">
-              <NotificationPanel />
-            </div>
-          )}
-        </div>
+        <NotificationPanel />
       </div>
+      {headerActions}
 
       {/* Stat Cards */}
       {statCards.length > 0 && (
@@ -84,7 +76,7 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
             return (
               <div
                 key={index}
-                className={`glass-card rounded-lg p-4 transition-colors ${
+                className={`glass-card rounded-lg px-4 py-2 transition-colors ${
                   stat.onClick ? 'hover:bg-slate-800/60 cursor-pointer' : 'hover:bg-slate-800/60'
                 }`}
                 onClick={stat.onClick}
@@ -97,7 +89,7 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-slate-400 mb-1">{stat.label}</p>
-                    <p className={`text-lg font-bold truncate ${stat.valueColor || 'text-white'}`}>{stat.value}</p>
+                    <p className={`font-bold truncate ${stat.valueColor || 'text-white'}`}>{stat.value}</p>
                   </div>
                 </div>
               </div>

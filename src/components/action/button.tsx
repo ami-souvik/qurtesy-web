@@ -11,12 +11,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const buttonVariants = {
-  primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-  secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white',
-  outline:
-    'border border-gray-300 hover:bg-gray-50 text-gray-900 dark:border-gray-600 dark:hover:bg-gray-800 dark:text-white',
-  ghost: 'hover:bg-gray-100 text-gray-900 dark:hover:bg-gray-800 dark:text-white',
-  destructive: 'bg-red-600 hover:bg-red-700 text-white',
+  primary: 'bg-slate-900 hover:bg-blue-700',
+  secondary: 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600',
+  outline: 'border border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800',
+  ghost: 'hover:bg-gray-100 dark:hover:bg-gray-800',
+  destructive: 'bg-red-600 hover:bg-red-700',
 };
 
 const sizeVariants = {
@@ -49,9 +48,11 @@ export const Button = ({
     disabled={disabled || loading}
     {...props}
   >
-    {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-    {leftIcon && !loading && leftIcon}
-    {children}
-    {rightIcon && !loading && rightIcon}
+    <div className="flex items-center justify-center">
+      {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+      {leftIcon && !loading && leftIcon}
+      {children}
+      {rightIcon && !loading && rightIcon}
+    </div>
   </button>
 );

@@ -20,7 +20,7 @@ export interface ExportData {
 }
 
 export const exportToCSV = (data: Transaction[], filename: string) => {
-  const headers = ['Date', 'Type', 'Amount', 'Category', 'Account', 'Note'];
+  const headers = ['Date', 'Type', 'Credit', 'Amount', 'Category', 'Account', 'Note'];
 
   const csvContent = [
     headers.join(','),
@@ -28,14 +28,14 @@ export const exportToCSV = (data: Transaction[], filename: string) => {
       [
         transaction.date,
         transaction.section,
+        transaction.credit,
         transaction.amount.toString(),
-        transaction.category?.value || '',
+        `${transaction.category?.emoji}:${transaction.category?.value || ''}`,
         transaction.account?.value || '',
         `"${transaction.note || ''}"`, // Wrap in quotes to handle commas
       ].join(',')
     ),
   ].join('\n');
-
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);

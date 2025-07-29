@@ -115,7 +115,7 @@ export const BudgetTracker: React.FC = () => {
         headerActions={
           <div className="flex items-center space-x-2">
             <KeyboardShortcutsHelp />
-            <Button onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="h-4 w-4 mr-2" />}>
+            <Button onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="h-4 w-4" />}>
               <span className="hidden sm:inline">Add Budget</span>
             </Button>
           </div>

@@ -1,11 +1,10 @@
-import axios from 'axios';
-import { BASE_URL } from '../config';
+import { BaseInstance } from './http-client';
 
 export const postTranscribe = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  return axios
-    .post(`${BASE_URL}/transcribes/`, formData)
+  return BaseInstance.httpClient
+    ._post('/transcribes/', formData)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log(err);
@@ -16,8 +15,8 @@ export const postTranscribe = async (file: File) => {
 export const queueTranscribe = async (file: File) => {
   const formData = new FormData();
   formData.append('file', file);
-  return axios
-    .post(`${BASE_URL}/transcribes/queue`, formData)
+  return BaseInstance.httpClient
+    ._post('/transcribes/queue', formData)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log(err);

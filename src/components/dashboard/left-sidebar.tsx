@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CurrencySelector, CurrencyDisplay } from '../currency';
+import { Icon } from '../ui/icon';
 
 interface SidebarProps {
   summary: {
@@ -119,9 +120,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({ summary, year, month }) =>
       <div className="p-4 border-b border-slate-700/50">
         <div className="flex items-center justify-between">
           <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
-            <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-lg">Q</span>
-            </div>
+            <Icon className="w-10 h-10" />
             {!isCollapsed && (
               <div>
                 <h1 className="text-lg font-bold text-white">Qurtesy</h1>

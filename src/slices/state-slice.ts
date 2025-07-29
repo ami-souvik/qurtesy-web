@@ -1,30 +1,37 @@
-import { createSlice, type SliceSelectors } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice, type SliceSelectors } from '@reduxjs/toolkit';
 
-type SidebarTab =
-  | 'overview'
-  | 'home'
-  | 'budget'
-  | 'accounts'
-  | 'recurring'
-  | 'goals'
-  | 'investments'
-  | 'export'
-  | 'import'
-  | 'settings';
 type State = {
-  activeTab: SidebarTab;
+  loading: boolean;
+  baseUrl: string;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-const stateSlice = createSlice<State, {}, 'state', SliceSelectors<State>, 'state'>({
+const stateSlice = createSlice<
+  State,
+  {
+    setLoading: (state: State, action: PayloadAction<boolean>) => void;
+    setBaseUrl: (state: State, action: PayloadAction<string>) => void;
+  },
+  'state',
+  SliceSelectors<State>,
+  'state'
+>({
   name: 'state',
   initialState: {
-    activeTab: 'overview',
+    loading: false,
+    baseUrl: '',
   },
-  reducers: {},
+  reducers: {
+    setLoading: (state: State, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setBaseUrl: (state: State, action: PayloadAction<string>) => {
+      state.baseUrl = action.payload;
+    },
+  },
   extraReducers: () => {},
 });
 
 // Action creators are generated for each case reducer function
+export const { setLoading, setBaseUrl } = stateSlice.actions;
 
 export default stateSlice;

@@ -73,7 +73,7 @@ export function Tabs({ children }: { children: ReactNode[] }) {
         </div>
         <div className="flex">
           <KeyboardShortcutsHelp />
-          <Button onClick={handleAdd} leftIcon={<Plus className="h-4 w-4 sm:mr-2" />}>
+          <Button onClick={handleAdd} leftIcon={<Plus className="h-4 w-4" />}>
             <span className="hidden sm:inline text-xs">Add</span>
           </Button>
         </div>

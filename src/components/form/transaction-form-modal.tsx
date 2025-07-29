@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, Controller, FieldErrors } from 'react-hook-form';
 import _ from 'lodash';
-import DatePicker from 'react-datepicker';
+import { Calendar } from './calendar';
 import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
-import { Plus, Edit3, Calendar, DollarSign, Loader2, AlertCircle, Trash2 } from 'lucide-react';
+import { Plus, Edit3, Calendar as CalendarIcon, DollarSign, Loader2, AlertCircle, Trash2 } from 'lucide-react';
 import {
   createTransaction,
   createTransfer,
@@ -83,7 +83,6 @@ export function TransactionFormModal() {
   if (params.get('note')) {
     initialData.note = decodeURIComponent(String(params.get('note')));
   }
-  console.log(initialData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const {
@@ -140,6 +139,7 @@ export function TransactionFormModal() {
               id,
               date: date.toLocaleDateString('en-GB'),
               ...rest,
+              category_id: rest.category?.id,
             })
           ).unwrap();
         } else {
@@ -147,6 +147,7 @@ export function TransactionFormModal() {
           await dispatch(
             createTransaction({
               date: date.toLocaleDateString('en-GB'),
+              category_id: rest.category?.id,
               ...rest,
             })
           ).unwrap();
@@ -176,9 +177,16 @@ export function TransactionFormModal() {
   };
   const currentFormData = watch();
   const isEditing = !!(initialData?.id || currentFormData.id);
-
+  const formRules = {
+    date: 'Date is required',
+    amount: 'Amount is required',
+    from_account_id: section === 'TRANSFER' ? 'From Account is required' : undefined,
+    to_account_id: section === 'TRANSFER' ? 'To Account is required' : undefined,
+    category: section !== 'TRANSFER' ? 'Category is required' : undefined,
+    account_id: section !== 'TRANSFER' ? 'Account is required' : undefined,
+  };
   return (
-    <div className="relative space-y-2">
+    <div className="space-y-2">
       {/* Error Display */}
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 flex items-center space-x-2 text-red-400">
@@ -193,30 +201,21 @@ export function TransactionFormModal() {
             {error?.message}
           </p>
         ))}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-        {/* Hidden ID field for form state management */}
-        <input type="hidden" {...register('id')} />
-        {/* First Row - Date and Amount */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="h-118 space-y-2">
+          {/* Hidden ID field for form state management */}
+          <input type="hidden" {...register('id')} />
+          {/* First Row - Date and Amount */}
           <div className="grid grid-cols-2 items-center">
             <label className="block text-sm font-medium text-slate-300">
-              <Calendar className="w-4 h-4 inline mr-2" />
+              <CalendarIcon className="w-4 h-4 inline mr-2" />
               Date
             </label>
             <Controller
               name="date"
               control={control}
-              rules={{ required: 'Date is required' }}
-              render={({ field: { onChange, value } }) => (
-                <DatePicker
-                  dateFormat="dd/MM/yyyy"
-                  selected={value}
-                  onChange={onChange}
-                  className={`w-full px-4 py-2 bg-slate-700/50 border rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.date ? 'border-red-500/50' : 'border-slate-600/50'
-                  }`}
-                />
-              )}
+              rules={{ required: formRules.date }}
+              render={({ field: { onChange, value } }) => <Calendar value={value} setValue={onChange} />}
             />
             {errors.date && (
               <p className="text-red-400 text-xs mt-1 flex items-center">
@@ -238,82 +237,82 @@ export function TransactionFormModal() {
               }`}
               placeholder="0.00"
               {...register('amount', {
-                required: 'Amount is required',
+                required: formRules.amount,
                 min: { value: 0.01, message: 'Amount must be greater than 0' },
               })}
             />
           </div>
-        </div>
-        {/* Second Row - Category and Account */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {section === 'TRANSFER' ? (
-            <>
-              <Controller
-                name="from_account_id"
-                control={control}
-                rules={{ required: 'From Account is required' }}
-                render={({ field: { onChange, value } }) => (
-                  <AccountPicker
-                    label="From Account"
-                    error={!!(errors as FieldErrors<TransferFormProps>)?.from_account_id}
-                    value={value}
-                    setValue={onChange}
-                  />
-                )}
-              />
-              <Controller
-                name="to_account_id"
-                control={control}
-                rules={{ required: 'To Account is required' }}
-                render={({ field: { onChange, value } }) => (
-                  <AccountPicker
-                    label="To Account"
-                    error={!!(errors as FieldErrors<TransferFormProps>)?.to_account_id}
-                    value={value}
-                    setValue={onChange}
-                  />
-                )}
-              />
-            </>
-          ) : (
-            <>
-              <Controller
-                name="category"
-                control={control}
-                rules={{ required: 'Category is required' }}
-                render={({ field: { onChange, value } }) => (
-                  <CategoryPicker
-                    data={categories.filter(({ section: s }) => s === section)}
-                    value={value}
-                    setValue={onChange}
-                  />
-                )}
-              />
-              <Controller
-                name="account_id"
-                control={control}
-                rules={{ required: 'Account is required' }}
-                render={({ field: { onChange, value } }) => (
-                  <AccountPicker
-                    label="Account"
-                    error={!!(errors as FieldErrors<TransactionFormProps>)?.account_id}
-                    value={value}
-                    setValue={onChange}
-                  />
-                )}
-              />
-            </>
-          )}
-        </div>
-        {/* Note Field */}
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">Note (Optional)</label>
-          <textarea
-            rows={2}
-            className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-            placeholder="Add a note about this transaction..."
-            {...register('note')}
-          />
+          {/* Second Row - Category and Account */}
+          <div className="grid grid-cols-1 md:grid-cols-2 space-y-2">
+            {section === 'TRANSFER' ? (
+              <>
+                <Controller
+                  name="from_account_id"
+                  control={control}
+                  rules={{ required: formRules.from_account_id }}
+                  render={({ field: { onChange, value } }) => (
+                    <AccountPicker
+                      label="From Account"
+                      error={!!(errors as FieldErrors<TransferFormProps>)?.from_account_id}
+                      value={value}
+                      setValue={onChange}
+                    />
+                  )}
+                />
+                <Controller
+                  name="to_account_id"
+                  control={control}
+                  rules={{ required: formRules.to_account_id }}
+                  render={({ field: { onChange, value } }) => (
+                    <AccountPicker
+                      label="To Account"
+                      error={!!(errors as FieldErrors<TransferFormProps>)?.to_account_id}
+                      value={value}
+                      setValue={onChange}
+                    />
+                  )}
+                />
+              </>
+            ) : (
+              <>
+                <Controller
+                  name="category"
+                  control={control}
+                  rules={{ required: formRules.category }}
+                  render={({ field: { onChange, value } }) => (
+                    <CategoryPicker
+                      data={categories.filter(({ section: s }) => s === section)}
+                      value={value}
+                      setValue={onChange}
+                    />
+                  )}
+                />
+                <Controller
+                  name="account_id"
+                  control={control}
+                  rules={{ required: formRules.account_id }}
+                  render={({ field: { onChange, value } }) => (
+                    <AccountPicker
+                      label="Account"
+                      error={!!(errors as FieldErrors<TransactionFormProps>)?.account_id}
+                      value={value}
+                      setValue={onChange}
+                    />
+                  )}
+                />
+              </>
+            )}
+          </div>
+          {/* Note Field */}
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-2">Note (Optional)</label>
+            <textarea
+              rows={2}
+              className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              placeholder="Add a note about this transaction..."
+              {...register('note')}
+            />
+          </div>
         </div>
 
         {/* Submit Button */}

@@ -174,7 +174,7 @@ export const RecurringTransactionManager: React.FC = () => {
         headerActions={
           <div className="flex items-center space-x-2">
             <KeyboardShortcutsHelp />
-            <Button onClick={() => setShowForm(true)} leftIcon={<Plus className="h-4 w-4 mr-2" />}>
+            <Button onClick={() => setShowForm(true)} leftIcon={<Plus className="h-4 w-4" />}>
               <span className="hidden sm:inline">Add Recurring</span>
             </Button>
           </div>

@@ -1,13 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 :root {
   font-family:
-    'Inter',
+    'Open Sans',
     -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
-    'Roboto',
     sans-serif;
   font-size: 14px;
   line-height: 1.6;
@@ -38,14 +36,6 @@ button {
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
-}
-
-button:hover {
-  transform: translateY(-1px);
-}
-
-button:active {
-  transform: translateY(0) scale(0.98);
 }
 
 .glass-card {
@@ -96,9 +86,7 @@ button:active {
 }
 
 /* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
+::-webkit-scrollbar {}
 
 ::-webkit-scrollbar-track {
   background: rgba(30, 41, 59, 0.5);
@@ -150,6 +138,7 @@ textarea:focus {
 }
 
 @keyframes pulse-slow {
+
   0%,
   100% {
     opacity: 1;

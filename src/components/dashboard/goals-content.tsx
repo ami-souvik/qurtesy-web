@@ -10,7 +10,7 @@ export const GoalsContent = () => (
     headerActions={
       <div className="flex items-center space-x-2">
         <KeyboardShortcutsHelp />
-        <Button leftIcon={<Plus className="h-4 w-4 mr-2" />}>
+        <Button leftIcon={<Plus className="h-4 w-4" />}>
           <span className="hidden sm:inline">New Goal</span>
         </Button>
       </div>

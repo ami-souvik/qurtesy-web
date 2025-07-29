@@ -115,7 +115,7 @@ class CurrencyService {
     const formattedAmount = amount.toFixed(currencyInfo.decimals);
 
     if (showSymbol) {
-      return `${currencyInfo.symbol}${formattedAmount}`;
+      return `${currencyInfo.symbol} ${formattedAmount}`;
     }
 
     return formattedAmount;

@@ -1,11 +1,10 @@
-import axios from 'axios';
 import {
   RecurringTransaction,
   CreateRecurringTransaction,
   UpdateRecurringTransaction,
   PersonalFinanceSection,
 } from '../types';
-import { BASE_URL } from '../config';
+import { BaseInstance } from './http-client';
 
 export const getRecurringTransactions = async (
   isActive?: boolean,
@@ -15,12 +14,12 @@ export const getRecurringTransactions = async (
   if (isActive !== undefined) params.append('is_active', isActive.toString());
   if (section) params.append('section', section);
 
-  const response = await axios.get(`${BASE_URL}/recurring-transactions/?${params.toString()}`);
+  const response = await BaseInstance.httpClient._get(`/recurring-transactions/?${params.toString()}`);
   return response.data;
 };
 
 export const getRecurringTransaction = async (recurringId: number): Promise<RecurringTransaction> => {
-  const response = await axios.get(`${BASE_URL}/recurring-transactions/${recurringId}`);
+  const response = await BaseInstance.httpClient._get(`/recurring-transactions/${recurringId}`);
   return response.data;
 };
 
@@ -28,7 +27,7 @@ export const createRecurringTransaction = async (
   section: PersonalFinanceSection,
   recurring: CreateRecurringTransaction
 ): Promise<{ id: number; message: string }> => {
-  const response = await axios.post(`${BASE_URL}/recurring-transactions/?section=${section}`, recurring);
+  const response = await BaseInstance.httpClient._post(`/recurring-transactions/?section=${section}`, recurring);
   return response.data;
 };
 
@@ -36,12 +35,12 @@ export const updateRecurringTransaction = async (
   recurringId: number,
   recurringData: UpdateRecurringTransaction
 ): Promise<{ message: string }> => {
-  const response = await axios.put(`${BASE_URL}/recurring-transactions/${recurringId}`, recurringData);
+  const response = await BaseInstance.httpClient._put(`/recurring-transactions/${recurringId}`, recurringData);
   return response.data;
 };
 
 export const deleteRecurringTransaction = async (recurringId: number): Promise<{ message: string }> => {
-  const response = await axios.delete(`${BASE_URL}/recurring-transactions/${recurringId}`);
+  const response = await BaseInstance.httpClient._del(`/recurring-transactions/${recurringId}`);
   return response.data;
 };
 
@@ -50,7 +49,7 @@ export const executePendingRecurringTransactions = async (): Promise<{
   executed_count: number;
   errors: Array<{ recurring_id: number; name: string; error: string }>;
 }> => {
-  const response = await axios.post(`${BASE_URL}/recurring-transactions/execute-pending`);
+  const response = await BaseInstance.httpClient._post('/recurring-transactions/execute-pending', {});
   return response.data;
 };
 
@@ -67,6 +66,6 @@ export const getRecurringTransactionsDueToday = async (): Promise<
     days_overdue: number;
   }>
 > => {
-  const response = await axios.get(`${BASE_URL}/recurring-transactions/due-today`);
+  const response = await BaseInstance.httpClient._get('/recurring-transactions/due-today');
   return response.data;
 };

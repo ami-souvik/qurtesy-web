@@ -62,7 +62,6 @@ export const OverviewContent = () => {
         month: 'long',
         year: 'numeric',
       })}
-      showNotifications
       statCards={statCards}
     >
       {/* Compact Alerts */}

@@ -62,7 +62,7 @@ EOF
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Expose port 5174
-EXPOSE 5174
+EXPOSE 80
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]

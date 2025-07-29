@@ -10,7 +10,7 @@ type CategoryTileProps = {
 };
 
 const CategoryTile = ({ active, emoji, label, onPress }: CategoryTileProps) => (
-  <div onClick={onPress}>
+  <div className="cursor-pointer" onClick={onPress}>
     <div className="relative py-2 bg-slate-800 text-center rounded-xl">
       <p className="text-2xl">{emoji}</p>
       {active && <div className="absolute inset-0 rounded-xl ring-1 ring-white/70"></div>}
@@ -29,6 +29,11 @@ export function CategoryPicker({
   setValue: (v: Category) => void;
 }) {
   const [showMore, setShowMore] = useState(false);
+  // Handle date selection
+  const handleCategoryClick = (cat: Category) => {
+    setValue(cat);
+    setShowMore(false);
+  };
   return (
     <div>
       <div className="grid grid-cols-2 items-center mb-2">
@@ -37,13 +42,14 @@ export function CategoryPicker({
           <p className="text-xl">{cat?.emoji}</p>
         </div>
         <button
+          type="button"
           onClick={() => setShowMore(true)}
           className="p-2 text-slate-400 text-white bg-slate-700/50 rounded-lg transition-all duration-200"
         >
           <span>Show more</span>
         </button>
       </div>
-      <div className="grid gap-4 grid-cols-4 grid-rows-2">
+      <div className="grid gap-1 grid-cols-4 grid-rows-2">
         {data.slice(0, 8).map(({ id, value, emoji }) => (
           <CategoryTile
             key={id}
@@ -54,15 +60,15 @@ export function CategoryPicker({
           />
         ))}
       </div>
-      <Modal isOpen={showMore} onClose={() => setShowMore(false)} title="All Categories" size="md">
-        <div className="grid gap-2 grid-cols-4 grid-rows-3">
+      <Modal isOpen={showMore} onClose={() => setShowMore(false)} title="All Categories" size="md" align="center">
+        <div className="grid gap-1 grid-cols-4">
           {data.map(({ id, value, emoji }) => (
             <CategoryTile
               key={id}
               active={id === cat?.id}
               emoji={emoji}
               label={value}
-              onPress={() => setValue({ id, value, emoji })}
+              onPress={() => handleCategoryClick({ id, value, emoji })}
             />
           ))}
         </div>

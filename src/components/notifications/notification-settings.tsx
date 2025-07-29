@@ -39,14 +39,14 @@ export const NotificationSettingsPanel: React.FC = () => {
     <div className="glass-card rounded-xl p-6">
       <div className="flex items-center space-x-2 mb-6">
         <Settings className="h-6 w-6 text-blue-400" />
-        <h2 className="text-xl font-semibold text-white">Notification Settings</h2>
+        <h2 className="font-semibold text-white">Notification Settings</h2>
       </div>
 
       <div className="space-y-6">
         {/* Push Notifications */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-white flex items-center space-x-2">
-            <Bell className="h-5 w-5" />
+          <h3 className="text-white flex items-center space-x-2">
+            <Bell className="h-4 w-4" />
             <span>Push Notifications</span>
           </h3>
 
@@ -84,8 +84,8 @@ export const NotificationSettingsPanel: React.FC = () => {
         </div>
         {/* Budget Alerts */}
         <div className="space-y-3">
-          <h3 className="text-lg font-medium text-white flex items-center space-x-2">
-            <AlertTriangle className="h-5 w-5" />
+          <h3 className="text-white flex items-center space-x-2">
+            <AlertTriangle className="h-4 w-4" />
             <span>Budget Alerts</span>
           </h3>
 
@@ -117,8 +117,8 @@ export const NotificationSettingsPanel: React.FC = () => {
 
         {/* Expense Alerts */}
         <div className="space-y-3">
-          <h3 className="text-lg font-medium text-white flex items-center space-x-2">
-            <DollarSign className="h-5 w-5" />
+          <h3 className="text-lg text-white flex items-center space-x-2">
+            <DollarSign className="h-4 w-4" />
             <span>Expense Alerts</span>
           </h3>
 
@@ -148,8 +148,8 @@ export const NotificationSettingsPanel: React.FC = () => {
         </div>
         {/* Sound Settings */}
         <div className="space-y-3">
-          <h3 className="text-lg font-medium text-white flex items-center space-x-2">
-            {settings.soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+          <h3 className="text-lg text-white flex items-center space-x-2">
+            {settings.soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
             <span>Sound</span>
           </h3>
 

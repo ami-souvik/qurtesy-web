@@ -7,9 +7,10 @@ interface ModalProps {
   title: string;
   children: ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  align?: 'start' | 'center' | 'end';
 }
 
-export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, size = 'md', align = 'end' }: ModalProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -51,13 +52,13 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
 
   return (
     <div
-      className={`h-screen fixed inset-0 flex items-center justify-center z-50 sm:p-4 transition-all duration-200 ${
+      className={`h-screen fixed overflow-hidden inset-0 flex items-${align} justify-center z-50 sm:p-4 transition-all duration-200 ${
         isAnimating ? 'bg-black/50 backdrop-blur-sm' : 'bg-black/0 backdrop-blur-none'
       }`}
       onClick={onClose}
     >
       <div
-        className={`glass-card sm:rounded-xl w-full ${sizeClasses[size]} h-full sm:max-h-[90vh] overflow-y-scroll sm:overflow-hidden transition-all duration-200 transform ${
+        className={`glass-card sm:rounded-xl w-full ${sizeClasses[size]} transition-all duration-200 transform ${
           isAnimating ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -66,6 +67,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         <div className="flex items-center justify-between px-6 py-2 border-b border-slate-700/50">
           <h2 className="text-sm font-semibold text-white">{title}</h2>
           <button
+            type="button"
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition-all duration-200"
           >

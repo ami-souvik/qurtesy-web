@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
-import { BASE_URL } from '../config';
+import { BaseInstance } from '../webservices/http-client';
 
 interface TestResult {
   type: 'success' | 'error' | 'info' | 'warning';
@@ -31,32 +32,31 @@ const LendSplitTester = () => {
     try {
       // Test 1: Check lends API
       addResult('info', 'Testing lends API...');
-      const lendsRes = await fetch(`${BASE_URL}/api/lends/`);
-      const lends = await lendsRes.json();
+      const lends = await BaseInstance.httpClient._get('/api/lends/').then((resp) => resp.data);
       addResult('success', `✅ Found ${lends.length} lend transactions`, lends);
 
       // Test 2: Check lend summary
       addResult('info', 'Testing lend summary...');
-      const summaryRes = await fetch(`${BASE_URL}/api/lends/summary/`);
-      const summary = await summaryRes.json();
+      const summary = await BaseInstance.httpClient._get('/api/lends/summary/').then((resp) => resp.data);
       addResult('success', '✅ Lend summary retrieved', summary);
 
       // Test 3: Check profiles API
       addResult('info', 'Testing profiles API...');
-      const profilesRes = await fetch(`${BASE_URL}/api/profiles/`);
-      const profiles: Array<{ id: number; name: string; is_self: boolean }> = await profilesRes.json();
+      const profiles: Array<{ id: number; name: string; is_self: boolean }> = await BaseInstance.httpClient
+        ._get('/api/profiles/')
+        .then((resp) => resp.data);
       addResult('success', `✅ Found ${profiles.length} profiles`, profiles);
 
       // Test 4: Check accounts API
       addResult('info', 'Testing accounts API...');
-      const accountsRes = await fetch(`${BASE_URL}/api/accounts/`);
-      const accounts = await accountsRes.json();
+      const accounts = await BaseInstance.httpClient._get('/api/accounts/').then((resp) => resp.data);
       addResult('success', `✅ Found ${accounts.length} accounts`, accounts);
 
       // Test 5: Check categories API
       addResult('info', 'Testing categories API...');
-      const categoriesRes = await fetch(`${BASE_URL}/api/categories/?section=EXPENSE`);
-      const categories = await categoriesRes.json();
+      const categories = await BaseInstance.httpClient
+        ._get('/api/categories/?section=EXPENSE')
+        .then((resp) => resp.data);
       addResult('success', `✅ Found ${categories.length} categories`, categories);
 
       // Test 6: Create a test lend transaction
@@ -74,39 +74,24 @@ const LendSplitTester = () => {
             note: 'Frontend test lend transaction',
           };
 
-          const createRes = await fetch(`${BASE_URL}/api/lends/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(lendData),
-          });
-
-          if (createRes.ok) {
-            const result = await createRes.json();
+          try {
+            const createRes = await BaseInstance.httpClient._post('/api/lends/', lendData);
+            const result = await createRes.data;
             addResult('success', '✅ Lend transaction created successfully!', result);
 
             // Test 7: Update repayment status
             addResult('info', 'Testing repayment status update...');
-            const repaymentRes = await fetch(
-              `http://localhost:8085/api/lends/${result.lend_transaction_id}/repayment`,
-              {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  is_repaid: true,
-                  repaid_date: new Date().toLocaleDateString('en-GB'),
-                }),
-              }
-            );
-
-            if (repaymentRes.ok) {
+            try {
+              await BaseInstance.httpClient._patch(`/api/lends/${result.lend_transaction_id}/repayment`, {
+                is_repaid: true,
+                repaid_date: new Date().toLocaleDateString('en-GB'),
+              });
               addResult('success', '✅ Repayment status updated successfully!');
-            } else {
-              const errorText = await repaymentRes.text();
-              addResult('error', `❌ Failed to update repayment status: ${errorText}`);
+            } catch (error: any) {
+              addResult('error', `❌ Failed to update repayment status: ${error.message}`);
             }
-          } else {
-            const errorText = await createRes.text();
-            addResult('error', `❌ Failed to create lend: ${errorText}`);
+          } catch (error: any) {
+            addResult('error', `❌ Failed to create lend: ${error.message}`);
           }
         }
       } else {
@@ -127,20 +112,15 @@ const LendSplitTester = () => {
           note: 'Frontend test split for lend integration',
         };
 
-        const splitCreateRes = await fetch(`${BASE_URL}/api/splits/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(splitData),
-        });
-
-        if (splitCreateRes.ok) {
-          const splitResult = await splitCreateRes.json();
+        try {
+          const splitResult = await BaseInstance.httpClient._post('/api/splits/', splitData).then((resp) => resp.data);
           addResult('success', '✅ Split transaction created successfully!', splitResult);
 
           // Check if lend records were created
           addResult('info', 'Checking for automatically created lend records...');
-          const updatedLendsRes = await fetch(`${BASE_URL}/api/lends/`);
-          const updatedLends: Array<{ related_split_transaction_id?: number }> = await updatedLendsRes.json();
+          const updatedLends: Array<{ related_split_transaction_id?: number }> = await BaseInstance.httpClient
+            ._get('/api/lends/')
+            .then((resp) => resp.data);
 
           const splitLends = updatedLends.filter(
             (lend: { related_split_transaction_id?: number }) =>
@@ -152,9 +132,8 @@ const LendSplitTester = () => {
           } else {
             addResult('warning', '⚠️ No lend records found for the split transaction');
           }
-        } else {
-          const errorText = await splitCreateRes.text();
-          addResult('error', `❌ Failed to create split: ${errorText}`);
+        } catch (error: any) {
+          addResult('error', `❌ Failed to create split: ${error.message}`);
         }
       }
 
