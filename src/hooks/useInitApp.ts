@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { BaseInstance, HttpClient } from '../webservices/http-client';
-import { RootState } from '../store.types';
-import { setLoading } from '../slices/state-slice';
+import { sqlite } from '../config';
+import { useEffect, useState } from 'react';
 
 export const useInitApp = () => {
-  const dispatch = useDispatch();
-  const { baseUrl } = useSelector(({ state }: RootState) => state);
+  const [loading, setLoading] = useState(true);
+  const initSQlite = async () => {
+    await sqlite.ready;
+    await sqlite.sync();
+    setLoading(false);
+  };
   useEffect(() => {
-    dispatch(setLoading(true));
-    BaseInstance.httpClient = new HttpClient({ baseUrl });
-    dispatch(setLoading(false));
-  }, [baseUrl]);
+    initSQlite();
+  }, []);
+  return { loading };
 };

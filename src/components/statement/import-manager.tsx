@@ -3,7 +3,6 @@ import { StatementSummaryType, importCSV, parseCSV } from './import-utils';
 import { FileSpreadsheet, Loader2, CloudUpload } from 'lucide-react';
 import { Button } from '../action/button';
 import { CurrencyDisplay } from '../currency';
-import { PageWrapper } from '../layout';
 
 export const ImportManager: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,49 +53,47 @@ export const ImportManager: React.FC = () => {
     );
   };
   return (
-    <PageWrapper title="Import Data">
-      <div className="glass-card rounded-xl p-6">
-        <div className="space-y-4">
-          {/* Summary */}
-          {statementSummary && renderSummary()}
-          {/* Import Type Selection */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Import Type</label>
-            <select
-              value={importType}
-              onChange={(e) => setImportType(e.target.value as 'transactions' | 'budgets')}
-              className="w-full glass-input rounded-lg px-3 py-2 text-white content-('_↗') after:content-['_↗']"
-            >
-              <option value="transactions">Transactions</option>
-              <option value="budgets">Budgets</option>
-              <option value="report">Full Report</option>
-            </select>
-          </div>
+    <div className="glass-card rounded-xl p-6">
+      <div className="space-y-4">
+        {/* Summary */}
+        {statementSummary && renderSummary()}
+        {/* Import Type Selection */}
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Import Type</label>
+          <select
+            value={importType}
+            onChange={(e) => setImportType(e.target.value as 'transactions' | 'budgets')}
+            className="w-full glass-input rounded-lg px-3 py-2 text-white content-('_↗') after:content-['_↗']"
+          >
+            <option value="transactions">Transactions</option>
+            <option value="budgets">Budgets</option>
+            <option value="report">Full Report</option>
+          </select>
+        </div>
 
-          {/* Import Buttons */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button leftIcon={<CloudUpload className="h-4 w-4 mr-2" />} onClick={handleUpload}>
-              <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden" />
-              <span>Upload</span>
-            </Button>
-            <Button
-              className="text-green-400"
-              leftIcon={
-                isImporting ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <FileSpreadsheet className="h-4 w-4 mr-2" />
-                )
-              }
-              variant="outline"
-              onClick={handleImportCSV}
-              disabled={isImporting}
-            >
-              <span>Import CSV</span>
-            </Button>
-          </div>
+        {/* Import Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Button leftIcon={<CloudUpload className="h-4 w-4 mr-2" />} onClick={handleUpload}>
+            <input ref={fileInputRef} type="file" onChange={handleFileChange} className="hidden" />
+            <span>Upload</span>
+          </Button>
+          <Button
+            className="text-green-400"
+            leftIcon={
+              isImporting ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+              )
+            }
+            variant="outline"
+            onClick={handleImportCSV}
+            disabled={isImporting}
+          >
+            <span>Import CSV</span>
+          </Button>
         </div>
       </div>
-    </PageWrapper>
+    </div>
   );
 };

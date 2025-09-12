@@ -1,20 +1,21 @@
-import { forwardRef, useEffect, useImperativeHandle } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Outlet, createSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { Calendar, ChevronUp, ChevronDown, PiggyBank, ArrowLeftRight, LucideIcon } from 'lucide-react';
-import { fetchTransactions, fetchCategories, fetchAccounts, setSection } from '../../slices/daily-expenses-slice';
-import { AppDispatch, RootState } from '../../store.types';
+import { ChevronUp, ChevronDown, ArrowLeftRight, PiggyBank, LucideIcon } from 'lucide-react';
+import { RootState } from '../../store/index.types';
 import { groupByDate } from '../../utils/transaction';
 import { DAYS, formatdate } from '../../utils/datetime';
 import { type TransactionFormProps } from '../form/transaction-form-modal';
 import { Modal } from '../ui/modal';
 import { Transaction } from './transaction';
+import { Transaction as TransactionTable } from '../../sqlite/transaction';
 import { TransactionHeader } from './transaction-header';
 import { TransactionYearMonth } from '../home/transaction-yearmonth';
-import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
+import TransactionSticker from '../../assets/transactions.png';
 
 import { cn } from '../../utils/tailwind';
 import { PersonalFinanceSection } from '../../types';
+import { EmptyScreen } from '../ui/empty-screen';
 
 type SectionMeta = {
   label: string;
@@ -51,28 +52,20 @@ const sectionsMeta: Record<PersonalFinanceSection, SectionMeta> = {
 };
 
 export const Transactions = forwardRef(function Transactions(_props, ref) {
-  const dispatch = useDispatch<AppDispatch>();
+  const [section, setSection] = useState<PersonalFinanceSection>(PersonalFinanceSection.EXPENSE);
   const navigate = useNavigate();
   const location = useLocation();
-  const pathend = location.pathname.split('/').pop();
-  const { section, yearmonth, transactions } = useSelector((state: RootState) => state.dailyExpenses);
-
-  useEffect(() => {
-    dispatch(fetchAccounts());
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchCategories());
-  }, [section, dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchTransactions());
-  }, [yearmonth, section, dispatch]);
+  const showModal = location.pathname.startsWith('/transactions/modal');
+  const { yearmonth } = useSelector((state: RootState) => state.transactions);
+  const transactions = useMemo(() => {
+    return TransactionTable.getByYearMonth(yearmonth[0], yearmonth[1]);
+  }, [yearmonth]);
 
   const handleSelect = (data: TransactionFormProps) => {
     const { id, date, amount, category_id, account_id, note } = data;
     navigate(
-      `modal?${createSearchParams({
+      `modal/transaction?${createSearchParams({
+        section,
         date: date.toISOString(),
         amount: amount.toString(),
         ...(id && { id: id.toString() }),
@@ -87,12 +80,9 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
     navigate(-1);
   };
 
-  const handleAdd = () => {
-    navigate('modal');
+  const handleAdd = (section: PersonalFinanceSection) => {
+    navigate(`modal/transaction?${createSearchParams({ section })}`);
   };
-
-  // Keyboard shortcuts
-  useKeyboardShortcuts([commonShortcuts.newTransaction(handleAdd), commonShortcuts.escape(handleClose)], true);
 
   useImperativeHandle(ref, () => ({
     handleAdd,
@@ -104,17 +94,17 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
       {/* Transactions List */}
       <div className="flex-1 overflow-auto">
         {groupByDate(transactions).length === 0 ? (
-          <div className="flex items-center justify-center h-64 text-slate-400">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-slate-700/50 rounded-full flex items-center justify-center">
-                <Calendar className="w-8 h-8" />
+          <EmptyScreen
+            icon={
+              <div className="w-32 h-32 mx-auto bg-slate-400/20 dark:bg-zinc-900/20 rounded-full opacity-70">
+                <img src={TransactionSticker} className="grayscale-60" />
               </div>
-              <p>No transactions found for this period</p>
-              <p className="text-sm text-slate-500 mt-1">Add your first transaction above</p>
-            </div>
-          </div>
+            }
+            title="No Transactions"
+            subtitle="No transactions found for this period"
+          />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {/* Transaction Header with Search and Stats */}
             <TransactionHeader
               totalTransactions={transactions.length}
@@ -124,38 +114,27 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
               onFilter={() => console.log('Filter clicked')}
             />
             {/* Transaction Groups */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               {groupByDate(transactions).map(({ date, total, data }, i: number) => {
-                const sectionDate = new Date(
-                  Number(date.substring(6, 10)),
-                  Number(date.substring(3, 5)) - 1,
-                  Number(date.substring(0, 2))
-                );
+                const sectionDate = new Date(date);
                 return (
-                  <div key={i} className="animate-slide-in mb-4">
+                  <div key={i} className="animate-slide-in mb-4 glass-card rounded-2xl">
                     {/* Compact Date Header */}
-                    <div className="flex items-center justify-between mb-3 p-2 bg-slate-800/10 border border-slate-700/20 rounded-lg backdrop-blur-sm">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-blue-500/20 border border-blue-500/30 rounded-md flex items-center justify-center">
-                          <span className="text-blue-400 font-bold text-xs">{date.substring(0, 2)}</span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-white text-sm">
-                            {DAYS[sectionDate.getDay()].substring(0, 3)}, {formatdate(sectionDate)}
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            {data.length} item{data.length > 1 ? 's' : ''}
-                          </p>
-                        </div>
+                    <div className="flex items-center justify-between px-6 pt-4 pb-2">
+                      <div className="flex items-center space-x-4">
+                        <p className="font-medium text-sm">
+                          {DAYS[sectionDate.getDay()].substring(0, 3)}, {formatdate(sectionDate)}
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          {data.length} item{data.length > 1 ? 's' : ''}
+                        </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-white text-sm">₹ {total.toLocaleString()}</p>
-                        <p className="text-xs text-slate-400">Total</p>
+                        <p className="font-bold text-sm">₹ {total.toLocaleString()}</p>
                       </div>
                     </div>
-
                     {/* Compact Transactions List */}
-                    <div className="space-y-2">
+                    <div className="px-6">
                       {data.map((v, i) => (
                         <Transaction key={i} data={v} handleSelect={handleSelect} />
                       ))}
@@ -169,7 +148,7 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
       </div>
 
       {/* Transaction Modal */}
-      <Modal isOpen={pathend === 'modal'} onClose={handleClose} title="Add/Edit Transaction" size="md">
+      <Modal isOpen={showModal} onClose={handleClose} title="Add/Edit Transaction" size="md">
         {/* Modern Tab Pills */}
         <div className="my-2 grid grid-cols-4 bg-slate-800/30 rounded-lg">
           {(Object.keys(sectionsMeta) as PersonalFinanceSection[]).map((s: PersonalFinanceSection) => {
@@ -183,7 +162,7 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
                   relative px-3 py-2 rounded-md transition-all duration-200 flex justify-center items-center sm:space-x-1.5
                   ${isActive ? 'bg-white/10 text-white shadow-sm' : 'text-slate-400 hover:text-white hover:bg-white/5'}
                 `}
-                onClick={() => dispatch(setSection(s))}
+                onClick={() => setSection(s)}
               >
                 <Icon className={`${cn('w-4 h-4 text-center', meta.color)}`} />
                 <span className="w-full text-xs font-medium hidden sm:inline">{meta.label}</span>

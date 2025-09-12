@@ -1,6 +1,6 @@
-# Docker Setup for Qurtesy Web Application
+# Docker Setup for Jamms Web Application
 
-This document explains how to containerize and run the Qurtesy web application using Docker.
+This document explains how to containerize and run the Jamms web application using Docker.
 
 ## 📋 Prerequisites
 

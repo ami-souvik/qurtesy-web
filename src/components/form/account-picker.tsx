@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { RootState } from '../../store.types';
+import { RootState } from '../../store/index.types';
 
 export function AccountPicker({
   label,
@@ -12,7 +12,7 @@ export function AccountPicker({
   value: number | undefined;
   setValue: (v: number) => void;
 }) {
-  const { accounts } = useSelector((state: RootState) => state.dailyExpenses);
+  const { accounts } = useSelector((state: RootState) => state.transactions);
   return (
     <div className="grid grid-cols-2 items-center">
       <label className="block text-sm font-medium text-slate-300 mb-2">{label}</label>

@@ -5,8 +5,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
 import { Calendar, ArrowLeftRight } from 'lucide-react';
-import { createTransfer } from '../../slices/daily-expenses-slice';
-import { AppDispatch, RootState } from '../../store.types';
+import { createTransfer } from '../../slices/transactions-slice';
+import { AppDispatch, RootState } from '../../store/index.types';
 
 export type TransferFormProps = {
   id?: string;
@@ -19,7 +19,7 @@ export type TransferFormProps = {
 
 export function TransferFormModal() {
   const dispatch = useDispatch<AppDispatch>();
-  const { accounts } = useSelector((state: RootState) => state.dailyExpenses);
+  const { accounts } = useSelector((state: RootState) => state.transactions);
   const { register, handleSubmit, control, reset } = useForm<TransferFormProps>();
 
   useEffect(() => {

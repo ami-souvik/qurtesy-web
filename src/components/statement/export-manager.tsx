@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../store.types';
+import { RootState } from '../../store/index.types';
 import { exportToCSV, exportBudgetsToCSV, exportToPDF, ExportData } from './export-utils';
 import { FileText, FileSpreadsheet, Calendar, Loader2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { PageWrapper } from '../layout';
 
 export const ExportManager: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportType, setExportType] = useState<'transactions' | 'budgets' | 'report'>('transactions');
 
-  const transactions = useSelector((state: RootState) => state.dailyExpenses.transactions);
-  const budgets = useSelector((state: RootState) => state.dailyExpenses.budgets);
-  const categories = useSelector((state: RootState) => state.dailyExpenses.categories);
-  const accounts = useSelector((state: RootState) => state.dailyExpenses.accounts);
-  const summary = useSelector((state: RootState) => state.dailyExpenses.summary);
-  const [year, month] = useSelector((state: RootState) => state.dailyExpenses.yearmonth);
+  const transactions = useSelector((state: RootState) => state.transactions.transactions);
+  const budgets = useSelector((state: RootState) => state.transactions.budgets);
+  const categories = useSelector((state: RootState) => state.transactions.categories);
+  const accounts = useSelector((state: RootState) => state.transactions.accounts);
+  const summary = useSelector((state: RootState) => state.transactions.summary);
+  const [year, month] = useSelector((state: RootState) => state.transactions.yearmonth);
 
   const handleExportCSV = async () => {
     setIsExporting(true);
@@ -68,61 +67,59 @@ export const ExportManager: React.FC = () => {
     }
   };
   return (
-    <PageWrapper title="Export Data">
-      <div className="glass-card rounded-xl p-6">
-        <div className="space-y-4">
-          {/* Export Type Selection */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Export Type</label>
-            <select
-              value={exportType}
-              onChange={(e) => setExportType(e.target.value as 'transactions' | 'budgets' | 'report')}
-              className="w-full glass-input rounded-lg px-3 py-2 text-white content-('_↗') after:content-['_↗']"
-            >
-              <option value="transactions">Transactions</option>
-              <option value="budgets">Budgets</option>
-              <option value="report">Full Report</option>
-            </select>
-          </div>
+    <div className="glass-card rounded-xl p-6">
+      <div className="space-y-4">
+        {/* Export Type Selection */}
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-2">Export Type</label>
+          <select
+            value={exportType}
+            onChange={(e) => setExportType(e.target.value as 'transactions' | 'budgets' | 'report')}
+            className="w-full glass-input rounded-lg px-3 py-2 text-white content-('_↗') after:content-['_↗']"
+          >
+            <option value="transactions">Transactions</option>
+            <option value="budgets">Budgets</option>
+            <option value="report">Full Report</option>
+          </select>
+        </div>
 
-          {/* Current Period Info */}
-          <div className="flex items-center space-x-2 text-slate-400 text-sm">
-            <Calendar className="h-4 w-4" />
-            <span>Exporting data for {format(new Date(year, month), 'MMMM yyyy')}</span>
-          </div>
+        {/* Current Period Info */}
+        <div className="flex items-center space-x-2 text-slate-400 text-sm">
+          <Calendar className="h-4 w-4" />
+          <span>Exporting data for {format(new Date(year, month), 'MMMM yyyy')}</span>
+        </div>
 
-          {/* Export Buttons */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <button
-              onClick={handleExportCSV}
-              disabled={isExporting}
-              className="glass-button px-4 py-3 rounded-lg text-green-400 hover:text-green-300 transition-colors disabled:opacity-50"
-            >
-              <div className="flex items-center justify-center space-x-2">
-                {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4" />}
-                <span>Export CSV</span>
-              </div>
-            </button>
-            <button
-              onClick={handleExportPDF}
-              disabled={isExporting || exportType === 'transactions'}
-              className="glass-button px-4 py-3 rounded-lg text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
-            >
-              <div className="flex items-center justify-center space-x-2">
-                {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                <span>Export PDF</span>
-              </div>
-            </button>
-          </div>
+        {/* Export Buttons */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
+            onClick={handleExportCSV}
+            disabled={isExporting}
+            className="glass-button px-4 py-3 rounded-lg text-green-400 hover:text-green-300 transition-colors disabled:opacity-50"
+          >
+            <div className="flex items-center justify-center space-x-2">
+              {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileSpreadsheet className="h-4 w-4" />}
+              <span>Export CSV</span>
+            </div>
+          </button>
+          <button
+            onClick={handleExportPDF}
+            disabled={isExporting || exportType === 'transactions'}
+            className="glass-button px-4 py-3 rounded-lg text-red-400 hover:text-red-300 transition-colors disabled:opacity-50"
+          >
+            <div className="flex items-center justify-center space-x-2">
+              {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+              <span>Export PDF</span>
+            </div>
+          </button>
+        </div>
 
-          {/* Info Text */}
-          <div className="text-xs text-slate-500 space-y-1">
-            <p>• CSV exports include all transaction/budget details</p>
-            <p>• PDF reports include summary and budget overview</p>
-            <p>• Files are downloaded to your default download folder</p>
-          </div>
+        {/* Info Text */}
+        <div className="text-xs text-slate-500 space-y-1">
+          <p>• CSV exports include all transaction/budget details</p>
+          <p>• PDF reports include summary and budget overview</p>
+          <p>• Files are downloaded to your default download folder</p>
         </div>
       </div>
-    </PageWrapper>
+    </div>
   );
 };

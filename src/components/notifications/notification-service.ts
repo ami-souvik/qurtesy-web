@@ -129,7 +129,6 @@ class NotificationService {
 
   checkBudgetWarnings(budgets: Budget[]) {
     if (!this.settings.budgetWarnings) return;
-    console.log(budgets);
     budgets.forEach((budget) => {
       if (budget.is_over_budget) {
         this.addNotification({

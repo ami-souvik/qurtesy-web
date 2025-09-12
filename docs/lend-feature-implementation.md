@@ -58,8 +58,8 @@ CREATE TABLE finance.lend_transactions (
     repaid_date DATE,
     related_split_transaction_id INTEGER REFERENCES finance.split_transactions(id),
     related_split_participant_id INTEGER REFERENCES finance.split_participants(id),
-    created_date DATE NOT NULL DEFAULT CURRENT_DATE,
-    updated_date DATE NOT NULL DEFAULT CURRENT_DATE
+    created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+    updated_at DATE NOT NULL DEFAULT CURRENT_DATE
 );
 ```
 

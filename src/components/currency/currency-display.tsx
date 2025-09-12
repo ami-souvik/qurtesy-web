@@ -16,10 +16,8 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
   className = '',
 }) => {
   const { currentCurrency } = useCurrency();
-
   if (showConversion && originalCurrency) {
-    return <span className={className}>{formatWithBaseCurrency(amount, originalCurrency)}</span>;
+    return <p className={className}>{formatWithBaseCurrency(amount, originalCurrency)}</p>;
   }
-
-  return <span className={className}>{formatCurrency(amount, currentCurrency)}</span>;
+  return <p className={className}>{formatCurrency(amount, currentCurrency)}</p>;
 };

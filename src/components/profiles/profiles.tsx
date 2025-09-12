@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Users, Plus, Edit2, Trash2, User, Check, X, AlertCircle } from 'lucide-react';
-import { Profile, CreateProfile, UpdateProfileData } from '../../types/daily-expenses';
+import { Profile, CreateProfile, UpdateProfileData } from '../../types/transaction';
 import { Modal } from '../ui/modal';
 
 export const Profiles = forwardRef(function Profiles(_props, ref) {

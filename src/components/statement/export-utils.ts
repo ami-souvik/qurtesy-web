@@ -32,7 +32,7 @@ export const exportToCSV = (data: Transaction[], filename: string) => {
         transaction.amount.toString(),
         `${transaction.category?.emoji}:${transaction.category?.value || ''}`,
         transaction.account?.value || '',
-        `"${transaction.note || ''}"`, // Wrap in quotes to handle commas
+        `${transaction.note || ''}`, // Wrap in quotes to handle commas
       ].join(',')
     ),
   ].join('\n');

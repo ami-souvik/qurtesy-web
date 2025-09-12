@@ -7,16 +7,12 @@ import { Calendar } from './calendar';
 import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
 import { Plus, Edit3, Calendar as CalendarIcon, DollarSign, Loader2, AlertCircle, Trash2 } from 'lucide-react';
-import {
-  createTransaction,
-  createTransfer,
-  deleteTransaction,
-  updateTransaction,
-} from '../../slices/daily-expenses-slice';
-import { AppDispatch, RootState } from '../../store.types';
+import { createTransfer } from '../../slices/transactions-slice';
+import { AppDispatch, RootState } from '../../store/index.types';
 import { CategoryPicker } from './category-picker';
 import { AccountPicker } from './account-picker';
 import { Category } from '../../types';
+import { Transaction } from '../../sqlite';
 
 export type TransactionFormProps = {
   id?: number;
@@ -38,10 +34,11 @@ export type TransferFormProps = {
 };
 
 export function TransactionFormModal() {
-  const { section, categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
+  const { categories, accounts } = useSelector((state: RootState) => state.transactions);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [params] = useSearchParams();
+  const section = params.get('section');
   const initialData: TransactionFormProps | TransferFormProps =
     section === 'TRANSFER'
       ? {
@@ -134,23 +131,21 @@ export function TransactionFormModal() {
       const isEditOperation = id && id > 0;
       try {
         if (isEditOperation) {
-          await dispatch(
-            updateTransaction({
-              id,
-              date: date.toLocaleDateString('en-GB'),
-              ...rest,
-              category_id: rest.category?.id,
-            })
-          ).unwrap();
+          Transaction.update({
+            id,
+            section,
+            date: date.toLocaleDateString('en-GB'),
+            ...rest,
+            category_id: rest.category?.id,
+          });
         } else {
           // Ensure we're creating a new transaction (no id)
-          await dispatch(
-            createTransaction({
-              date: date.toLocaleDateString('en-GB'),
-              category_id: rest.category?.id,
-              ...rest,
-            })
-          ).unwrap();
+          Transaction.create({
+            section,
+            date: date.toLocaleDateString('en-GB'),
+            ...rest,
+            category_id: rest.category?.id,
+          });
         }
         // Reset form to initial clean state for new transactions
         if (!isEditOperation) {
@@ -173,7 +168,7 @@ export function TransactionFormModal() {
     }
   };
   const handleDelete = (id: number) => {
-    if (confirm('Do you want to delete this transaction?')) dispatch(deleteTransaction(id));
+    if (confirm('Do you want to delete this transaction?')) Transaction.delete(id);
   };
   const currentFormData = watch();
   const isEditing = !!(initialData?.id || currentFormData.id);

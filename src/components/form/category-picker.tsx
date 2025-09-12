@@ -60,7 +60,7 @@ export function CategoryPicker({
           />
         ))}
       </div>
-      <Modal isOpen={showMore} onClose={() => setShowMore(false)} title="All Categories" size="md" align="center">
+      <Modal isOpen={showMore} onClose={() => setShowMore(false)} title="All Categories" size="md">
         <div className="grid gap-1 grid-cols-4">
           {data.map(({ id, value, emoji }) => (
             <CategoryTile

@@ -3,9 +3,10 @@ import { Users, Check, Clock, Trash2 } from 'lucide-react';
 import { DAYS, formatdate } from '../../utils/datetime';
 import { SplitFormModal } from '../form/split-form-modal';
 import { Modal } from '../ui/modal';
-import { SplitTransaction } from '../../types/daily-expenses';
-import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { SplitTransaction } from '../../types/transaction';
 import { TransactionYearMonth } from '../home/transaction-yearmonth';
+import { EmptyScreen } from '../ui/empty-screen';
+import SplitSticker from '../../assets/splits.png';
 
 export const Splits = forwardRef(function Splits(_props, ref) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,9 +42,6 @@ export const Splits = forwardRef(function Splits(_props, ref) {
     handleClose();
     fetchSplitTransactions(); // Refresh the list
   };
-
-  // Keyboard shortcuts
-  useKeyboardShortcuts([commonShortcuts.newTransaction(handleAdd), commonShortcuts.escape(handleClose)], true);
 
   useImperativeHandle(ref, () => ({
     handleAdd,
@@ -115,15 +113,15 @@ export const Splits = forwardRef(function Splits(_props, ref) {
       {/* Splits List */}
       <div className="flex-1 overflow-auto space-y-6">
         {splits.length === 0 ? (
-          <div className="flex items-center justify-center h-64 text-slate-400">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-slate-700/50 rounded-full flex items-center justify-center">
-                <Users className="w-8 h-8" />
+          <EmptyScreen
+            icon={
+              <div className="w-32 h-32 mx-auto bg-slate-400/20 dark:bg-zinc-900/20 rounded-full opacity-70">
+                <img src={SplitSticker} className="grayscale-60" />
               </div>
-              <p>No split transactions found</p>
-              <p className="text-sm text-slate-500 mt-1">Create your first split above</p>
-            </div>
-          </div>
+            }
+            title="No Split Transactions"
+            subtitle="No split transactions found for this period"
+          />
         ) : (
           groupSplitsByDate(splits).map(({ date, total, data }, i: number) => {
             const sectionDate = new Date(

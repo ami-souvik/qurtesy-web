@@ -1,4 +1,4 @@
-import { Transaction, TransactionGroupByDate } from '../types/daily-expenses';
+import { Transaction, TransactionGroupByDate } from '../types/transaction';
 
 export function groupByDate(transactions: Transaction[]): TransactionGroupByDate[] {
   const grouped: { [key: string]: Transaction[] } = {};

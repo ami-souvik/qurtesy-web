@@ -1,12 +1,21 @@
-import { Account, Category, CreateAccount, CreateCategory } from '../../types';
-import { bulkCreateAccounts, bulkCreateCatergories, bulkCreateTransactions } from '../../webservices/daily-expenses-ws';
+import { Account, Category, Transaction } from '../../sqlite';
+import {
+  Account as AccountType,
+  Category as CategoryType,
+  CreateAccount,
+  CreateCategory,
+  PersonalFinanceSection,
+} from '../../types';
 
 type ParsedTransaction = {
   date: string;
   section: string;
   credit: boolean;
   amount: number;
-  category: string;
+  category: {
+    emoji: string;
+    name: string;
+  };
   account: string;
   note: string;
 };
@@ -29,14 +38,19 @@ export const parseCSV = (text: string): StatementSummaryType => {
     .map((each) => {
       const parts = each.split(',');
       totalAmount += (parts[2] === 'true' ? 1 : -1) * Number(parts[3]);
+      const [day, month, year] = parts[0].split('/');
+      const [emoji, catname] = parts[4].split(':');
       return {
-        date: parts[0],
+        date: `${year}-${month}-${day}`,
         section: parts[1],
         credit: parts[2] === 'true',
         amount: Number(parts[3]),
-        category: parts[4],
+        category: {
+          name: catname,
+          emoji,
+        },
         account: parts[5],
-        note: parts[6],
+        note: parts.slice(6).join(','),
       };
     });
   return {
@@ -51,32 +65,36 @@ export const parseCSV = (text: string): StatementSummaryType => {
 export const importCSV = async (transactions: ParsedTransaction[]) => {
   const requiredAccounts = new Set<string>();
   const requiredCategories = new Set<string>();
+
   transactions.forEach((each: ParsedTransaction) => {
     requiredAccounts.add(each.account);
-    requiredCategories.add(`${each.category}:${each.section}`);
+    requiredCategories.add(`${each.category.emoji}:${each.category.name}:${each.section}`);
   });
-  const reqAccounts: CreateAccount[] = Array.from(requiredAccounts).map((each: string) => ({
-    value: each,
-  }));
-  const { accounts } = await bulkCreateAccounts(reqAccounts);
+
+  const reqAccounts: CreateAccount[] = Array.from(requiredAccounts).map((name: string) => ({ name }));
+  const accounts = Account.bulk(reqAccounts);
+
   const reqCategories: CreateCategory[] = Array.from(requiredCategories).map((each: string) => {
-    const [emoji, value, section] = each.split(':');
-    return { emoji, value, section };
+    const [emoji, name, section] = each.split(':');
+    return { name, emoji, section: section as PersonalFinanceSection };
   });
-  const { categories } = await bulkCreateCatergories(reqCategories);
+  const categories = Category.bulk(reqCategories);
+
   const accountIdMap: Record<string, number> = {};
-  accounts.forEach((each: Account) => {
-    accountIdMap[each.value] = each.id;
+  accounts.forEach((each: AccountType) => {
+    accountIdMap[each.name] = each.id;
   });
+
   const categoryIdMap: Record<string, number> = {};
-  categories.forEach((each: Category) => {
-    categoryIdMap[`${each.emoji}:${each.value}`] = each.id;
+  categories.forEach((each: CategoryType) => {
+    categoryIdMap[each.name] = each.id;
   });
-  bulkCreateTransactions(
+
+  Transaction.bulk(
     transactions.map((each) => ({
       ...each,
       account_id: accountIdMap[each.account],
-      category_id: categoryIdMap[each.category],
+      category_id: categoryIdMap[each.category.name],
     }))
   );
 };

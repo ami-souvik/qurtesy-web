@@ -1,20 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store.types';
-import { fetchBudgets, createBudget, updateBudget, deleteBudget } from '../../slices/daily-expenses-slice';
+import { RootState, AppDispatch } from '../../store/index.types';
+import { fetchBudgets, createBudget, updateBudget, deleteBudget } from '../../slices/transactions-slice';
 import { CreateBudget, UpdateBudget, Budget } from '../../types';
-import { PiggyBank, Plus, Edit, Trash2, AlertTriangle, TrendingUp, DollarSign } from 'lucide-react';
-import { CurrencyDisplay } from '../currency';
+import { PiggyBank, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { Modal } from '../ui/modal';
-import { Button } from '../action/button';
-import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
-import { PageWrapper, StatCard } from '../layout';
 
 export const BudgetTracker: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const budgets = useSelector((state: RootState) => state.dailyExpenses.budgets);
-  const categories = useSelector((state: RootState) => state.dailyExpenses.categories);
-  const [year, month] = useSelector((state: RootState) => state.dailyExpenses.yearmonth);
+  const budgets = useSelector((state: RootState) => state.transactions.budgets);
+  const categories = useSelector((state: RootState) => state.transactions.categories);
+  const [year, month] = useSelector((state: RootState) => state.transactions.yearmonth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [formData, setFormData] = useState({
@@ -74,122 +70,75 @@ export const BudgetTracker: React.FC = () => {
     return 'bg-green-500';
   };
 
-  const totalBudgeted = budgets.reduce((sum, budget) => sum + budget.budgeted_amount, 0);
-  const totalSpent = budgets.reduce((sum, budget) => sum + budget.spent_amount, 0);
-  const totalRemaining = budgets.reduce((sum, budget) => sum + budget.remaining_amount, 0);
-
-  const statCards: StatCard[] = [
-    {
-      label: 'Total Budgeted',
-      value: <CurrencyDisplay amount={totalBudgeted} />,
-      icon: DollarSign,
-      iconColor: 'text-blue-400',
-      iconBgColor: 'bg-blue-500/20',
-    },
-    {
-      label: 'Total Spent',
-      value: <CurrencyDisplay amount={totalSpent} />,
-      icon: TrendingUp,
-      iconColor: 'text-orange-400',
-      iconBgColor: 'bg-orange-500/20',
-    },
-    {
-      label: 'Remaining',
-      value: <CurrencyDisplay amount={totalRemaining} />,
-      icon: PiggyBank,
-      iconColor: 'text-green-400',
-      iconBgColor: 'bg-green-500/20',
-      valueColor: totalRemaining >= 0 ? 'text-green-400' : 'text-red-400',
-    },
-  ];
-
   return (
     <>
-      <PageWrapper
-        title="Budget Overview"
-        subtitle={`Manage your budget for ${new Date(year, month).toLocaleDateString('en-US', {
-          month: 'long',
-          year: 'numeric',
-        })}`}
-        statCards={statCards}
-        headerActions={
-          <div className="flex items-center space-x-2">
-            <KeyboardShortcutsHelp />
-            <Button onClick={() => setIsModalOpen(true)} leftIcon={<Plus className="h-4 w-4" />}>
-              <span className="hidden sm:inline">Add Budget</span>
-            </Button>
+      {/* Budget List */}
+      <div className="space-y-4">
+        {budgets.length === 0 ? (
+          <div className="text-center py-8">
+            <PiggyBank className="h-12 w-12 text-slate-500 mx-auto mb-3" />
+            <p className="text-slate-400 mb-2">No budgets set for this month</p>
+            <p className="text-sm text-slate-500">Create your first budget to start tracking your spending</p>
           </div>
-        }
-      >
-        {/* Budget List */}
-        <div className="space-y-4">
-          {budgets.length === 0 ? (
-            <div className="text-center py-8">
-              <PiggyBank className="h-12 w-12 text-slate-500 mx-auto mb-3" />
-              <p className="text-slate-400 mb-2">No budgets set for this month</p>
-              <p className="text-sm text-slate-500">Create your first budget to start tracking your spending</p>
-            </div>
-          ) : (
-            budgets.map((budget) => (
-              <div key={budget.id} className="glass-card rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg">{budget.category.emoji || '📊'}</span>
-                    <span className="font-medium text-white">{budget.category.value}</span>
-                    {budget.is_over_budget && <AlertTriangle className="h-4 w-4 text-red-400" />}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleEdit(budget)}
-                      className="p-1 rounded hover:bg-white/10 transition-colors"
-                    >
-                      <Edit className="h-4 w-4 text-slate-400 hover:text-white" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(budget.id)}
-                      className="p-1 rounded hover:bg-white/10 transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4 text-slate-400 hover:text-red-400" />
-                    </button>
-                  </div>
+        ) : (
+          budgets.map((budget) => (
+            <div key={budget.id} className="glass-card rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg">{budget.category.emoji || '📊'}</span>
+                  <span className="font-medium text-white">{budget.category.value}</span>
+                  {budget.is_over_budget && <AlertTriangle className="h-4 w-4 text-red-400" />}
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-400">
-                      ${budget.spent_amount.toFixed(2)} of ${budget.budgeted_amount.toFixed(2)}
-                    </span>
-                    <span className={`font-medium ${budget.is_over_budget ? 'text-red-400' : 'text-green-400'}`}>
-                      {budget.percentage_used.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-slate-700 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all duration-300 ${getBudgetProgressColor(
-                        budget.percentage_used,
-                        budget.is_over_budget
-                      )}`}
-                      style={{
-                        width: `${Math.min(budget.percentage_used, 100)}%`,
-                      }}
-                    />
-                  </div>
-
-                  <div className="flex justify-between text-xs text-slate-500">
-                    <span>
-                      {budget.is_over_budget ? 'Over by' : 'Remaining'}:
-                      <span className={`ml-1 ${budget.is_over_budget ? 'text-red-400' : 'text-green-400'}`}>
-                        ${Math.abs(budget.remaining_amount).toFixed(2)}
-                      </span>
-                    </span>
-                  </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEdit(budget)}
+                    className="p-1 rounded hover:bg-white/10 transition-colors"
+                  >
+                    <Edit className="h-4 w-4 text-slate-400 hover:text-white" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(budget.id)}
+                    className="p-1 rounded hover:bg-white/10 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4 text-slate-400 hover:text-red-400" />
+                  </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-      </PageWrapper>
 
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">
+                    ${budget.spent_amount.toFixed(2)} of ${budget.budgeted_amount.toFixed(2)}
+                  </span>
+                  <span className={`font-medium ${budget.is_over_budget ? 'text-red-400' : 'text-green-400'}`}>
+                    {budget.percentage_used.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="w-full bg-slate-700 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${getBudgetProgressColor(
+                      budget.percentage_used,
+                      budget.is_over_budget
+                    )}`}
+                    style={{
+                      width: `${Math.min(budget.percentage_used, 100)}%`,
+                    }}
+                  />
+                </div>
+
+                <div className="flex justify-between text-xs text-slate-500">
+                  <span>
+                    {budget.is_over_budget ? 'Over by' : 'Remaining'}:
+                    <span className={`ml-1 ${budget.is_over_budget ? 'text-red-400' : 'text-green-400'}`}>
+                      ${Math.abs(budget.remaining_amount).toFixed(2)}
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
       {/* Budget Form Modal */}
       <Modal
         isOpen={isModalOpen}

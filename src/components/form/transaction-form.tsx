@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useForm, Controller } from 'react-hook-form';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
 import { Plus, Edit3, X, Calendar, DollarSign } from 'lucide-react';
-import { createTransaction, updateTransaction } from '../../slices/daily-expenses-slice';
-import { AppDispatch, RootState } from '../../store.types';
+import { RootState } from '../../store/index.types';
+import { Transaction } from '../../sqlite';
 
 export type TransactionFormProps = {
   id?: number;
@@ -22,8 +22,7 @@ interface TransactionFormComponentProps {
 }
 
 export function TransactionForm({ formRef }: TransactionFormComponentProps) {
-  const dispatch = useDispatch<AppDispatch>();
-  const { categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
+  const { categories, accounts } = useSelector((state: RootState) => state.transactions);
   const { register, handleSubmit, control, watch, reset } = useForm<TransactionFormProps>();
 
   useEffect(() => {
@@ -40,20 +39,16 @@ export function TransactionForm({ formRef }: TransactionFormComponentProps) {
   const onSubmit = (data: TransactionFormProps) => {
     const { id, date, ...rest } = data;
     if (id) {
-      dispatch(
-        updateTransaction({
-          id,
-          date: date.toLocaleDateString('en-GB'), // DD/MM/YYYY format
-          ...rest,
-        })
-      );
+      Transaction.update({
+        id,
+        date: date.toLocaleDateString('en-GB'), // DD/MM/YYYY format
+        ...rest,
+      });
     } else {
-      dispatch(
-        createTransaction({
-          date: date.toLocaleDateString('en-GB'), // DD/MM/YYYY format
-          ...rest,
-        })
-      );
+      Transaction.create({
+        date: date.toLocaleDateString('en-GB'), // DD/MM/YYYY format
+        ...rest,
+      });
     }
     reset({
       date: new Date(),

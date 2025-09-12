@@ -11,20 +11,16 @@ export function Transaction({
 }) {
   return (
     <div
-      className="group relative bg-slate-800/20 hover:bg-slate-700/30 border border-slate-700/30 hover:border-slate-600/50 rounded-lg p-3 transition-all duration-200 cursor-pointer"
+      className="group relative py-4 border-t border-zinc-300 dark:border-zinc-700 transition-all duration-200 cursor-pointer"
       onClick={(e) => {
         e.stopPropagation();
         handleSelect({
-          id: data.id,
+          ...data,
           date: new Date(
             Number(data.date.substring(6, 10)),
             Number(data.date.substring(3, 5)) - 1,
             Number(data.date.substring(0, 2))
           ),
-          amount: data.amount,
-          category_id: data.category?.id,
-          account_id: data.account?.id,
-          note: data.note,
         });
       }}
     >
@@ -33,12 +29,12 @@ export function Transaction({
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           {/* Category Icon */}
           <div className="flex-shrink-0">
-            {data.category ? (
-              <div className="w-12 h-12 bg-slate-700/50 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">{data.category.emoji}</span>
+            {data.category_emoji ? (
+              <div className="w-12 h-12 bg-slate-400/20 dark:bg-slate-700/20 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">{data.category_emoji}</span>
               </div>
             ) : (
-              <div className="w-10 h-10 bg-slate-700/50 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-slate-500/20 dark:bg-slate-700/50 rounded-lg flex items-center justify-center">
                 <Wallet className="w-4 h-4 text-slate-400" />
               </div>
             )}
@@ -46,30 +42,31 @@ export function Transaction({
 
           {/* Transaction Details */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-1">
-              <h4 className="font-medium text-white text-sm truncate">{data.category?.value || 'No category'}</h4>
-              <span className="text-lg font-bold text-white ml-2">
-                ₹ {!data.credit && '-'}
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-xl truncate">{data.category_name || 'No category'}</h4>
+              </div>
+              <span className="text-lg font-bold ml-2">
+                ₹ {!data.type === 'expense' && '-'}
                 {data.amount.toLocaleString()}
               </span>
             </div>
-
-            <div className="flex items-center text-xs text-slate-400 space-x-3">
+            <div className="flex items-center text-xs text-slate-500 space-x-3">
               <div className="flex items-center space-x-1">
                 <Calendar className="w-3 h-3" />
                 <span>{String(data.date)}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <Wallet className="w-3 h-3" />
-                <span className="truncate">{data.account?.value || 'No account'}</span>
+                <span className="truncate">{data.account_name || 'No account'}</span>
               </div>
-              <span className="px-2 py-0.5 bg-slate-700/50 rounded-full text-xs capitalize">
-                {data.section.toLowerCase()}
+              <span className="px-2 py-0.5 bg-slate-500/20 dark:bg-slate-700/50 rounded-full text-xs uppercase">
+                {data.type}
               </span>
             </div>
 
             {data.note && (
-              <p className="mt-2 text-xs text-slate-300 bg-slate-700/30 px-2 py-1 rounded text-truncate italic">
+              <p className="mt-2 text-xs text-zinc-700 dark:text-slate-300 bg-slate-400/20 dark:bg-slate-700/20 px-2 py-1 rounded text-truncate italic">
                 {data.note}
               </p>
             )}

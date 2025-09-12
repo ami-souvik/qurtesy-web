@@ -10,7 +10,7 @@ interface ModalProps {
   align?: 'start' | 'center' | 'end';
 }
 
-export function Modal({ isOpen, onClose, title, children, size = 'md', align = 'end' }: ModalProps) {
+export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -20,7 +20,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', align = '
       setTimeout(() => setIsAnimating(true), 10); // Small delay for smooth animation
     } else {
       setIsAnimating(false);
-      setTimeout(() => setIsVisible(false), 200); // Wait for animation to complete
+      setTimeout(() => setIsVisible(false), 50); // Wait for animation to complete
     }
   }, [isOpen]);
 
@@ -52,14 +52,14 @@ export function Modal({ isOpen, onClose, title, children, size = 'md', align = '
 
   return (
     <div
-      className={`h-screen fixed overflow-hidden inset-0 flex items-${align} justify-center z-50 sm:p-4 transition-all duration-200 ${
-        isAnimating ? 'bg-black/50 backdrop-blur-sm' : 'bg-black/0 backdrop-blur-none'
+      className={`h-screen fixed overflow-hidden inset-0 flex flex-col justify-center items-center z-50 sm:p-4 transition-all duration-200 backdrop-blur-xs ${
+        isAnimating ? 'backdrop-blur-xs' : ''
       }`}
       onClick={onClose}
     >
       <div
-        className={`glass-card sm:rounded-xl w-full ${sizeClasses[size]} transition-all duration-200 transform ${
-          isAnimating ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4'
+        className={`glass-modal sm:rounded-xl w-full ${sizeClasses[size]} transition-all duration-200 transform ${
+          isAnimating ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-20'
         }`}
         onClick={(e) => e.stopPropagation()}
       >

@@ -21,13 +21,13 @@ export function TransactionHeader({
   return (
     <div className="mb-4">
       {/* Stats Row */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center space-x-4">
-          <div className="flex space-x-2 text-xs">
+      <div className="flex items-center justify-between">
+        <div className="py-2 flex items-center space-x-4 max-md:text-xs">
+          <div className="flex space-x-2">
             <span className="text-slate-400">Total: </span>
-            <span className="font-medium text-white">{totalTransactions} transactions</span>
+            <span>{totalTransactions} transactions</span>
           </div>
-          <div className="flex space-x-2 text-xs">
+          <div className="flex space-x-2">
             <span className="text-slate-400">Amount:</span>
             <span className="font-bold text-emerald-400">₹ {totalAmount.toLocaleString()}</span>
           </div>
@@ -65,7 +65,7 @@ export function TransactionHeader({
             setSearchTerm(e.target.value);
             onSearch?.(e.target.value);
           }}
-          className="w-full pl-10 pr-4 py-2.5 bg-slate-800/30 border border-slate-700/30 rounded-lg text-white text-xs placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+          className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-zinc-900 rounded-lg text-sm placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
         />
       </div>
     </div>

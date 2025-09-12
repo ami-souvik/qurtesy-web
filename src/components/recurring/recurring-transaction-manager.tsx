@@ -1,26 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store.types';
+import { RootState, AppDispatch } from '../../store/index.types';
 import {
   fetchRecurringTransactions,
   createRecurringTransaction,
   updateRecurringTransaction,
   deleteRecurringTransaction,
   fetchRecurringTransactionsDueToday,
-} from '../../slices/daily-expenses-slice';
+} from '../../slices/transactions-slice';
 import { CreateRecurringTransaction, UpdateRecurringTransaction, RecurringTransaction } from '../../types';
-import { Repeat, Plus, Edit, Trash2, Clock, AlertCircle, Calendar, Play, Pause } from 'lucide-react';
+import { Repeat, Edit, Trash2, Clock, AlertCircle, Calendar, Play, Pause } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import { Button } from '../action/button';
-import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
-import { PageWrapper, StatCard } from '../layout';
 
 export const RecurringTransactionManager: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const recurringTransactions = useSelector((state: RootState) => state.dailyExpenses.recurringTransactions);
-  const recurringDueToday = useSelector((state: RootState) => state.dailyExpenses.recurringDueToday);
-  const categories = useSelector((state: RootState) => state.dailyExpenses.categories);
-  const accounts = useSelector((state: RootState) => state.dailyExpenses.accounts);
+  const recurringTransactions = useSelector((state: RootState) => state.transactions.recurringTransactions);
+  const recurringDueToday = useSelector((state: RootState) => state.transactions.recurringDueToday);
+  const categories = useSelector((state: RootState) => state.transactions.categories);
+  const accounts = useSelector((state: RootState) => state.transactions.accounts);
 
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<RecurringTransaction | null>(null);
@@ -124,165 +121,118 @@ export const RecurringTransactionManager: React.FC = () => {
     }
   };
 
-  const activeTransactions = recurringTransactions.filter((t) => t.is_active);
-  const monthlyValue = activeTransactions.reduce((sum, t) => {
-    const amount = t.amount;
-    switch (t.frequency) {
-      case 'daily':
-        return sum + amount * 30;
-      case 'weekly':
-        return sum + amount * 4;
-      case 'monthly':
-        return sum + amount;
-      case 'yearly':
-        return sum + amount / 12;
-      default:
-        return sum + amount;
-    }
-  }, 0);
+  /*
+    Show stats of
 
-  const statCards: StatCard[] = [
-    {
-      label: 'Active Transactions',
-      value: activeTransactions.length,
-      icon: Repeat,
-      iconColor: 'text-green-400',
-      iconBgColor: 'bg-green-500/20',
-    },
-    {
-      label: 'Due Today',
-      value: recurringDueToday.length,
-      icon: AlertCircle,
-      iconColor: 'text-orange-400',
-      iconBgColor: 'bg-orange-500/20',
-    },
-    {
-      label: 'Monthly Value',
-      value: `$${monthlyValue.toFixed(0)}`,
-      icon: Calendar,
-      iconColor: 'text-blue-400',
-      iconBgColor: 'bg-blue-500/20',
-    },
-  ];
+    - Active Transactions
+    - Due Today
+    - Monthly Value
+  */
 
   return (
     <>
-      <PageWrapper
-        title="Recurring Transactions"
-        subtitle="Manage your automated transactions and recurring payments"
-        statCards={statCards}
-        headerActions={
-          <div className="flex items-center space-x-2">
-            <KeyboardShortcutsHelp />
-            <Button onClick={() => setShowForm(true)} leftIcon={<Plus className="h-4 w-4" />}>
-              <span className="hidden sm:inline">Add Recurring</span>
-            </Button>
+      {/* Due Today Section */}
+      {recurringDueToday.length > 0 && (
+        <div className="glass-card rounded-xl p-6 border-orange-500/50">
+          <div className="flex items-center space-x-2 mb-4">
+            <AlertCircle className="h-5 w-5 text-orange-400" />
+            <h3 className="text-lg font-semibold text-white">Due Today</h3>
           </div>
-        }
-      >
-        {/* Due Today Section */}
-        {recurringDueToday.length > 0 && (
-          <div className="glass-card rounded-xl p-6 border-orange-500/50">
-            <div className="flex items-center space-x-2 mb-4">
-              <AlertCircle className="h-5 w-5 text-orange-400" />
-              <h3 className="text-lg font-semibold text-white">Due Today</h3>
-            </div>
-            <div className="space-y-3">
-              {recurringDueToday.map((item) => (
-                <div key={item.id} className="glass-card rounded-lg p-3 border-orange-500/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-lg">{item.category?.emoji || '💰'}</span>
-                      <div>
-                        <p className="font-medium text-white">{item.name}</p>
-                        <p className="text-sm text-slate-400">
-                          ${item.amount.toFixed(2)} • {item.frequency}
-                          {item.days_overdue > 0 && (
-                            <span className="text-red-400 ml-2">({item.days_overdue} days overdue)</span>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Recurring Transactions List */}
-        <div className="space-y-4">
-          {recurringTransactions.length === 0 ? (
-            <div className="text-center py-8">
-              <Repeat className="h-12 w-12 text-slate-500 mx-auto mb-3" />
-              <p className="text-slate-400 mb-2">No recurring transactions set up</p>
-              <p className="text-sm text-slate-500">Add recurring subscriptions, bills, or regular income</p>
-            </div>
-          ) : (
-            recurringTransactions.map((transaction) => (
-              <div key={transaction.id} className="glass-card rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+          <div className="space-y-3">
+            {recurringDueToday.map((item) => (
+              <div key={item.id} className="glass-card rounded-lg p-3 border-orange-500/30">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <span className="text-xl">{getFrequencyIcon(transaction.frequency)}</span>
+                    <span className="text-lg">{item.category?.emoji || '💰'}</span>
                     <div>
-                      <div className="flex items-center space-x-2">
-                        <h4 className="font-medium text-white">{transaction.name}</h4>
-                        {!transaction.is_active && (
-                          <span className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded">Paused</span>
-                        )}
-                      </div>
+                      <p className="font-medium text-white">{item.name}</p>
                       <p className="text-sm text-slate-400">
-                        {transaction.category?.emoji} {transaction.category?.value} •{transaction.account?.value}
+                        ${item.amount.toFixed(2)} • {item.frequency}
+                        {item.days_overdue > 0 && (
+                          <span className="text-red-400 ml-2">({item.days_overdue} days overdue)</span>
+                        )}
                       </p>
                     </div>
                   </div>
-
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-white">${transaction.amount.toFixed(2)}</span>
-                    <div className="flex space-x-1">
-                      <button
-                        onClick={() => handleToggleActive(transaction)}
-                        className="p-1 rounded hover:bg-white/10 transition-colors"
-                        title={transaction.is_active ? 'Pause' : 'Resume'}
-                      >
-                        {transaction.is_active ? (
-                          <Pause className="h-4 w-4 text-orange-400" />
-                        ) : (
-                          <Play className="h-4 w-4 text-green-400" />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => handleEdit(transaction)}
-                        className="p-1 rounded hover:bg-white/10 transition-colors"
-                      >
-                        <Edit className="h-4 w-4 text-slate-400 hover:text-white" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(transaction.id)}
-                        className="p-1 rounded hover:bg-white/10 transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4 text-slate-400 hover:text-red-400" />
-                      </button>
-                    </div>
-                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 text-sm text-slate-400">
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-3 w-3" />
-                    <span>Every {transaction.frequency}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>Next: {format(parseISO(transaction.next_execution), 'MMM dd')}</span>
-                  </div>
-                </div>
-
-                {transaction.note && <p className="text-xs text-slate-500 mt-2">{transaction.note}</p>}
               </div>
-            ))
-          )}
+            ))}
+          </div>
         </div>
-      </PageWrapper>
+      )}
+
+      {/* Recurring Transactions List */}
+      <div className="space-y-4">
+        {recurringTransactions.length === 0 ? (
+          <div className="text-center py-8">
+            <Repeat className="h-12 w-12 text-slate-500 mx-auto mb-3" />
+            <p className="text-slate-400 mb-2">No recurring transactions set up</p>
+            <p className="text-sm text-slate-500">Add recurring subscriptions, bills, or regular income</p>
+          </div>
+        ) : (
+          recurringTransactions.map((transaction) => (
+            <div key={transaction.id} className="glass-card rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <span className="text-xl">{getFrequencyIcon(transaction.frequency)}</span>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h4 className="font-medium text-white">{transaction.name}</h4>
+                      {!transaction.is_active && (
+                        <span className="px-2 py-1 text-xs bg-red-500/20 text-red-400 rounded">Paused</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-400">
+                      {transaction.category?.emoji} {transaction.category?.value} •{transaction.account?.value}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <span className="text-lg font-bold text-white">${transaction.amount.toFixed(2)}</span>
+                  <div className="flex space-x-1">
+                    <button
+                      onClick={() => handleToggleActive(transaction)}
+                      className="p-1 rounded hover:bg-white/10 transition-colors"
+                      title={transaction.is_active ? 'Pause' : 'Resume'}
+                    >
+                      {transaction.is_active ? (
+                        <Pause className="h-4 w-4 text-orange-400" />
+                      ) : (
+                        <Play className="h-4 w-4 text-green-400" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => handleEdit(transaction)}
+                      className="p-1 rounded hover:bg-white/10 transition-colors"
+                    >
+                      <Edit className="h-4 w-4 text-slate-400 hover:text-white" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(transaction.id)}
+                      className="p-1 rounded hover:bg-white/10 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4 text-slate-400 hover:text-red-400" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm text-slate-400">
+                <div className="flex items-center space-x-1">
+                  <Clock className="h-3 w-3" />
+                  <span>Every {transaction.frequency}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Calendar className="h-3 w-3" />
+                  <span>Next: {format(parseISO(transaction.next_execution), 'MMM dd')}</span>
+                </div>
+              </div>
+
+              {transaction.note && <p className="text-xs text-slate-500 mt-2">{transaction.note}</p>}
+            </div>
+          ))
+        )}
+      </div>
 
       {/* Form Modal */}
       {showForm && (

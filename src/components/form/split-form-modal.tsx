@@ -5,8 +5,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
 import { X, Users, Calendar, DollarSign, Loader2, AlertCircle, UserPlus } from 'lucide-react';
-import { RootState } from '../../store.types';
-import { Profile } from '../../types/daily-expenses';
+import { RootState } from '../../store/index.types';
+import { Profile } from '../../types/transaction';
 
 export type SplitFormProps = {
   name: string;
@@ -23,7 +23,7 @@ interface SplitFormModalProps {
 }
 
 export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
-  const { categories, accounts } = useSelector((state: RootState) => state.dailyExpenses);
+  const { categories, accounts } = useSelector((state: RootState) => state.transactions);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

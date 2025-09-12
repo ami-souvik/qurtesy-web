@@ -49,9 +49,9 @@ export const NotificationPanel: React.FC = () => {
       {/* Bell Icon with Badge */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg glass-button hover:bg-white/10 transition-colors"
+        className="relative p-2 rounded-lg hover:bg-white/10 transition-colors"
       >
-        <Bell className="h-5 w-5 text-slate-400" />
+        <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -61,12 +61,12 @@ export const NotificationPanel: React.FC = () => {
 
       {/* Notification Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 top-12 w-80 rounded-lg border border-white/10 bg-[#1e293b] z-50">
+        <div className="absolute right-0 top-10 w-80 rounded-lg border border-white/10 bg-white dark:bg-zinc-900 z-50">
           <div className="p-4 border-b border-white/10">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">Notifications</h3>
+              <h3 className="font-semibold">Notifications</h3>
               <button onClick={() => setIsOpen(false)} className="p-1 rounded hover:bg-white/10 transition-colors">
-                <X className="h-4 w-4 text-slate-400" />
+                <X className="h-4 w-4" />
               </button>
             </div>
           </div>

@@ -1,9 +1,9 @@
-import { Profile, CreateProfile, UpdateProfileData } from '../types/daily-expenses';
+import { Profile, CreateProfile, UpdateProfileData } from '../types';
 import { BaseInstance } from './http-client';
 
 export const getProfiles = async (): Promise<Profile[]> => {
   return BaseInstance.httpClient
-    ._get('/api/profiles/')
+    ._get('/profiles/')
     .then((resp) => resp.data)
     .catch((err) => {
       console.log('Error fetching profiles:', err);
@@ -13,7 +13,7 @@ export const getProfiles = async (): Promise<Profile[]> => {
 
 export const createProfile = async (data: CreateProfile): Promise<Profile | null> => {
   return BaseInstance.httpClient
-    ._post('/api/profiles/', data)
+    ._post('/profiles/', data)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log('Error creating profile:', err);
@@ -23,7 +23,7 @@ export const createProfile = async (data: CreateProfile): Promise<Profile | null
 
 export const updateProfile = async (id: number, data: UpdateProfileData): Promise<Profile | null> => {
   return BaseInstance.httpClient
-    ._put(`/api/profiles/${id}`, data)
+    ._put(`/profiles/${id}`, data)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log('Error updating profile:', err);
@@ -33,7 +33,7 @@ export const updateProfile = async (id: number, data: UpdateProfileData): Promis
 
 export const deleteProfile = async (id: number): Promise<void> => {
   return BaseInstance.httpClient
-    ._del(`/api/profiles/${id}`)
+    ._del(`/profiles/${id}`)
     .then((resp) => resp.data)
     .catch((err) => {
       console.log('Error deleting profile:', err);

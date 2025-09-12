@@ -1,7 +1,25 @@
 @import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+
+/* Global styles */
+@layer base {
+  body {
+    @apply text-neutral-900 bg-slate-200;
+  }
+
+  .dark body {
+    @apply text-neutral-100 bg-neutral-700;
+  }
+}
 
 :root {
   font-family:
+    'Hanken Grotesk',
     'Open Sans',
     -apple-system,
     BlinkMacSystemFont,
@@ -10,10 +28,6 @@
   font-size: 14px;
   line-height: 1.6;
   font-weight: 400;
-
-  color-scheme: dark;
-  color: #e2e8f0;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -29,7 +43,6 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
 button {
@@ -39,14 +52,17 @@ button {
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  color: var(--color-zinc-950);
+  background: var(--color-white);
+}
+
+.dark .glass-card {
+  color: var(--color-white);
+  background: var(--color-zinc-900);
 }
 
 .glass-button {
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(148, 163, 184, 0.1);
   transition: all 0.2s ease;
@@ -55,6 +71,13 @@ button {
 .glass-button:hover {
   background: rgba(30, 41, 59, 0.7);
   border-color: rgba(148, 163, 184, 0.2);
+}
+
+.glass-modal {
+  background: color-mix(in oklab, var(--color-zinc-950) 80%, transparent);
+  backdrop-filter: blur(4px);
+  border: 1px solid color-mix(in oklab, var(--color-slate-700) 40%, transparent);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .glass-input {
@@ -103,20 +126,11 @@ button {
 }
 
 /* Form inputs */
-input,
-select,
-textarea {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  color: #e2e8f0;
-  transition: all 0.2s ease;
-}
-
 input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--color-emerald-600);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 

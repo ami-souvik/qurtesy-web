@@ -3,8 +3,7 @@ import { Check, Clock, Trash2, HandCoins, Filter, LucideIcon } from 'lucide-reac
 import { DAYS, formatdate } from '../../utils/datetime';
 import { LendFormModal } from '../form/lend-form-modal';
 import { Modal } from '../ui/modal';
-import { LendTransaction } from '../../types/daily-expenses';
-import { useKeyboardShortcuts, commonShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { LendTransaction } from '../../types/transaction';
 import { cn } from '../../utils/tailwind';
 import { TransactionYearMonth } from '../home/transaction-yearmonth';
 
@@ -44,9 +43,6 @@ export const Lends = forwardRef(function Lends(_props, ref) {
     handleClose();
     fetchLendTransactions(); // Refresh the list
   };
-
-  // Keyboard shortcuts
-  useKeyboardShortcuts([commonShortcuts.newTransaction(handleAdd), commonShortcuts.escape(handleClose)], true);
 
   useImperativeHandle(ref, () => ({
     handleAdd,

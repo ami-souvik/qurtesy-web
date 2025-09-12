@@ -1,4 +1,5 @@
-import { Provider, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { store, persistor } from './store';
@@ -6,81 +7,84 @@ import './utils/firebase';
 import { MainPage, LandingPage } from './pages';
 import SplitTester from './components/SplitTester';
 import LendSplitTester from './components/LendSplitTester';
-import { OverviewContent } from './components/dashboard/overview-content';
-import { TransactionTracker } from './components/home/transaction-tracker';
+import { Agent } from './pages/agent';
+import { OverviewContent } from './pages/overview';
+import { TransactionTracker } from './pages/transaction-tracker';
 import { BudgetTracker } from './components/budget/budget-tracker';
-import { AccountSettings, ServerStatus } from './components/settings';
+import { DataManagement } from './components/data-management';
 import { RecurringTransactionManager } from './components/recurring';
 import { GoalsContent } from './components/dashboard/goals-content';
 import { InvestmentsContent } from './components/dashboard/investments-content';
-import { ImportManager, ExportManager, PhonePeImporter } from './components/statement';
+import { ImportManager, ExportManager } from './components/statement';
 import { CurrencySettings } from './components/currency';
 import { NotificationSettingsPanel } from './components/notifications';
 import { TransactionFormModal } from './components/form/transaction-form-modal';
-import { ServerConfigForm } from './components/form/server-config-form';
-import { useInitApp } from './hooks/useInitApp';
-import { RootState } from './store.types';
+import { Background } from './components/ui/background';
 import { LoadingScreen } from './components/loading-screen';
-import { PageWrapper } from './components/layout';
+import { registerSW } from './utils/pwa';
+import PWAInstallBanner from './components/pwa-install-banner';
+import Assistant from './components/voice/assistant';
+import { useInitApp } from './hooks';
 
 function App() {
-  const { baseUrl } = useSelector(({ state }: RootState) => state);
-  useInitApp();
-  if (!baseUrl) return <ServerConfigForm />;
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <Routes>
-          <Route path="/" element={<MainPage />}>
-            <Route path="overview" element={<OverviewContent />} />
-            <Route path="home" element={<TransactionTracker />}>
-              <Route path="modal" element={<TransactionFormModal />} />
-            </Route>
-            <Route path="budget" element={<BudgetTracker />} />
-            <Route path="accounts" element={<AccountSettings />} />
-            <Route path="recurring" element={<RecurringTransactionManager />} />
-            <Route path="goals" element={<GoalsContent />} />
-            <Route path="investments" element={<InvestmentsContent />} />
-            <Route path="export" element={<ExportManager />} />
-            <Route path="import" element={<ImportManager />} />
-            <Route path="phonepe" element={<PhonePeImporter />} />
-            <Route
-              path="settings"
-              element={
-                <PageWrapper title="Settings">
-                  <div className="space-y-6">
-                    <CurrencySettings />
-                    <NotificationSettingsPanel />
-                    <ServerStatus />
-                  </div>
-                </PageWrapper>
-              }
-            />
+      <Routes>
+        <Route path="/" element={<MainPage />}>
+          <Route path="agent" element={<Agent />} />
+          <Route path="overview" element={<OverviewContent />} />
+          <Route path="transactions" element={<TransactionTracker />}>
+            <Route path="modal/transaction" element={<TransactionFormModal />} />
           </Route>
-          <Route path="/f/landing" element={<LandingPage />} />
-          <Route path="/f/test/split" element={<SplitTester />} />
-          <Route path="/f/test/lend-split" element={<LendSplitTester />} />
+          <Route path="budget" element={<BudgetTracker />} />
+          <Route path="accounts" element={<DataManagement />} />
+          <Route path="recurring" element={<RecurringTransactionManager />} />
+          <Route path="goals" element={<GoalsContent />} />
+          <Route path="investments" element={<InvestmentsContent />} />
+          <Route path="export" element={<ExportManager />} />
+          <Route path="import" element={<ImportManager />} />
           <Route
-            path="*"
+            path="settings"
             element={
-              <div className="text-center py-12">
-                <h1 className="text-2xl font-bold text-white mb-4">Page Not Found</h1>
-                <p className="text-slate-400">The page you're looking for doesn't exist.</p>
+              <div className="space-y-6">
+                <CurrencySettings />
+                <NotificationSettingsPanel />
               </div>
             }
           />
-        </Routes>
-      </div>
+          <Route path="voice" element={<Assistant />} />
+        </Route>
+        <Route path="/f/landing" element={<LandingPage />} />
+        <Route path="/f/test/split" element={<SplitTester />} />
+        <Route path="/f/test/lend-split" element={<LendSplitTester />} />
+        <Route
+          path="*"
+          element={
+            <div className="text-center py-12">
+              <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
+              <p className="text-slate-400">The page you're looking for doesn't exist.</p>
+            </div>
+          }
+        />
+      </Routes>
+      <Background />
     </Router>
   );
 }
 
 // Root component with provider
 export default function AppWithProvider() {
+  const { loading } = useInitApp();
+  useEffect(() => {
+    registerSW();
+  }, []);
+  if (loading) return <LoadingScreen />;
   return (
     <Provider store={store}>
       <PersistGate loading={<LoadingScreen />} persistor={persistor}>
         <App />
+        {/* PWA Install Banner */}
+        <PWAInstallBanner />
       </PersistGate>
     </Provider>
   );

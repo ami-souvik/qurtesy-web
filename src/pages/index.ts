@@ -1,2 +1,2 @@
-export { default as LandingPage } from './HomePage';
-export { default as MainPage } from './DashboardPage';
+export { default as LandingPage } from './landing-page';
+export { default as MainPage } from './main-page';

@@ -2,7 +2,7 @@
 
 ## 🌍 Overview
 
-Your Qurtesy Finance app now supports multiple currencies with seamless conversion between USD and Indian Rupees (INR).
+Your Jamms app now supports multiple currencies with seamless conversion between USD and Indian Rupees (INR).
 
 ## ✨ Features
 

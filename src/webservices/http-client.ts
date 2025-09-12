@@ -1,17 +1,13 @@
 import _ from 'lodash';
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-type ClientConfig = {
-  baseUrl: string;
-};
+const BASEURL_PREFIX = import.meta.env.PROD ? '' : 'http://localhost:2517';
 
 class HttpClient {
   _service: AxiosInstance;
   _timeout: number = 40000;
-  _baseUrl: string = '';
-  _setConfig(clientConfig: ClientConfig) {
-    this._baseUrl = clientConfig.baseUrl;
-  }
+  _baseUrl: string = BASEURL_PREFIX + '/api';
+  _setConfig() {}
   _setRequestInterceptor(_service: AxiosInstance) {
     _service.interceptors.request.use((config) => {
       config.headers.Authorization = 'Bearer ABC1234';
@@ -30,8 +26,8 @@ class HttpClient {
     );
   }
 
-  constructor(clientConfig: ClientConfig) {
-    this._setConfig(clientConfig);
+  constructor() {
+    this._setConfig();
     const service = axios.create({
       timeout: this._timeout,
       baseURL: this._baseUrl,
@@ -58,7 +54,7 @@ class HttpClient {
 }
 
 const BaseInstance = {
-  httpClient: {} as HttpClient,
+  httpClient: new HttpClient(),
 };
 
 export { BaseInstance, HttpClient };

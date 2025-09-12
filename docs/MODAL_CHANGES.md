@@ -141,11 +141,6 @@ Successfully converted the transaction form from an embedded component to a moda
 
 ## **Files Created/Modified**
 
-### New Files:
-
-- `/src/hooks/useKeyboardShortcuts.ts` - Reusable keyboard shortcuts system
-- `/src/components/ui/keyboard-shortcuts-help.tsx` - Help dialog component
-
 ### Enhanced Files:
 
 - `/src/components/ui/modal.tsx` - Added smooth animations
@@ -194,17 +189,6 @@ useEffect(() => {
     showSaveIndicator();
   }
 }, [watchedData]);
-```
-
-## **Usage Examples**
-
-### Keyboard Shortcuts Hook:
-
-```tsx
-useKeyboardShortcuts(
-  [commonShortcuts.newTransaction(handleOpenNewTransaction), commonShortcuts.escape(handleCloseModal)],
-  true
-);
 ```
 
 ### Quick-Fill Usage:
