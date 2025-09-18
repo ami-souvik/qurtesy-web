@@ -1,21 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Bot, TrendingUp, TrendingDown } from 'lucide-react';
 import { CommandOrchestrator } from '../infrastructure/agent';
-import { Message as MessageType } from '../types';
-import { Message } from '../sqlite/message';
+import { Message } from '../types';
+import { sqlite } from '../config';
 import { useSuggestion } from '../hooks';
 
 export const Agent: React.FC = () => {
-  const textareaRef = useRef(null);
-  const [messages, setMessages] = useState<MessageType[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const handleCreateMessageEvent = () => {
-    setMessages(Message.get());
+    setMessages(sqlite.messages.get<Message>());
   };
   useEffect(() => {
-    setMessages(Message.get());
-    document.addEventListener('createMessage', handleCreateMessageEvent);
+    setMessages(sqlite.messages.get());
+    document.addEventListener('messages.create', handleCreateMessageEvent);
     return () => {
-      document.removeEventListener('createMessage', handleCreateMessageEvent);
+      document.removeEventListener('messages.create', handleCreateMessageEvent);
     };
   }, []);
   const [inputValue, setInputValue] = useState('');
@@ -28,7 +28,7 @@ export const Agent: React.FC = () => {
     scrollToBottom();
   }, [messages]);
   const processMessage = () => {
-    Message.create({ command: inputValue.trim() });
+    sqlite.messages.create({ command: inputValue.trim() });
     orchestrator.current.processCommand(inputValue.trim().toLocaleLowerCase());
     setInputValue('');
   };
@@ -38,7 +38,7 @@ export const Agent: React.FC = () => {
       processMessage();
     }
   };
-  const TransactionCard: React.FC<{ message: MessageType }> = ({ message }) => (
+  const TransactionCard: React.FC<{ message: Message }> = ({ message }) => (
     <div
       className={`mt-2 p-3 rounded-lg border ${
         message.transaction_type === 'expense' ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'
@@ -86,7 +86,8 @@ export const Agent: React.FC = () => {
     } else {
       setInputValue(!inputValue ? `${suggestion} ` : `${inputValue} ${suggestion} `);
     }
-    textareaRef.current.focus();
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    textareaRef.current && textareaRef.current.focus();
   };
   return (
     <div
@@ -157,7 +158,7 @@ export const Agent: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
       {/* Input */}
-      <div className="w-full z-2 px-4">
+      <div className="w-full z-1">
         {/* Example prompts */}
         <div className="my-2 flex flex-wrap justify-end gap-2">
           {suggestions.map((sugg) => (
@@ -178,7 +179,7 @@ export const Agent: React.FC = () => {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Try: 'Sent 500 to Sarah' or 'Spent 200 on dinner'"
-              className="w-full resize-none rounded-md p-2 bg-white dark:bg-zinc-900 border border-gray-300 text-sm"
+              className="w-full resize-none rounded-md p-2 bg-white dark:bg-zinc-900 text-sm"
               rows={3}
             />
           </div>

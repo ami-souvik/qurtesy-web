@@ -10,6 +10,7 @@ import {
   Upload,
   Wallet,
   BotMessageSquare,
+  LucideIcon,
 } from 'lucide-react';
 import { Api } from './axios';
 import { SQlite } from './sqlite';
@@ -17,7 +18,14 @@ import { SQlite } from './sqlite';
 const api = new Api();
 const sqlite = new SQlite();
 
-const routes = {
+const routes: Record<
+  string,
+  {
+    label: string;
+    icon: LucideIcon;
+    category: 'main' | 'planning' | 'tools';
+  }
+> = {
   agent: {
     label: 'Financial Assistant',
     icon: BotMessageSquare,

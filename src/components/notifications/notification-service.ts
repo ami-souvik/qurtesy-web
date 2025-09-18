@@ -134,13 +134,13 @@ class NotificationService {
         this.addNotification({
           type: 'warning',
           title: 'Budget Exceeded',
-          message: `You've exceeded your ${budget.category.value} budget by $${Math.abs(budget.remaining_amount).toFixed(2)}`,
+          message: `You've exceeded your ${budget.category.name} budget by $${Math.abs(budget.remaining_amount).toFixed(2)}`,
         });
       } else if (budget.percentage_used >= this.settings.budgetThreshold) {
         this.addNotification({
           type: 'alert',
           title: 'Budget Almost Reached',
-          message: `Your ${budget.category.value} budget is ${budget.percentage_used.toFixed(1)}% used`,
+          message: `Your ${budget.category.name} budget is ${budget.percentage_used.toFixed(1)}% used`,
         });
       }
     });

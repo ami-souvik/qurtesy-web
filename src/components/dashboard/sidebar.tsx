@@ -5,6 +5,7 @@ import { Icon } from '../ui/icon';
 import { useDarkMode } from '../../hooks';
 import { Button } from '../action/button';
 import { routes, sqlite } from '../../config';
+import { createPortal } from 'react-dom';
 
 interface SidebarProps {
   summary: {
@@ -78,7 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
                 >
                   <Icon className="flex-shrink-0 h-4 w-4" />
                   <div className="flex-1 text-left">
-                    <div className="max-md:text-sm font-medium">{label}</div>
+                    <div className="text-sm font-medium">{label}</div>
                   </div>
                 </button>
               ))}
@@ -123,27 +124,32 @@ export const Sidebar: React.FC<SidebarProps> = () => {
   return (
     <>
       {/* Mobile Menu Button */}
-      <button onClick={() => setIsMobileOpen(true)} className="lg:hidden p-1 backdrop-blur rounded-lg">
+      <button onClick={() => setIsMobileOpen(true)} className="lg:hidden p-1 bg-white dark:bg-zinc-800 rounded-lg">
         <Equal className="h-6 w-6" />
       </button>
 
       {/* Mobile Overlay */}
-      {isMobileOpen && (
-        <div
-          className="lg:hidden fixed top-0 left-0 w-screen h-screen bg-black/50"
-          onClick={() => setIsMobileOpen(false)}
-        />
-      )}
+      {isMobileOpen &&
+        createPortal(
+          <div
+            className="lg:hidden fixed top-0 left-0 w-screen h-screen z-3 bg-black/50"
+            onClick={() => setIsMobileOpen(false)}
+          />,
+          document.body
+        )}
 
       {/* Sidebar */}
-      <aside
-        className={`
-          fixed top-0 left-0 h-screen bg-white dark:bg-zinc-900 border-slate-700/50 max-md:z-99 transition-all duration-300 ease-in-out w-72
-          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-        `}
-      >
-        <SidebarContent />
-      </aside>
+      {createPortal(
+        <aside
+          className={`
+            fixed top-0 left-0 h-screen bg-white dark:bg-zinc-900 border-slate-700/50 z-99 transition-all duration-300 ease-in-out w-72
+            ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          `}
+        >
+          <SidebarContent />
+        </aside>,
+        document.body
+      )}
     </>
   );
 };

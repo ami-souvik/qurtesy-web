@@ -15,7 +15,7 @@ import {
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { RootState } from '../../store/index.types';
 import { Line } from 'react-chartjs-2';
-import { Transaction as TransactionTable } from '../../sqlite';
+import { Transaction } from '../../sqlite';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, BarElement, ArcElement);
 
@@ -55,10 +55,10 @@ export const BalanceGraphChart: React.FC = () => {
   const prevYear = month < 1 ? year - 1 : year;
   const prevMonth = month > 1 ? month - 1 : 12;
   const transactions = useMemo(() => {
-    return TransactionTable.getByYearMonth(year, month);
+    return Transaction.getByYearMonth(year, month);
   }, [yearmonth]);
   const prevTransactions = useMemo(() => {
-    return TransactionTable.getByYearMonth(prevYear, prevMonth);
+    return Transaction.getByYearMonth(year, month);
   }, [yearmonth]);
 
   const getDailySpendingData = useCallback(() => {
@@ -72,8 +72,7 @@ export const BalanceGraphChart: React.FC = () => {
     });
 
     const previousSpendings = prevDays.map((day) => {
-      const dayStr = format(day, 'dd/MM/yyyy');
-      const dayTransactions = prevTransactions.filter((t) => t.date === dayStr && t.section === 'EXPENSE');
+      const dayTransactions = prevTransactions.filter((t) => t.date === day && t.type === 'expense');
       const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
       return {
         date: format(day, 'MMM dd'),
@@ -81,8 +80,7 @@ export const BalanceGraphChart: React.FC = () => {
       };
     });
     const currentSpendings = currDays.map((day) => {
-      const dayStr = format(day, 'dd/MM/yyyy');
-      const dayTransactions = transactions.filter((t) => t.date === dayStr && t.section === 'EXPENSE');
+      const dayTransactions = transactions.filter((t) => t.date === day && t.type === 'expense');
       const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
       return {
         date: format(day, 'MMM dd'),
@@ -137,14 +135,14 @@ export const BalanceGraphChart: React.FC = () => {
         </div>
       </div>
       {/* <div className='flex items-center justify-center'>
-                <LineChart
-                    data1={getCurrentSpendingData().map(t => t.amount)}
-                    data2={getPreviousSpendingData().map(t => t.amount)}
-                    labels={getCurrentSpendingData().map(t => '')}
-                    width={350}
-                    height={180}
-                />
-            </div> */}
+          <LineChart
+              data1={getCurrentSpendingData().map(t => t.amount)}
+              data2={getPreviousSpendingData().map(t => t.amount)}
+              labels={getCurrentSpendingData().map(t => '')}
+              width={350}
+              height={180}
+          />
+      </div> */}
       <div className="h-56 w-full self-end">
         <Line data={getDailySpendingData()} options={chartOptions} />
       </div>

@@ -2,13 +2,13 @@ import {
   RecurringTransaction,
   CreateRecurringTransaction,
   UpdateRecurringTransaction,
-  PersonalFinanceSection,
+  TransactionType,
 } from '../types';
 import { BaseInstance } from './http-client';
 
 export const getRecurringTransactions = async (
   isActive?: boolean,
-  section?: PersonalFinanceSection
+  section?: TransactionType
 ): Promise<RecurringTransaction[]> => {
   const params = new URLSearchParams();
   if (isActive !== undefined) params.append('is_active', isActive.toString());
@@ -24,7 +24,7 @@ export const getRecurringTransaction = async (recurringId: number): Promise<Recu
 };
 
 export const createRecurringTransaction = async (
-  section: PersonalFinanceSection,
+  section: TransactionType,
   recurring: CreateRecurringTransaction
 ): Promise<{ id: number; message: string }> => {
   const response = await BaseInstance.httpClient._post(`/recurring-transactions/?section=${section}`, recurring);
@@ -58,7 +58,7 @@ export const getRecurringTransactionsDueToday = async (): Promise<
     id: number;
     name: string;
     amount: number;
-    section: PersonalFinanceSection;
+    section: TransactionType;
     category?: { id: number; value: string; emoji?: string };
     account?: { id: number; value: string };
     frequency: string;

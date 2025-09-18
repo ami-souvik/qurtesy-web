@@ -4,7 +4,10 @@ export type Account = {
   balance?: number;
   calculated_balance?: number;
   balance_difference?: number;
+  created_at: Date;
+  updated_at: Date;
   deleted: boolean;
+  sync_status: 'pending' | 'synced';
 };
 
 export type CreateAccount = {

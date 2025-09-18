@@ -18,7 +18,7 @@ const MONTHS = [
   'December',
 ];
 
-export function Calendar({ value, setValue }: { value: Date; setValue: (v: Date) => void }) {
+export function Calendar({ value = new Date(), setValue }: { value?: Date; setValue: (v: Date) => void }) {
   const [show, setShow] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isVisible, setIsVisible] = useState(false);

@@ -1,7 +1,7 @@
 import Fuse from 'fuse.js';
-import { Account, Category } from '../../../sqlite';
-import { Account as AccountType, Category as CategoryType } from '../../../types';
+import { Account as AccountType, Category as CategoryType, TransactionType } from '../../../types';
 import { AgentResponse, BaseCommand } from './base';
+import { sqlite } from '../../../config';
 
 export class ExpenseCommand implements BaseCommand {
   identifiers = ['spent', 'spend', 'paid', 'pay', 'bought', 'buy', 'expend'];
@@ -24,7 +24,7 @@ export class ExpenseCommand implements BaseCommand {
   accountFuse: Fuse<AccountType>;
 
   constructor() {
-    this.categoryFuse = new Fuse(Category.get(), {
+    this.categoryFuse = new Fuse(sqlite.categories.get(), {
       keys: [{ name: 'name', weight: 1 }],
       includeScore: true,
       threshold: 0.15,
@@ -32,7 +32,7 @@ export class ExpenseCommand implements BaseCommand {
       minMatchCharLength: 3, // Minimum character input set to be 3
       useExtendedSearch: true,
     });
-    this.accountFuse = new Fuse(Account.get(), {
+    this.accountFuse = new Fuse(sqlite.accounts.get(), {
       keys: [{ name: 'name', weight: 1 }],
       includeScore: true,
       threshold: 0.15,
@@ -122,7 +122,7 @@ export class ExpenseCommand implements BaseCommand {
     }
     const transaction = {
       date: new Date(),
-      type: 'expense',
+      type: TransactionType.expense,
       amount: Number(this.requestContext.amount),
       category_name: this.requestContext.category,
       category_id: category.id,

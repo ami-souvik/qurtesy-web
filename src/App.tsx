@@ -3,14 +3,13 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { store, persistor } from './store';
-import './utils/firebase';
-import { MainPage, LandingPage } from './pages';
+import { RootPage, LandingPage } from './pages';
 import SplitTester from './components/SplitTester';
 import LendSplitTester from './components/LendSplitTester';
 import { Agent } from './pages/agent';
 import { OverviewContent } from './pages/overview';
-import { TransactionTracker } from './pages/transaction-tracker';
-import { BudgetTracker } from './components/budget/budget-tracker';
+import { TransactionTracker } from './pages/transactions';
+import { BudgetTracker } from './pages/budget-tracker';
 import { DataManagement } from './components/data-management';
 import { RecurringTransactionManager } from './components/recurring';
 import { GoalsContent } from './components/dashboard/goals-content';
@@ -18,7 +17,7 @@ import { InvestmentsContent } from './components/dashboard/investments-content';
 import { ImportManager, ExportManager } from './components/statement';
 import { CurrencySettings } from './components/currency';
 import { NotificationSettingsPanel } from './components/notifications';
-import { TransactionFormModal } from './components/form/transaction-form-modal';
+import { TransactionForm } from './components/form/transaction-form';
 import { Background } from './components/ui/background';
 import { LoadingScreen } from './components/loading-screen';
 import { registerSW } from './utils/pwa';
@@ -30,11 +29,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<MainPage />}>
+        <Route path="/" element={<RootPage />}>
           <Route path="agent" element={<Agent />} />
           <Route path="overview" element={<OverviewContent />} />
           <Route path="transactions" element={<TransactionTracker />}>
-            <Route path="modal/transaction" element={<TransactionFormModal />} />
+            <Route path="modal/transaction" element={<TransactionForm />} />
           </Route>
           <Route path="budget" element={<BudgetTracker />} />
           <Route path="accounts" element={<DataManagement />} />

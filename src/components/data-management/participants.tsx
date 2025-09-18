@@ -1,23 +1,19 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Edit2, Plus, Save, Trash2, User, Users, X } from 'lucide-react';
-import { CreateProfile, Profile, UpdateProfile } from '../../types';
+import { Profile, UpdateProfile } from '../../types';
 import { Button } from '../action/button';
-import { AppDispatch, RootState } from '../../store/index.types';
-import { createProfile, deleteProfile, updateProfile } from '../../slices/transactions-slice';
+import { sqlite } from '../../config';
 
 export const Participants = forwardRef(function Participants(_props, ref) {
-  const dispatch = useDispatch<AppDispatch>();
-  const profiles = useSelector((state: RootState) => state.transactions.profiles);
+  const profiles = sqlite.profiles.get<Profile>();
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const [editingProfileId, setEditingProfileId] = useState<number | null>(null);
-  const [newProfile, setNewProfile] = useState<CreateProfile>({ name: '', email: '', phone: '' });
+  const [newProfile, setNewProfile] = useState({ name: '', email: '', phone: '' });
   const [editProfile, setEditProfile] = useState<UpdateProfile>({ id: 0, name: '', email: '', phone: '' });
 
-  // Profile handlers
-  const handleCreateProfile = async () => {
+  const addParticipant = async () => {
     if (newProfile.name.trim()) {
-      await dispatch(createProfile(newProfile));
+      sqlite.profiles.create(newProfile);
       setNewProfile({ name: '', email: '', phone: '' });
       setIsCreatingProfile(false);
     }
@@ -25,7 +21,7 @@ export const Participants = forwardRef(function Participants(_props, ref) {
 
   const handleUpdateProfile = async () => {
     if (editProfile.name?.trim()) {
-      await dispatch(updateProfile(editProfile));
+      sqlite.profiles.update(editProfile);
       setEditingProfileId(null);
       setEditProfile({ id: 0, name: '', email: '', phone: '' });
     }
@@ -33,7 +29,7 @@ export const Participants = forwardRef(function Participants(_props, ref) {
 
   const handleDeleteProfile = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this participant? This action cannot be undone.')) {
-      await dispatch(deleteProfile(id));
+      sqlite.profiles.delete(id);
     }
   };
 
@@ -94,7 +90,7 @@ export const Participants = forwardRef(function Participants(_props, ref) {
             </div>
           </div>
           <div className="flex space-x-3 mt-4">
-            <Button onClick={handleCreateProfile} leftIcon={<Save className="h-4 w-4" />}>
+            <Button onClick={addParticipant} leftIcon={<Save className="h-4 w-4" />}>
               Add Participant
             </Button>
             <Button variant="outline" onClick={() => setIsCreatingProfile(false)} leftIcon={<X className="h-4 w-4" />}>
@@ -116,7 +112,7 @@ export const Participants = forwardRef(function Participants(_props, ref) {
             </Button>
           </div>
         ) : (
-          profiles.map((profile) => {
+          profiles.map((profile: Profile) => {
             const isEditing = editingProfileId === profile.id;
             return (
               <div

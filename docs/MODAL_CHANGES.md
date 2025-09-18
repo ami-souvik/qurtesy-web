@@ -37,7 +37,7 @@ Successfully converted the transaction form from an embedded component to a moda
 - Added modal state management (`isModalOpen`, `editingTransaction`)
 - Updated header to include "Add Transaction" button
 - Modified transaction selection to open modal instead of inline editing
-- Added Modal component with TransactionFormModal at the bottom
+- Added Modal component with TransactionForm at the bottom
 
 **New Functions**:
 
@@ -120,7 +120,7 @@ Successfully converted the transaction form from an embedded component to a moda
   title={editingTransaction ? 'Edit Transaction' : 'Add New Transaction'}
   size="md"
 >
-  <TransactionFormModal
+  <TransactionForm
     initialData={editingTransaction}
     onSuccess={handleCloseModal}
   />

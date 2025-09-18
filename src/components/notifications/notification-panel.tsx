@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, AlertTriangle, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
+import { PiggyBank, HandHeart, Users, Bell, X, AlertTriangle, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
 import { notificationService, type Notification } from './notification-service';
 
 export const NotificationPanel: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const toggleShowOptions = () => setShowOptions((option) => !option);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -45,19 +47,53 @@ export const NotificationPanel: React.FC = () => {
     }
   };
   return (
-    <div className="relative">
+    <div>
       {/* Bell Icon with Badge */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg hover:bg-white/10 transition-colors"
-      >
-        <Bell className="h-5 w-5" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </button>
+      <div className="relative">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`
+            absolute ${showOptions ? 'right-2.5 -bottom-16' : 'right-0 bottom-0'} p-2 rounded-lg transition-all duration-200 flex items-center sm:space-x-1.5
+            -z-1 bg-white/60 dark:bg-black/60 backdrop-blur
+          `}
+        >
+          <PiggyBank className="h-5 w-5 opacity-90" strokeWidth={1.5} absoluteStrokeWidth />
+        </button>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`
+            absolute ${showOptions ? 'right-13 -bottom-13' : 'right-0 bottom-0'} p-2 rounded-lg transition-all duration-200 flex items-center sm:space-x-1.5
+            -z-1 bg-white/60 dark:bg-black/60 backdrop-blur
+          `}
+        >
+          <HandHeart className="h-5 w-5 opacity-90" strokeWidth={1.5} absoluteStrokeWidth />
+        </button>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`
+            absolute ${showOptions ? 'right-16 -bottom-2.5' : 'right-0 bottom-0'} p-2 rounded-lg transition-all duration-200 flex items-center sm:space-x-1.5
+            -z-1 bg-white/60 dark:bg-black/60 backdrop-blur
+          `}
+        >
+          <Users className="h-5 w-5 opacity-90" strokeWidth={1.5} absoluteStrokeWidth />
+        </button>
+        <div className="p-2 rounded-lg bg-white dark:bg-zinc-800">
+          <button
+            onClick={toggleShowOptions}
+            className={`
+              transition-all duration-200 flex items-center sm:space-x-1.5
+              ${showOptions ? 'rotate-45' : ''}
+            `}
+          >
+            <Bell className="h-5 w-5 opacity-90" strokeWidth={3} absoluteStrokeWidth />
+          </button>
+        </div>
+      </div>
+      {unreadCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+          {unreadCount > 9 ? '9+' : unreadCount}
+        </span>
+      )}
 
       {/* Notification Dropdown */}
       {isOpen && (

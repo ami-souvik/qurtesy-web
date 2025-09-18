@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './react-datepicker-extra.css';
 import { X, Users, Calendar, DollarSign, Loader2, AlertCircle, UserPlus } from 'lucide-react';
-import { RootState } from '../../store/index.types';
-import { Profile } from '../../types/transaction';
+import { sqlite } from '../../config';
+import { Category, Account, Profile } from '../../types';
 
 export type SplitFormProps = {
   name: string;
@@ -23,7 +22,8 @@ interface SplitFormModalProps {
 }
 
 export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
-  const { categories, accounts } = useSelector((state: RootState) => state.transactions);
+  const categories = sqlite.categories.get<Category>();
+  const accounts = sqlite.accounts.get<Account>();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +81,7 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
         name: '',
         total_amount: 0,
         date: new Date(),
-        category_id: categories.find((c) => c.section === 'EXPENSE')?.id,
+        category_id: categories.find((c) => c.type === 'expense')?.id,
         created_by_account_id: accounts[0]?.id,
         participants: selfProfile ? [{ profile_id: selfProfile.id }] : [{ profile_id: profiles[0]?.id || 0 }],
         note: '',
@@ -113,7 +113,7 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
         name: '',
         total_amount: 0,
         date: new Date(),
-        category_id: categories.find((c) => c.section === 'EXPENSE')?.id,
+        category_id: categories.find((c) => c.type === 'expense')?.id,
         created_by_account_id: accounts[0]?.id,
         participants: selfProfile ? [{ profile_id: selfProfile.id }] : [{ profile_id: profiles[0]?.id || 0 }],
         note: '',
@@ -165,7 +165,7 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
     }
   };
 
-  const expenseCategories = categories.filter((c) => c.section === 'EXPENSE');
+  const expenseCategories = categories.filter((c) => c.type === 'expense');
 
   return (
     <div className="space-y-6">
@@ -266,9 +266,9 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
               <option value="" className="bg-slate-800">
                 Select category
               </option>
-              {expenseCategories.map(({ id, value, emoji }) => (
+              {expenseCategories.map(({ id, name, emoji }) => (
                 <option key={id} value={id} className="bg-slate-800">
-                  {emoji} {value}
+                  {emoji} {name}
                 </option>
               ))}
             </select>
@@ -285,9 +285,9 @@ export function SplitFormModal({ onSuccess }: SplitFormModalProps) {
             <option value="" className="bg-slate-800">
               Select account
             </option>
-            {accounts.map(({ id, value }) => (
+            {accounts.map(({ id, name }) => (
               <option key={id} value={id} className="bg-slate-800">
-                {value}
+                {name}
               </option>
             ))}
           </select>

@@ -1,85 +1,76 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../store/index.types';
+import { fetchRecurringTransactionsDueToday } from '../../slices/transactions-slice';
 import {
-  fetchRecurringTransactions,
-  createRecurringTransaction,
-  updateRecurringTransaction,
-  deleteRecurringTransaction,
-  fetchRecurringTransactionsDueToday,
-} from '../../slices/transactions-slice';
-import { CreateRecurringTransaction, UpdateRecurringTransaction, RecurringTransaction } from '../../types';
-import { Repeat, Edit, Trash2, Clock, AlertCircle, Calendar, Play, Pause } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+  CreateRecurringTransaction,
+  RecurringTransaction,
+  Category,
+  Account,
+  TransactionType,
+  Frequency,
+} from '../../types';
+import { Repeat, Edit, Trash2, Clock, AlertCircle, Play, Pause, CalendarIcon, Plus } from 'lucide-react';
+import { format } from 'date-fns';
+import { sqlite } from '../../config';
+import { Controller, FieldErrors, useForm } from 'react-hook-form';
+import { CategoryPicker } from '../form/category-picker';
+import { Button } from '../action/button';
+import { AccountPicker } from '../form/account-picker';
+import { Calendar } from '../form/calendar';
 
 export const RecurringTransactionManager: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const recurringTransactions = useSelector((state: RootState) => state.transactions.recurringTransactions);
+  const recurringTransactions = sqlite.transactions.get<RecurringTransaction>('recurring_rule != NULL');
   const recurringDueToday = useSelector((state: RootState) => state.transactions.recurringDueToday);
-  const categories = useSelector((state: RootState) => state.transactions.categories);
-  const accounts = useSelector((state: RootState) => state.transactions.accounts);
+  const categories = sqlite.categories.get<Category>();
+  const accounts = sqlite.categories.get<Account>();
 
   const [showForm, setShowForm] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<RecurringTransaction | null>(null);
-  const [formData, setFormData] = useState<CreateRecurringTransaction>({
+  const handleAdd = () => {
+    setShowForm(true);
+  };
+  const initialData = {
+    type: TransactionType.expense,
     name: '',
     amount: 0,
-    category_id: undefined,
-    account_id: undefined,
-    frequency: 'monthly',
-    start_date: format(new Date(), 'yyyy-MM-dd'),
+    category: categories[0],
+    account: accounts[0],
+    frequency: Frequency.monthly,
+    start_date: new Date(),
     end_date: undefined,
-    note: '',
+    is_active: true,
+    note: undefined,
+  };
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<CreateRecurringTransaction & { category: Category }>({
+    mode: 'onChange',
+    defaultValues: initialData,
   });
 
   useEffect(() => {
-    dispatch(fetchRecurringTransactions());
     dispatch(fetchRecurringTransactionsDueToday());
   }, [dispatch]);
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
 
-    if (editingTransaction) {
-      const updateData: UpdateRecurringTransaction = {
-        name: formData.name,
-        amount: formData.amount,
-        category_id: formData.category_id,
-        account_id: formData.account_id,
-        frequency: formData.frequency,
-        end_date: formData.end_date,
-        note: formData.note,
-      };
-      await dispatch(
-        updateRecurringTransaction({
-          id: editingTransaction.id,
-          data: updateData,
-        })
-      );
-    } else {
-      await dispatch(createRecurringTransaction(formData));
+  const onSubmit = async (data: CreateRecurringTransaction) => {
+    try {
+      sqlite.transactions.create(data);
+      reset(initialData);
+    } catch (err: unknown) {
+      console.log('Failed to create recurring transaction. Error: ', err);
     }
-
-    setShowForm(false);
-    setEditingTransaction(null);
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      amount: 0,
-      category_id: undefined,
-      account_id: undefined,
-      frequency: 'monthly',
-      start_date: format(new Date(), 'yyyy-MM-dd'),
-      end_date: undefined,
-      note: '',
-    });
   };
 
   const handleEdit = (transaction: RecurringTransaction) => {
     setEditingTransaction(transaction);
-    setFormData({
+    reset({
+      type: transaction.type,
       name: transaction.name,
       amount: transaction.amount,
       category_id: transaction.category?.id,
@@ -87,23 +78,22 @@ export const RecurringTransactionManager: React.FC = () => {
       frequency: transaction.frequency,
       start_date: transaction.start_date,
       end_date: transaction.end_date,
-      note: transaction.note || '',
+      is_active: true,
+      note: transaction.note ?? '',
     });
     setShowForm(true);
   };
 
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this recurring transaction?')) {
-      await dispatch(deleteRecurringTransaction(id));
+      sqlite.transactions.delete(id);
     }
   };
   const handleToggleActive = async (transaction: RecurringTransaction) => {
-    await dispatch(
-      updateRecurringTransaction({
-        id: transaction.id,
-        data: { is_active: !transaction.is_active },
-      })
-    );
+    sqlite.transactions.update({
+      id: transaction.id,
+      is_active: !transaction.is_active,
+    });
   };
 
   const getFrequencyIcon = (frequency: string) => {
@@ -128,6 +118,15 @@ export const RecurringTransactionManager: React.FC = () => {
     - Due Today
     - Monthly Value
   */
+  const formRules = {
+    name: 'Name is required',
+    amount: 'Transaction Amount is required',
+    account_id: 'Account is required',
+    start_date: 'Start Date is required',
+    end_date: 'End Date is required',
+    category: 'Category is required',
+    frequency: 'Frequency is required',
+  };
 
   return (
     <>
@@ -160,7 +159,6 @@ export const RecurringTransactionManager: React.FC = () => {
           </div>
         </div>
       )}
-
       {/* Recurring Transactions List */}
       <div className="space-y-4">
         {recurringTransactions.length === 0 ? (
@@ -168,6 +166,9 @@ export const RecurringTransactionManager: React.FC = () => {
             <Repeat className="h-12 w-12 text-slate-500 mx-auto mb-3" />
             <p className="text-slate-400 mb-2">No recurring transactions set up</p>
             <p className="text-sm text-slate-500">Add recurring subscriptions, bills, or regular income</p>
+            <Button onClick={handleAdd} leftIcon={<Plus className="h-4 w-4" />}>
+              Add Your First Transaction
+            </Button>
           </div>
         ) : (
           recurringTransactions.map((transaction) => (
@@ -183,7 +184,7 @@ export const RecurringTransactionManager: React.FC = () => {
                       )}
                     </div>
                     <p className="text-sm text-slate-400">
-                      {transaction.category?.emoji} {transaction.category?.value} •{transaction.account?.value}
+                      {transaction.category?.emoji} {transaction.category?.name} •{transaction.account?.name}
                     </p>
                   </div>
                 </div>
@@ -223,8 +224,7 @@ export const RecurringTransactionManager: React.FC = () => {
                   <span>Every {transaction.frequency}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>Next: {format(parseISO(transaction.next_execution), 'MMM dd')}</span>
+                  <span>Next: {format(transaction.next_execution, 'MMM dd')}</span>
                 </div>
               </div>
 
@@ -233,97 +233,69 @@ export const RecurringTransactionManager: React.FC = () => {
           ))
         )}
       </div>
-
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="glass-card rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="glass-card rounded-xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-semibold text-white mb-4">
               {editingTransaction ? 'Edit Recurring Transaction' : 'Create Recurring Transaction'}
             </h3>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Name</label>
                 <input
                   type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full glass-input rounded-lg px-3 py-2 text-white"
                   placeholder="e.g., Netflix Subscription"
+                  {...register('name', { required: formRules.name })}
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Amount</label>
                 <input
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
+                  {...register('amount', {
+                    required: formRules.amount,
+                    min: { value: 0.01, message: 'Amount must be greater than 0' },
+                  })}
                   className="w-full glass-input rounded-lg px-3 py-2 text-white"
                   placeholder="0.00"
                   required
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Category</label>
-                  <select
-                    value={formData.category_id || ''}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        category_id: e.target.value ? parseInt(e.target.value) : undefined,
-                      })
-                    }
-                    className="w-full glass-input rounded-lg px-3 py-2 text-white"
-                  >
-                    <option value="">Select category</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.emoji} {category.value}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Account</label>
-                  <select
-                    value={formData.account_id || ''}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        account_id: e.target.value ? parseInt(e.target.value) : undefined,
-                      })
-                    }
-                    className="w-full glass-input rounded-lg px-3 py-2 text-white"
-                  >
-                    <option value="">Select account</option>
-                    {accounts.map((account) => (
-                      <option key={account.id} value={account.id}>
-                        {account.value}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <Controller
+                  name="category"
+                  control={control}
+                  rules={{ required: formRules.category }}
+                  render={({ field: { onChange, value } }) => <CategoryPicker value={value} setValue={onChange} />}
+                />
+                <Controller
+                  name="account_id"
+                  control={control}
+                  rules={{ required: formRules.account_id }}
+                  render={({ field: { onChange, value } }) => (
+                    <AccountPicker
+                      label="From Account"
+                      error={!!(errors as FieldErrors<CreateRecurringTransaction>)?.account_id}
+                      value={value}
+                      setValue={onChange}
+                    />
+                  )}
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">Frequency</label>
                   <select
-                    value={formData.frequency}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        frequency: e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly',
-                      })
-                    }
+                    {...register('frequency', { required: formRules.frequency })}
                     className="w-full glass-input rounded-lg px-3 py-2 text-white"
+                    required
                   >
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
@@ -331,40 +303,39 @@ export const RecurringTransactionManager: React.FC = () => {
                     <option value="yearly">Yearly</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Start Date</label>
-                  <input
-                    type="date"
-                    value={formData.start_date}
-                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                    className="w-full glass-input rounded-lg px-3 py-2 text-white"
-                    required
+                <div className="grid grid-cols-2 items-center">
+                  <label className="block text-sm font-medium text-slate-300">
+                    <CalendarIcon className="w-4 h-4 inline mr-2" />
+                    Start Date
+                  </label>
+                  <Controller
+                    name="start_date"
+                    control={control}
+                    rules={{ required: formRules.start_date }}
+                    render={({ field: { onChange, value } }) => <Calendar value={value} setValue={onChange} />}
                   />
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">End Date (Optional)</label>
-                <input
-                  type="date"
-                  value={formData.end_date || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      end_date: e.target.value || undefined,
-                    })
-                  }
-                  className="w-full glass-input rounded-lg px-3 py-2 text-white"
+              <div className="grid grid-cols-2 items-center">
+                <label className="block text-sm font-medium text-slate-300">
+                  <CalendarIcon className="w-4 h-4 inline mr-2" />
+                  End Date (Optional)
+                </label>
+                <Controller
+                  name="end_date"
+                  control={control}
+                  rules={{ required: formRules.end_date }}
+                  render={({ field: { onChange, value } }) => <Calendar value={value} setValue={onChange} />}
                 />
               </div>
-
+              {/* Note Field */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Note (Optional)</label>
                 <textarea
-                  value={formData.note || ''}
-                  onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-                  className="w-full glass-input rounded-lg px-3 py-2 text-white h-20"
-                  placeholder="Additional notes..."
+                  rows={2}
+                  className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  placeholder="Add a note about this transaction..."
+                  {...register('note')}
                 />
               </div>
 
@@ -374,13 +345,14 @@ export const RecurringTransactionManager: React.FC = () => {
                   onClick={() => {
                     setShowForm(false);
                     setEditingTransaction(null);
-                    resetForm();
+                    reset(initialData);
                   }}
                   className="flex-1 glass-button px-4 py-2 rounded-lg text-slate-400 hover:text-white transition-colors"
                 >
                   Cancel
                 </button>
                 <button
+                  disabled={!isValid}
                   type="submit"
                   className="flex-1 glass-button px-4 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors"
                 >

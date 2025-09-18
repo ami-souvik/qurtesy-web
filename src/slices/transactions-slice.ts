@@ -1,18 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction, type SliceSelectors } from '@reduxjs/toolkit';
-import { postTransfer } from '../webservices/transfers-ws';
 import {
   getBudgets,
   createBudget as createBudgetWS,
   updateBudget as updateBudgetWS,
   deleteBudget as deleteBudgetWS,
 } from '../webservices/budgets-ws';
-import {
-  getRecurringTransactions,
-  createRecurringTransaction as createRecurringWS,
-  updateRecurringTransaction as updateRecurringWS,
-  deleteRecurringTransaction as deleteRecurringWS,
-  getRecurringTransactionsDueToday,
-} from '../webservices/recurring-transactions-ws';
+import { getRecurringTransactionsDueToday } from '../webservices/recurring-transactions-ws';
 import {
   getProfiles,
   createProfile as createProfileWS,
@@ -20,20 +13,16 @@ import {
   deleteProfile as deleteProfileWS,
 } from '../webservices/profiles-ws';
 import {
-  PersonalFinanceSection,
-  Transaction,
   TransactionSummary,
   Budget,
   CreateBudget,
   UpdateBudget,
   RecurringTransaction,
-  CreateRecurringTransaction,
-  UpdateRecurringTransaction,
   Profile,
   CreateProfile,
   UpdateProfile,
+  TransactionType,
 } from '../types';
-import { CreateTransfer } from '../types/transfer';
 import { RootState } from '../store/index.types';
 
 // Profile async thunks
@@ -63,13 +52,6 @@ export const deleteProfile = createAsyncThunk<Profile[], number>(
   async (id: number, { dispatch }) => {
     await deleteProfileWS(id);
     return dispatch(fetchProfiles()).unwrap();
-  }
-);
-
-export const createTransfer = createAsyncThunk<Transaction[], CreateTransfer, { state: RootState }>(
-  'transfers/create',
-  async (data: CreateTransfer) => {
-    await postTransfer(data);
   }
 );
 
@@ -107,44 +89,6 @@ export const deleteBudget = createAsyncThunk<Budget[], number, { state: RootStat
   }
 );
 
-// Recurring transactions async thunks
-export const fetchRecurringTransactions = createAsyncThunk<RecurringTransaction[], void, { state: RootState }>(
-  'recurring/list',
-  async (_, { getState }) => {
-    const state = getState();
-    const section = state.transactions.section;
-    return await getRecurringTransactions(true, section);
-  }
-);
-
-export const createRecurringTransaction = createAsyncThunk<
-  RecurringTransaction[],
-  CreateRecurringTransaction,
-  { state: RootState }
->('recurring/create', async (data: CreateRecurringTransaction, { getState, dispatch }) => {
-  const state = getState();
-  const section = state.transactions.section;
-  await createRecurringWS(section, data);
-  return dispatch(fetchRecurringTransactions()).unwrap();
-});
-
-export const updateRecurringTransaction = createAsyncThunk<
-  RecurringTransaction[],
-  { id: number; data: UpdateRecurringTransaction },
-  { state: RootState }
->('recurring/update', async ({ id, data }, { dispatch }) => {
-  await updateRecurringWS(id, data);
-  return dispatch(fetchRecurringTransactions()).unwrap();
-});
-
-export const deleteRecurringTransaction = createAsyncThunk<RecurringTransaction[], number, { state: RootState }>(
-  'recurring/delete',
-  async (id: number, { dispatch }) => {
-    await deleteRecurringWS(id);
-    return dispatch(fetchRecurringTransactions()).unwrap();
-  }
-);
-
 export const fetchRecurringTransactionsDueToday = createAsyncThunk('recurring/due-today', async () => {
   return await getRecurringTransactionsDueToday();
 });
@@ -153,14 +97,13 @@ type Transactions = {
   profiles: Profile[];
   yearmonth: [number, number];
   summary: TransactionSummary;
-  transactions: Transaction[];
   budgets: Budget[];
   recurringTransactions: RecurringTransaction[];
   recurringDueToday: Array<{
     id: number;
     name: string;
     amount: number;
-    section: PersonalFinanceSection;
+    type: TransactionType;
     category?: { id: number; value: string; emoji?: string };
     frequency: string;
     next_execution: string;
@@ -223,22 +166,6 @@ const transacionsSlice = createSlice<
     });
     builder.addCase(deleteBudget.fulfilled, (state, action) => {
       state.budgets = action.payload;
-    });
-    // Recurring transaction reducers
-    builder.addCase(fetchRecurringTransactions.fulfilled, (state, action) => {
-      state.recurringTransactions = action.payload;
-    });
-    builder.addCase(createRecurringTransaction.fulfilled, (state, action) => {
-      state.recurringTransactions = action.payload;
-    });
-    builder.addCase(updateRecurringTransaction.fulfilled, (state, action) => {
-      state.recurringTransactions = action.payload;
-    });
-    builder.addCase(deleteRecurringTransaction.fulfilled, (state, action) => {
-      state.recurringTransactions = action.payload;
-    });
-    builder.addCase(fetchRecurringTransactionsDueToday.fulfilled, (state, action) => {
-      state.recurringDueToday = action.payload;
     });
   },
 });

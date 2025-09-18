@@ -1,11 +1,11 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Users, Check, Clock, Trash2 } from 'lucide-react';
 import { DAYS, formatdate } from '../../utils/datetime';
-import { SplitFormModal } from '../form/split-form-modal';
-import { Modal } from '../ui/modal';
-import { SplitTransaction } from '../../types/transaction';
-import { TransactionYearMonth } from '../home/transaction-yearmonth';
-import { EmptyScreen } from '../ui/empty-screen';
+import { SplitFormModal } from '../../components/form/split-form-modal';
+import { Modal } from '../../components/ui/modal';
+import { SplitTransaction } from '../../types';
+import { TransactionYearMonth } from '../../components/home/transaction-yearmonth';
+import { EmptyScreen } from '../../components/ui/empty-screen';
 import SplitSticker from '../../assets/splits.png';
 
 export const Splits = forwardRef(function Splits(_props, ref) {
@@ -167,8 +167,7 @@ export const Splits = forwardRef(function Splits(_props, ref) {
                             <div>
                               <h3 className="font-medium text-white text-lg">{split.name}</h3>
                               <p className="text-sm text-slate-400">
-                                {split.category?.emoji} {split.category?.value} • Paid by{' '}
-                                {split.created_by_account.value}
+                                {split.category?.emoji} {split.category?.name} • Paid by {split.created_by_account.name}
                               </p>
                             </div>
                           </div>

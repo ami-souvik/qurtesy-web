@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/index.types';
 import { exportToCSV, exportBudgetsToCSV, exportToPDF, ExportData } from './export-utils';
 import { FileText, FileSpreadsheet, Calendar, Loader2 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { sqlite } from '../../config';
+import { Account, Category } from '../../types';
+import { Transaction } from '../../sqlite';
 
 export const ExportManager: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportType, setExportType] = useState<'transactions' | 'budgets' | 'report'>('transactions');
-
-  const transactions = useSelector((state: RootState) => state.transactions.transactions);
+  const { yearmonth } = useSelector((state: RootState) => state.transactions);
+  const [year, month] = yearmonth;
+  const transactions = useMemo(() => {
+    return Transaction.getByYearMonth(year, month);
+  }, [yearmonth]);
+  const categories = sqlite.categories.get<Category>();
+  const accounts = sqlite.accounts.get<Account>();
   const budgets = useSelector((state: RootState) => state.transactions.budgets);
-  const categories = useSelector((state: RootState) => state.transactions.categories);
-  const accounts = useSelector((state: RootState) => state.transactions.accounts);
   const summary = useSelector((state: RootState) => state.transactions.summary);
-  const [year, month] = useSelector((state: RootState) => state.transactions.yearmonth);
 
   const handleExportCSV = async () => {
     setIsExporting(true);
@@ -51,8 +56,8 @@ export const ExportManager: React.FC = () => {
           end: format(monthEnd, 'dd/MM/yyyy'),
         },
         summary: {
-          totalIncome: transactions.filter((t) => t.section === 'INCOME').reduce((sum, t) => sum + t.amount, 0),
-          totalExpense: transactions.filter((t) => t.section === 'EXPENSE').reduce((sum, t) => sum + t.amount, 0),
+          totalIncome: transactions.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0),
+          totalExpense: transactions.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0),
           netBalance: summary.balance,
           totalBudgeted: budgets.reduce((sum, b) => sum + b.budgeted_amount, 0),
           totalSpent: budgets.reduce((sum, b) => sum + b.spent_amount, 0),

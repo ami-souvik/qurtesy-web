@@ -2,8 +2,8 @@ import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { Edit2, Plus, Save, Tag, Trash2, X } from 'lucide-react';
 import { TabHandle } from '../tabs';
 import { Button } from '../action/button';
-import { Category } from '../../sqlite';
-import { Category as CategoryType, CreateCategory, PersonalFinanceSection, UpdateCategory } from '../../types';
+import { sqlite } from '../../config';
+import { Category, CategoryType, CreateCategory, UpdateCategory } from '../../types';
 
 export type CategoriesProps = {
   name: string;
@@ -11,7 +11,7 @@ export type CategoriesProps = {
 
 export const Categories = forwardRef<TabHandle, CategoriesProps>(function Categories(_props, ref) {
   const { name } = _props;
-  const categories: Array<CategoryType> = Category.get();
+  const categories: Array<Category> = sqlite.categories.get<Category>();
 
   // Category state
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
@@ -19,40 +19,40 @@ export const Categories = forwardRef<TabHandle, CategoriesProps>(function Catego
   const [newCategory, setNewCategory] = useState<CreateCategory>({
     name: '',
     emoji: '',
-    section: name === 'INCOME_CATEGORY' ? PersonalFinanceSection.INCOME : PersonalFinanceSection.EXPENSE,
+    type: name === 'INCOME_CATEGORY' ? CategoryType.income : CategoryType.expense,
   });
   const [editCategory, setEditCategory] = useState<UpdateCategory>({
     id: 0,
     name: '',
     emoji: '',
-    section: name === 'INCOME_CATEGORY' ? PersonalFinanceSection.INCOME : PersonalFinanceSection.EXPENSE,
+    type: name === 'INCOME_CATEGORY' ? CategoryType.income : CategoryType.expense,
   });
 
   // Category handlers
-  const handleCreateCategory = async () => {
+  const addCategory = async () => {
     if (newCategory.name.trim()) {
-      Category.create(newCategory);
+      sqlite.categories.create(newCategory);
       setNewCategory({
         name: '',
         emoji: '',
-        section: name === 'INCOME_CATEGORY' ? PersonalFinanceSection.INCOME : PersonalFinanceSection.EXPENSE,
+        type: name === 'INCOME_CATEGORY' ? CategoryType.income : CategoryType.expense,
       });
       setIsCreatingCategory(false);
     }
   };
-  const handleUpdateCategory = async () => {
+  const updateCategory = async () => {
     if (editCategory.name?.trim()) {
-      Category.update(editCategory);
+      sqlite.categories.update(editCategory);
       setEditingCategoryId(null);
       setEditCategory({ id: 0, name: '', emoji: '' });
     }
   };
-  const handleDeleteCategory = async (id: number) => {
+  const deleteCategory = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
-      Category.delete(id);
+      sqlite.categories.delete(id);
     }
   };
-  const startEditingCategory = (category: CategoryType) => {
+  const startEditingCategory = (category: Category) => {
     setEditingCategoryId(category.id);
     setEditCategory({
       id: category.id,
@@ -61,9 +61,8 @@ export const Categories = forwardRef<TabHandle, CategoriesProps>(function Catego
     });
   };
   const getFilteredCategories = (name: string) => {
-    const section: PersonalFinanceSection =
-      name === 'INCOME_CATEGORY' ? PersonalFinanceSection.INCOME : PersonalFinanceSection.EXPENSE;
-    return categories.filter((cat) => cat.section === section);
+    const type = name === 'INCOME_CATEGORY' ? 'income' : 'expense';
+    return categories.filter((cat) => cat.type === type);
   };
   const handleAdd = () => {
     setIsCreatingCategory(true);
@@ -77,13 +76,13 @@ export const Categories = forwardRef<TabHandle, CategoriesProps>(function Catego
     setNewCategory({
       name: '',
       emoji: '',
-      section: name === 'INCOME_CATEGORY' ? PersonalFinanceSection.INCOME : PersonalFinanceSection.EXPENSE,
+      type: name === 'INCOME_CATEGORY' ? CategoryType.income : CategoryType.expense,
     });
     setEditCategory({
       id: 0,
       name: '',
       emoji: '',
-      section: name === 'INCOME_CATEGORY' ? PersonalFinanceSection.INCOME : PersonalFinanceSection.EXPENSE,
+      type: name === 'INCOME_CATEGORY' ? CategoryType.income : CategoryType.expense,
     });
   }, [name]);
   return (
@@ -127,7 +126,7 @@ export const Categories = forwardRef<TabHandle, CategoriesProps>(function Catego
             </div>
           </div>
           <div className="flex space-x-3 mt-4">
-            <Button onClick={handleCreateCategory} leftIcon={<Save className="h-4 w-4" />}>
+            <Button onClick={addCategory} leftIcon={<Save className="h-4 w-4" />}>
               Add Category
             </Button>
             <Button variant="outline" onClick={() => setIsCreatingCategory(false)} leftIcon={<X className="h-4 w-4" />}>
@@ -193,7 +192,7 @@ export const Categories = forwardRef<TabHandle, CategoriesProps>(function Catego
                       </div>
                     </div>
                     <div className="flex space-x-3">
-                      <Button onClick={handleUpdateCategory} leftIcon={<Save className="h-4 w-4" />}>
+                      <Button onClick={updateCategory} leftIcon={<Save className="h-4 w-4" />}>
                         Save Changes
                       </Button>
                       <Button
@@ -224,7 +223,7 @@ export const Categories = forwardRef<TabHandle, CategoriesProps>(function Catego
                       <div>
                         <h3 className="text-lg font-medium text-white">{category.name}</h3>
                         <p className="text-xs text-slate-400">
-                          {category.section} • Category ID: {category.id}
+                          {category.type} • Category ID: {category.id}
                         </p>
                       </div>
                     </div>
@@ -241,7 +240,7 @@ export const Categories = forwardRef<TabHandle, CategoriesProps>(function Catego
                         <Edit2 className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDeleteCategory(category.id)}
+                        onClick={() => deleteCategory(category.id)}
                         className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                         title="Delete Category"
                       >

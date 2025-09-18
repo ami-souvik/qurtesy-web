@@ -1,11 +1,11 @@
 import { forwardRef, useEffect, useImperativeHandle, useState, useCallback } from 'react';
 import { Check, Clock, Trash2, HandCoins, Filter, LucideIcon } from 'lucide-react';
 import { DAYS, formatdate } from '../../utils/datetime';
-import { LendFormModal } from '../form/lend-form-modal';
-import { Modal } from '../ui/modal';
-import { LendTransaction } from '../../types/transaction';
+import { LendFormModal } from '../../components/form/lend-form-modal';
+import { Modal } from '../../components/ui/modal';
+import { LendTransaction } from '../../types';
 import { cn } from '../../utils/tailwind';
-import { TransactionYearMonth } from '../home/transaction-yearmonth';
+import { TransactionYearMonth } from '../../components/home/transaction-yearmonth';
 
 export const Lends = forwardRef(function Lends(_props, ref) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -230,10 +230,10 @@ export const Lends = forwardRef(function Lends(_props, ref) {
                               <div className="flex items-center space-x-2 text-sm text-slate-400">
                                 {lend.category && (
                                   <span>
-                                    {lend.category.emoji} {lend.category.value}
+                                    {lend.category.emoji} {lend.category.name}
                                   </span>
                                 )}
-                                {lend.account && <span>• via {lend.account.value}</span>}
+                                {lend.account && <span>• via {lend.account.name}</span>}
                                 {lend.created_from_split && (
                                   <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs">
                                     From Split

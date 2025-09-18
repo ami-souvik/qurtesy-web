@@ -1,11 +1,12 @@
 import React from 'react';
 import PieChart from '../charts/pie-chart';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
-import { Category } from '../../sqlite';
+import { sqlite } from '../../config';
+import { Category } from '../../types';
 
 export const CategoryBreakdownChart: React.FC = () => {
   const matches = useMediaQuery('md');
-  const categories = Category.get();
+  const categories = sqlite.categories.get<Category>();
   return (
     <div className="w-full h-full p-4 bg-zinc-900 rounded-2xl font-[Hubot_Sans]">
       <div className="px-4 py-2 inline-block text-black bg-green-200 rounded-3xl">
@@ -20,7 +21,7 @@ export const CategoryBreakdownChart: React.FC = () => {
         </div>
         <div className="w-full">
           {categories
-            .filter((c) => c.section === 'EXPENSE')
+            .filter((c) => c.type === 'expense')
             .map((c) => (
               <div className="flex justify-between">
                 <div className="w-3 h-3 bg-[#8B5CF6] rounded-xl" />

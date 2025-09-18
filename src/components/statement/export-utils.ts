@@ -26,12 +26,12 @@ export const exportToCSV = (data: Transaction[], filename: string) => {
     headers.join(','),
     ...data.map((transaction) =>
       [
-        transaction.date,
-        transaction.section,
-        transaction.credit,
+        `${transaction.date.getDate()}/${transaction.date.getMonth()}/${transaction.date.getFullYear()}`,
+        transaction.type,
+        transaction.type !== 'expense',
         transaction.amount.toString(),
-        `${transaction.category?.emoji}:${transaction.category?.value || ''}`,
-        transaction.account?.value || '',
+        `${transaction.category?.emoji}:${transaction.category?.name || ''}`,
+        transaction.account?.name || '',
         `${transaction.note || ''}`, // Wrap in quotes to handle commas
       ].join(',')
     ),
@@ -63,7 +63,7 @@ export const exportBudgetsToCSV = (budgets: Budget[], filename: string) => {
     headers.join(','),
     ...budgets.map((budget) =>
       [
-        `"${budget.category.value}"`,
+        `"${budget.category.name}"`,
         budget.budgeted_amount.toString(),
         budget.spent_amount.toString(),
         budget.remaining_amount.toString(),
@@ -131,7 +131,7 @@ export const exportToPDF = async (exportData: ExportData, filename: string) => {
       const status = budget.is_over_budget ? 'OVER' : 'OK';
       const statusColor: [number, number, number] = budget.is_over_budget ? [255, 0, 0] : [0, 128, 0];
 
-      pdf.text(`${budget.category.value}`, 20, yPos);
+      pdf.text(`${budget.category.name}`, 20, yPos);
       pdf.text(`$${budget.spent_amount.toFixed(2)} / $${budget.budgeted_amount.toFixed(2)}`, 100, yPos);
       pdf.text(`${budget.percentage_used.toFixed(1)}%`, 150, yPos);
 

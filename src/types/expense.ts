@@ -1,33 +1,30 @@
-export type Transfer = {
+export type Expense = {
   id: number;
-  type: 'transfer';
+  type: 'expense';
   amount: number;
+  date?: Date;
+  category_id: number;
   account_id: number;
-  account: {
-    name: string;
-  };
   note?: string;
-  date: Date;
-  transfer_account_id?: number;
   created_at: Date;
   updated_at: Date;
   deleted: boolean;
   sync_status: 'synced' | 'pending';
 };
 
-export type CreateTransfer = {
+export type CreateExpense = {
   amount: number;
+  date?: Date;
+  category_id: number;
   account_id: number;
   note?: string;
-  date: Date;
-  transfer_account_id?: number;
 };
 
-export type UpdateTransfer = {
+export type UpdateExpense = {
   id: number;
   amount?: number;
+  category_id?: number;
   account_id?: number;
   note?: string;
   date?: Date;
-  transfer_account_id?: number;
 };

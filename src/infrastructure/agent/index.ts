@@ -1,4 +1,4 @@
-import { Message, Transaction } from '../../sqlite';
+import { sqlite } from '../../config';
 import { AgentResponse, BaseCommand, ExpenseCommand, LendCommand } from './commands';
 
 export class CommandOrchestrator {
@@ -32,13 +32,13 @@ export class CommandOrchestrator {
 
   private processResponse(response: AgentResponse) {
     const { reply, transaction } = response;
-    const txn = transaction && Transaction.create(transaction);
-    Message.create({
+    const txnId = transaction && sqlite.transactions.create(transaction);
+    sqlite.messages.create({
       command: reply,
       is_agent: true,
-      category_id: txn?.category_id,
-      transaction_id: txn?.id,
-      account_id: txn?.account_id,
+      transaction_id: txnId,
+      category_id: transaction?.category_id,
+      account_id: transaction?.account_id,
     });
   }
 
@@ -56,7 +56,6 @@ export class CommandOrchestrator {
         this.handleFallback();
       }
     } else {
-      console.log('Active Command Not Found');
       this.handleFallback();
     }
   }

@@ -1,14 +1,18 @@
 import initSqlJs, { Database as SqlDB } from 'sql.js';
 import wasmUrl from '/sql-wasm.wasm?url';
-import { Account } from './account';
-import { Category } from './category';
-import { Transaction } from './transaction';
-import { Message } from './message';
 import { sqlite } from '../config';
+import { Table } from './table';
+import schema from './schema.json';
 
 export class SQlite {
   db: SqlDB | null = null;
   ready: Promise<boolean>;
+  accounts: Table = new Table();
+  categories: Table = new Table();
+  transactions: Table = new Table();
+  messages: Table = new Table();
+  profiles: Table = new Table();
+  config: Table = new Table();
 
   constructor() {
     this.ready = this.initialize();
@@ -16,8 +20,10 @@ export class SQlite {
 
   // Utility: Save DB to IndexedDB
   async saveDB() {
-    const data = sqlite.db.export(); // Uint8Array
-    localStorage.setItem('mydb', JSON.stringify(Array.from(data)));
+    if (sqlite.db) {
+      const data = sqlite.db.export(); // Uint8Array
+      localStorage.setItem('mydb', JSON.stringify(Array.from(data)));
+    }
   }
 
   // Utility: Load DB from IndexedDB
@@ -34,14 +40,29 @@ export class SQlite {
   async initialize() {
     if (!this.db) {
       console.log('Initialization started');
-
       const SQL = await initSqlJs({ locateFile: () => wasmUrl });
       this.db = await this.loadDB(SQL);
       try {
-        Account.initialize();
-        Category.initialize();
-        Transaction.initialize();
-        Message.initialize();
+        const common = schema.find((s) => s.name === 'common') ?? { fields: [] };
+        const schemas = schema.filter((s) => s.name !== 'common');
+        let initSql = '';
+        schemas.forEach((t) => {
+          initSql += `
+            CREATE TABLE IF NOT EXISTS ${t.name} (
+                ${[...common.fields, ...t.fields]
+                  .map((f) => `${f.name} ${f.type} ${f.required ? 'NOT NULL' : ''} ${f.attrs ?? ''}`)
+                  .join(',\n')}
+            );
+            `;
+          this[t.name as 'accounts' | 'categories' | 'transactions' | 'messages' | 'profiles' | 'config'] = new Table(
+            t.name,
+            [...common.fields, ...t.fields].map((f) => ({
+              ...f,
+              type: f.type as 'TEXT' | 'INTEGER' | 'TIMESTAMP' | 'REAL' | 'DECIMAL(10,2)',
+            }))
+          );
+        });
+        sqlite.db?.run(initSql);
       } catch (error) {
         console.log(error);
         return false;
@@ -53,11 +74,6 @@ export class SQlite {
 
   async sync() {
     if (!this.db) return;
-    console.log('Sync started');
-    await Account.sync();
-    await Category.sync();
-    // await Transaction.sync()
-    console.log('Sync done');
   }
 }
 
@@ -65,3 +81,5 @@ export * from './account';
 export * from './category';
 export * from './transaction';
 export * from './message';
+export * from './profile';
+export * from './transfer';

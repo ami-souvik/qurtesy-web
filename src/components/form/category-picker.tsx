@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Category } from '../../types';
 import { Modal } from '../ui/modal';
+import { sqlite } from '../../config';
 
 type CategoryTileProps = {
   active: boolean;
@@ -20,14 +21,15 @@ const CategoryTile = ({ active, emoji, label, onPress }: CategoryTileProps) => (
 );
 
 export function CategoryPicker({
-  data,
   value: cat,
   setValue,
+  filter,
 }: {
-  data: Category[];
   value: Category | undefined;
   setValue: (v: Category) => void;
+  filter?: string;
 }) {
+  const categories = useMemo(() => sqlite.categories.get<Category>(filter), []);
   const [showMore, setShowMore] = useState(false);
   // Handle date selection
   const handleCategoryClick = (cat: Category) => {
@@ -50,25 +52,25 @@ export function CategoryPicker({
         </button>
       </div>
       <div className="grid gap-1 grid-cols-4 grid-rows-2">
-        {data.slice(0, 8).map(({ id, value, emoji }) => (
+        {categories.slice(0, 8).map((c) => (
           <CategoryTile
-            key={id}
-            active={id === cat?.id}
-            emoji={emoji}
-            label={value}
-            onPress={() => setValue({ id, value, emoji })}
+            key={c.id}
+            active={c.id === cat?.id}
+            emoji={c.emoji}
+            label={c.name}
+            onPress={() => setValue(c)}
           />
         ))}
       </div>
       <Modal isOpen={showMore} onClose={() => setShowMore(false)} title="All Categories" size="md">
         <div className="grid gap-1 grid-cols-4">
-          {data.map(({ id, value, emoji }) => (
+          {categories.map((c) => (
             <CategoryTile
-              key={id}
-              active={id === cat?.id}
-              emoji={emoji}
-              label={value}
-              onPress={() => handleCategoryClick({ id, value, emoji })}
+              key={c.id}
+              active={c.id === cat?.id}
+              emoji={c.emoji}
+              label={c.name}
+              onPress={() => handleCategoryClick(c)}
             />
           ))}
         </div>

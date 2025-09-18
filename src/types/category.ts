@@ -1,22 +1,30 @@
-import { PersonalFinanceSection } from '.';
+import { SyncStatus } from './common';
+
+export enum CategoryType {
+  expense = 'expense',
+  income = 'income',
+}
 
 export type Category = {
   id: number;
   name: string;
-  emoji: string;
-  section: PersonalFinanceSection;
+  emoji?: string;
+  type: CategoryType;
+  created_at: Date;
+  updated_at: Date;
   deleted: boolean;
+  sync_status: SyncStatus;
 };
 
 export type CreateCategory = {
   name: string;
   emoji?: string;
-  section: PersonalFinanceSection;
+  type: CategoryType;
 };
 
 export type UpdateCategory = {
   id: number;
   name?: string;
   emoji?: string;
-  section?: PersonalFinanceSection;
+  type?: CategoryType;
 };

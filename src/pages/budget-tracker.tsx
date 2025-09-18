@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../store/index.types';
-import { fetchBudgets, createBudget, updateBudget, deleteBudget } from '../../slices/transactions-slice';
-import { CreateBudget, UpdateBudget, Budget } from '../../types';
+import { RootState, AppDispatch } from '../store/index.types';
+import { fetchBudgets, createBudget, updateBudget, deleteBudget } from '../slices/transactions-slice';
+import { CreateBudget, UpdateBudget, Budget, Category, CategoryType } from '../types';
 import { PiggyBank, Edit, Trash2, AlertTriangle } from 'lucide-react';
-import { Modal } from '../ui/modal';
+import { Modal } from '../components/ui/modal';
+import { sqlite } from '../config';
 
 export const BudgetTracker: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const budgets = useSelector((state: RootState) => state.transactions.budgets);
-  const categories = useSelector((state: RootState) => state.transactions.categories);
+  const categories = sqlite.categories.get<Category>();
   const [year, month] = useSelector((state: RootState) => state.transactions.yearmonth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
@@ -86,7 +87,7 @@ export const BudgetTracker: React.FC = () => {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
                   <span className="text-lg">{budget.category.emoji || '📊'}</span>
-                  <span className="font-medium text-white">{budget.category.value}</span>
+                  <span className="font-medium text-white">{budget.category.name}</span>
                   {budget.is_over_budget && <AlertTriangle className="h-4 w-4 text-red-400" />}
                 </div>
                 <div className="flex items-center space-x-2">
@@ -163,10 +164,10 @@ export const BudgetTracker: React.FC = () => {
               >
                 <option value={0}>Select a category</option>
                 {categories
-                  .filter((cat) => cat.section === 'EXPENSE')
+                  .filter((cat) => cat.type === CategoryType.expense)
                   .map((category) => (
                     <option key={category.id} value={category.id}>
-                      {category.emoji} {category.value}
+                      {category.emoji} {category.name}
                     </option>
                   ))}
               </select>

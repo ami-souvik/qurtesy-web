@@ -4,7 +4,6 @@ export interface BaseCommand {
   canHandle(command: string): boolean;
   handle(command: string): AgentResponse;
   reset(): void;
-  completeProcess(): void;
 }
 
 export type AgentResponse = {

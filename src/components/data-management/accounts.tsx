@@ -14,8 +14,8 @@ import {
 } from 'lucide-react';
 import { Button } from '../action/button';
 import { CurrencyDisplay } from '../currency';
-import { Account as AccountType, CreateAccount, UpdateAccount } from '../../types';
-import { Account } from '../../sqlite/account';
+import { Account, CreateAccount, UpdateAccount } from '../../types';
+import { sqlite } from '../../config';
 
 const accountIcons = {
   savings: PiggyBank,
@@ -27,7 +27,7 @@ const accountIcons = {
 };
 
 export const Accounts = forwardRef(function Accounts(_props, ref) {
-  const accounts: Array<AccountType> = Account.get();
+  const accounts = sqlite.accounts.get<Account>();
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [editingAccountId, setEditingAccountId] = useState<number | null>(null);
   const [editAccount, setEditAccount] = useState<UpdateAccount>({ id: 0, name: '', balance: 0 });
@@ -47,21 +47,21 @@ export const Accounts = forwardRef(function Accounts(_props, ref) {
   // Account handlers
   const handleCreateAccount = async () => {
     if (newAccount.name.trim()) {
-      Account.create(newAccount);
+      sqlite.accounts.create(newAccount);
       setNewAccount({ name: '', balance: 0 });
       setIsCreatingAccount(false);
     }
   };
   const handleUpdateAccount = async () => {
     if (editAccount.name?.trim()) {
-      Account.update(editAccount);
+      sqlite.accounts.update(editAccount);
       setEditingAccountId(null);
       setEditAccount({ id: 0, name: '', balance: 0 });
     }
   };
   const handleDeleteAccount = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
-      Account.delete(id);
+      sqlite.accounts.delete(id);
     }
   };
   const startEditingAccount = (account: Account) => {

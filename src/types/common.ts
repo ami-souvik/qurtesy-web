@@ -4,14 +4,7 @@ export enum TransactionSection {
   SPLIT = 'SPLIT',
 }
 
-export enum PersonalFinanceSection {
-  EXPENSE = 'EXPENSE',
-  INCOME = 'INCOME',
-  TRANSFER = 'TRANSFER',
-  INVESTMENT = 'INVESTMENT',
-}
-
 export enum SyncStatus {
-  PENDING = 'pending',
-  SYNCED = 'synced',
+  pending = 'pending',
+  synced = 'synced',
 }

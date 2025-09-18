@@ -1,9 +1,24 @@
+export enum TransactionType {
+  expense = 'expense',
+  income = 'income',
+  transfer = 'transfer',
+  lending = 'lending',
+  split = 'split',
+}
+
 export type Transaction = {
   id: number;
-  type: 'expense' | 'income' | 'transfer' | 'lending' | 'split';
+  type: TransactionType;
   amount: number;
   category_id?: number;
+  category: {
+    name: string;
+    emoji: string;
+  };
   account_id: number;
+  account: {
+    name: string;
+  };
   note?: string;
   date: Date;
   transfer_account_id?: number;
@@ -17,7 +32,7 @@ export type Transaction = {
 };
 
 export type CreateTransaction = {
-  type: 'expense' | 'income' | 'transfer' | 'lending' | 'split';
+  type: TransactionType;
   amount: number;
   category_id?: number;
   account_id: number;
@@ -31,7 +46,7 @@ export type CreateTransaction = {
 
 export type UpdateTransaction = {
   id: number;
-  type: 'expense' | 'income' | 'transfer' | 'lending' | 'split';
+  type: TransactionType;
   amount: number;
   category_id?: number;
   account_id: number;

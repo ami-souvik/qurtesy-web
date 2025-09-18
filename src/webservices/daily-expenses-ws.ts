@@ -1,5 +1,5 @@
 import {
-  PersonalFinanceSection,
+  TransactionType,
   CreateTransaction,
   CreateSplitTransaction,
   UpdateSplitTransaction,
@@ -16,10 +16,7 @@ import {
 import { BaseInstance } from './http-client';
 
 // New API functions for enhanced features
-export const getSpendingByCategory = async (
-  yearmonth: string,
-  section: PersonalFinanceSection = PersonalFinanceSection.EXPENSE
-) => {
+export const getSpendingByCategory = async (yearmonth: string, section: TransactionType = TransactionType.expense) => {
   return BaseInstance.httpClient
     ._get('/transactions/analytics/spending-by-category', {
       params: { yearmonth, section },

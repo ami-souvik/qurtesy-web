@@ -1,21 +1,23 @@
-import { forwardRef, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, useImperativeHandle, useMemo, useState, ForwardRefExoticComponent, RefAttributes } from 'react';
 import { useSelector } from 'react-redux';
 import { Outlet, createSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronUp, ChevronDown, ArrowLeftRight, PiggyBank, LucideIcon } from 'lucide-react';
+import { ChevronUp, ChevronDown, ArrowLeftRight, PiggyBank, HandHeart, Users, LucideIcon } from 'lucide-react';
 import { RootState } from '../../store/index.types';
 import { groupByDate } from '../../utils/transaction';
 import { DAYS, formatdate } from '../../utils/datetime';
-import { type TransactionFormProps } from '../form/transaction-form-modal';
-import { Modal } from '../ui/modal';
+import { Modal } from '../../components/ui/modal';
+import { Lends } from './lends';
+import { Splits } from './splits';
+import { Transaction as TransactionTable } from '../../sqlite';
 import { Transaction } from './transaction';
-import { Transaction as TransactionTable } from '../../sqlite/transaction';
 import { TransactionHeader } from './transaction-header';
-import { TransactionYearMonth } from '../home/transaction-yearmonth';
+import { TransactionYearMonth } from '../../components/home/transaction-yearmonth';
 import TransactionSticker from '../../assets/transactions.png';
 
 import { cn } from '../../utils/tailwind';
-import { PersonalFinanceSection } from '../../types';
-import { EmptyScreen } from '../ui/empty-screen';
+import { EmptyScreen } from '../../components/ui/empty-screen';
+import { Tab, TabHandle, Tabs } from '../../components/tabs';
+import { UpdateTransaction } from '../../types';
 
 type SectionMeta = {
   label: string;
@@ -24,26 +26,26 @@ type SectionMeta = {
   bgColor: string;
 };
 
-const sectionsMeta: Record<PersonalFinanceSection, SectionMeta> = {
-  EXPENSE: {
+const typesMeta: Record<'expense' | 'income' | 'transfer' | 'investment', SectionMeta> = {
+  expense: {
     label: 'Expenses',
     icon: ChevronDown,
     color: 'text-red-400',
     bgColor: 'bg-red-500/20 border-red-500/30',
   },
-  INCOME: {
+  income: {
     label: 'Income',
     icon: ChevronUp,
     color: 'text-emerald-400',
     bgColor: 'bg-emerald-500/20 border-emerald-500/30',
   },
-  TRANSFER: {
+  transfer: {
     label: 'Transfers',
     icon: ArrowLeftRight,
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/20 border-blue-500/30',
   },
-  INVESTMENT: {
+  investment: {
     label: 'Investments',
     icon: PiggyBank,
     color: 'text-purple-400',
@@ -52,20 +54,22 @@ const sectionsMeta: Record<PersonalFinanceSection, SectionMeta> = {
 };
 
 export const Transactions = forwardRef(function Transactions(_props, ref) {
-  const [section, setSection] = useState<PersonalFinanceSection>(PersonalFinanceSection.EXPENSE);
+  const [type, setType] = useState<'expense' | 'income' | 'transfer' | 'investment'>('expense');
   const navigate = useNavigate();
   const location = useLocation();
   const showModal = location.pathname.startsWith('/transactions/modal');
-  const { yearmonth } = useSelector((state: RootState) => state.transactions);
+  const {
+    yearmonth: [year, month],
+  } = useSelector((state: RootState) => state.transactions);
   const transactions = useMemo(() => {
-    return TransactionTable.getByYearMonth(yearmonth[0], yearmonth[1]);
-  }, [yearmonth]);
+    return TransactionTable.getByYearMonth(year, month);
+  }, [year, month]);
 
-  const handleSelect = (data: TransactionFormProps) => {
+  const handleSelect = (data: UpdateTransaction) => {
     const { id, date, amount, category_id, account_id, note } = data;
     navigate(
       `modal/transaction?${createSearchParams({
-        section,
+        type,
         date: date.toISOString(),
         amount: amount.toString(),
         ...(id && { id: id.toString() }),
@@ -80,8 +84,8 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
     navigate(-1);
   };
 
-  const handleAdd = (section: PersonalFinanceSection) => {
-    navigate(`modal/transaction?${createSearchParams({ section })}`);
+  const handleAdd = (type: 'expense' | 'income' | 'transfer') => {
+    navigate(`modal/transaction?${createSearchParams({ type: type || 'expense' })}`);
   };
 
   useImperativeHandle(ref, () => ({
@@ -108,7 +112,7 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
             {/* Transaction Header with Search and Stats */}
             <TransactionHeader
               totalTransactions={transactions.length}
-              totalAmount={transactions.reduce((sum, t) => sum + (t.credit ? 1 : -1) * t.amount, 0)}
+              totalAmount={transactions.reduce((sum, t) => sum + (t.type === 'expense' ? -1 : 1) * t.amount, 0)}
               onSearch={(term) => console.log('Search:', term)}
               onSort={(field) => console.log('Sort by:', field)}
               onFilter={() => console.log('Filter clicked')}
@@ -151,18 +155,18 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
       <Modal isOpen={showModal} onClose={handleClose} title="Add/Edit Transaction" size="md">
         {/* Modern Tab Pills */}
         <div className="my-2 grid grid-cols-4 bg-slate-800/30 rounded-lg">
-          {(Object.keys(sectionsMeta) as PersonalFinanceSection[]).map((s: PersonalFinanceSection) => {
-            const meta = sectionsMeta[s];
+          {(Object.keys(typesMeta) as Array<'income' | 'expense' | 'investment' | 'transfer'>).map((t) => {
+            const meta = typesMeta[t];
             const Icon = meta.icon;
-            const isActive = section === s;
+            const isActive = type === t;
             return (
               <button
-                key={s}
+                key={t}
                 className={`
                   relative px-3 py-2 rounded-md transition-all duration-200 flex justify-center items-center sm:space-x-1.5
                   ${isActive ? 'bg-white/10 text-white shadow-sm' : 'text-slate-400 hover:text-white hover:bg-white/5'}
                 `}
-                onClick={() => setSection(s)}
+                onClick={() => setType(t)}
               >
                 <Icon className={`${cn('w-4 h-4 text-center', meta.color)}`} />
                 <span className="w-full text-xs font-medium hidden sm:inline">{meta.label}</span>
@@ -176,3 +180,45 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
     </div>
   );
 });
+
+interface SectionRecord {
+  label: string;
+  icon: LucideIcon;
+  color: string;
+  bgColor: string;
+  component: ForwardRefExoticComponent<RefAttributes<TabHandle>>;
+}
+
+const sections: { [k: string]: SectionRecord } = {
+  TRANSACTION: {
+    label: 'Transactions',
+    icon: PiggyBank,
+    color: 'text-purple-400',
+    bgColor: 'bg-purple-500/20 border-purple-500/30',
+    component: Transactions,
+  },
+  LEND: {
+    label: 'Lend',
+    icon: HandHeart,
+    color: 'text-orange-400',
+    bgColor: 'bg-orange-500/20 border-orange-500/30',
+    component: Lends,
+  },
+  SPLIT: {
+    label: 'Split',
+    icon: Users,
+    color: 'text-cyan-400',
+    bgColor: 'bg-cyan-500/20 border-cyan-500/30',
+    component: Splits,
+  },
+};
+
+export const TransactionTracker: React.FC = () => {
+  return (
+    <Tabs>
+      {Object.keys(sections).map((s) => (
+        <Tab name={s} {...sections[s]} />
+      ))}
+    </Tabs>
+  );
+};

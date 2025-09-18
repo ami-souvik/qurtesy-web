@@ -6,8 +6,11 @@ export type Profile = {
   email?: string;
   phone?: string;
   avatar_url?: string;
+  default_account_id?: number;
   default_account?: Account;
   is_self: boolean;
+  created_at: Date;
+  updated_at: Date;
   deleted: boolean;
 };
 

@@ -1,15 +1,16 @@
-import { Account, Category, Transaction } from '../../sqlite';
+import { Account, Category as CategoryTable, Transaction } from '../../sqlite';
 import {
   Account as AccountType,
-  Category as CategoryType,
+  Category,
+  CategoryType,
   CreateAccount,
   CreateCategory,
-  PersonalFinanceSection,
+  TransactionType,
 } from '../../types';
 
 type ParsedTransaction = {
-  date: string;
-  section: string;
+  date: Date;
+  type: TransactionType;
   credit: boolean;
   amount: number;
   category: {
@@ -41,8 +42,8 @@ export const parseCSV = (text: string): StatementSummaryType => {
       const [day, month, year] = parts[0].split('/');
       const [emoji, catname] = parts[4].split(':');
       return {
-        date: `${year}-${month}-${day}`,
-        section: parts[1],
+        date: new Date(Number(year), Number(month), Number(day)),
+        type: parts[1] as TransactionType,
         credit: parts[2] === 'true',
         amount: Number(parts[3]),
         category: {
@@ -68,17 +69,17 @@ export const importCSV = async (transactions: ParsedTransaction[]) => {
 
   transactions.forEach((each: ParsedTransaction) => {
     requiredAccounts.add(each.account);
-    requiredCategories.add(`${each.category.emoji}:${each.category.name}:${each.section}`);
+    requiredCategories.add(`${each.category.emoji}:${each.category.name}:${each.type}`);
   });
 
   const reqAccounts: CreateAccount[] = Array.from(requiredAccounts).map((name: string) => ({ name }));
   const accounts = Account.bulk(reqAccounts);
 
   const reqCategories: CreateCategory[] = Array.from(requiredCategories).map((each: string) => {
-    const [emoji, name, section] = each.split(':');
-    return { name, emoji, section: section as PersonalFinanceSection };
+    const [emoji, name, type] = each.split(':');
+    return { name, emoji, type: type as CategoryType };
   });
-  const categories = Category.bulk(reqCategories);
+  const categories = CategoryTable.bulk(reqCategories);
 
   const accountIdMap: Record<string, number> = {};
   accounts.forEach((each: AccountType) => {
@@ -86,7 +87,7 @@ export const importCSV = async (transactions: ParsedTransaction[]) => {
   });
 
   const categoryIdMap: Record<string, number> = {};
-  categories.forEach((each: CategoryType) => {
+  categories.forEach((each: Category) => {
     categoryIdMap[each.name] = each.id;
   });
 

@@ -1,5 +1,5 @@
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store/index.types';
+import { sqlite } from '../../config';
+import { Account } from '../../types';
 
 export function AccountPicker({
   label,
@@ -12,7 +12,7 @@ export function AccountPicker({
   value: number | undefined;
   setValue: (v: number) => void;
 }) {
-  const { accounts } = useSelector((state: RootState) => state.transactions);
+  const accounts = sqlite.accounts.get<Account>();
   return (
     <div className="grid grid-cols-2 items-center">
       <label className="block text-sm font-medium text-slate-300 mb-2">{label}</label>
@@ -23,9 +23,9 @@ export function AccountPicker({
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
       >
-        {accounts.map(({ id, value }) => (
+        {accounts.map(({ id, name }) => (
           <option key={id} value={id} className="bg-slate-800">
-            {value}
+            {name}
           </option>
         ))}
       </select>
