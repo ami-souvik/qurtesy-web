@@ -6,7 +6,6 @@ import { Modal } from '../../components/ui/modal';
 import { SplitTransaction } from '../../types';
 import { TransactionYearMonth } from '../../components/home/transaction-yearmonth';
 import { EmptyScreen } from '../../components/ui/empty-screen';
-import SplitSticker from '../../assets/splits.png';
 
 export const Splits = forwardRef(function Splits(_props, ref) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -115,8 +114,8 @@ export const Splits = forwardRef(function Splits(_props, ref) {
         {splits.length === 0 ? (
           <EmptyScreen
             icon={
-              <div className="w-32 h-32 mx-auto bg-slate-400/20 dark:bg-zinc-900/20 rounded-full opacity-70">
-                <img src={SplitSticker} className="grayscale-60" />
+              <div className="flex items-center justify-center w-20 h-20 mx-auto bg-slate-400/20 dark:bg-zinc-900/20 rounded-full opacity-70">
+                <Users className="w-12 h-12" />
               </div>
             }
             title="No Split Transactions"

@@ -1,0 +1,10 @@
+INSERT INTO accounts (name, balance, deleted, sync_status) VALUES
+    ('Cash', 0, 0, 'pending'),
+    ('Investment', 0, 0, 'pending'),
+    ('Account', 0, 0, 'pending'),
+    ('Card', 0, 0, 'pending');
+
+INSERT INTO categories (name, emoji, type, deleted, sync_status) VALUES
+    ('Food', '🍞', 'expense', 0, 'pending'),
+    ('Transport', '🚃', 'expense', 0, 'pending'),
+    ('Education', '📚', 'expense', 0, 'pending');

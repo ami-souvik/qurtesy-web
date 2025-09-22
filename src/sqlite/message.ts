@@ -2,8 +2,8 @@ import { Table } from './table';
 import { Message as MessageType } from '../types';
 
 export class Message extends Table {
-  static get(): Array<MessageType> {
-    return super.exec<MessageType>(`
+  fetch(): Array<MessageType> {
+    return Table.exec<MessageType>(`
       SELECT
         m.id,
         m.command,

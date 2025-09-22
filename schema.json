@@ -150,8 +150,7 @@
             },
             {
                 "name": "account_id",
-                "type": "INTEGER",
-                "required": true
+                "type": "INTEGER"
             }
         ]
     },

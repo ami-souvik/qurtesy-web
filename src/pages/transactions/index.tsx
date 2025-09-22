@@ -1,7 +1,16 @@
 import { forwardRef, useImperativeHandle, useMemo, useState, ForwardRefExoticComponent, RefAttributes } from 'react';
 import { useSelector } from 'react-redux';
 import { Outlet, createSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import { ChevronUp, ChevronDown, ArrowLeftRight, PiggyBank, HandHeart, Users, LucideIcon } from 'lucide-react';
+import {
+  ChevronUp,
+  ChevronDown,
+  ArrowLeftRight,
+  PiggyBank,
+  HandHeart,
+  Users,
+  Banknote,
+  LucideIcon,
+} from 'lucide-react';
 import { RootState } from '../../store/index.types';
 import { groupByDate } from '../../utils/transaction';
 import { DAYS, formatdate } from '../../utils/datetime';
@@ -12,7 +21,6 @@ import { Transaction as TransactionTable } from '../../sqlite';
 import { Transaction } from './transaction';
 import { TransactionHeader } from './transaction-header';
 import { TransactionYearMonth } from '../../components/home/transaction-yearmonth';
-import TransactionSticker from '../../assets/transactions.png';
 
 import { cn } from '../../utils/tailwind';
 import { EmptyScreen } from '../../components/ui/empty-screen';
@@ -100,8 +108,8 @@ export const Transactions = forwardRef(function Transactions(_props, ref) {
         {groupByDate(transactions).length === 0 ? (
           <EmptyScreen
             icon={
-              <div className="w-32 h-32 mx-auto bg-slate-400/20 dark:bg-zinc-900/20 rounded-full opacity-70">
-                <img src={TransactionSticker} className="grayscale-60" />
+              <div className="flex items-center justify-center w-20 h-20 mx-auto bg-slate-400/20 dark:bg-zinc-900/20 rounded-full opacity-70">
+                <Banknote className="w-15 h-15 -rotate-15" />
               </div>
             }
             title="No Transactions"

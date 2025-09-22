@@ -82,6 +82,7 @@ export class ExpenseCommand implements BaseCommand {
         this.requestContext.account = match[1];
       }
     }
+    console.log(this.requestContext);
   }
 
   generateAgentResponse(command: string): AgentResponse {
@@ -106,8 +107,10 @@ export class ExpenseCommand implements BaseCommand {
         end: false,
       };
     }
+    console.log(this.requestContext);
     const category = this.identifyCategory(this.requestContext.category);
     const account = this.identifyAccount(this.requestContext.account);
+    console.log(category, account);
     if (!category) {
       this.requestContext.askedFor = 'category';
       return {
@@ -124,9 +127,7 @@ export class ExpenseCommand implements BaseCommand {
       date: new Date(),
       type: TransactionType.expense,
       amount: Number(this.requestContext.amount),
-      category_name: this.requestContext.category,
       category_id: category.id,
-      account_name: this.requestContext.account,
       account_id: account.id,
       note: command,
     };
