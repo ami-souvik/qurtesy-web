@@ -6,6 +6,7 @@ import { Modal } from '../../components/ui/modal';
 import { LendTransaction } from '../../types';
 import { cn } from '../../utils/tailwind';
 import { TransactionYearMonth } from '../../components/home/transaction-yearmonth';
+import { EmptyScreen } from '../../components/ui/empty-screen';
 
 export const Lends = forwardRef(function Lends(_props, ref) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -174,15 +175,15 @@ export const Lends = forwardRef(function Lends(_props, ref) {
       {/* Lends List */}
       <div className="flex-1 overflow-auto space-y-6">
         {filteredLends.length === 0 ? (
-          <div className="flex items-center justify-center h-64 text-slate-400">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-slate-700/50 rounded-full flex items-center justify-center">
-                <HandCoins className="w-8 h-8" />
+          <EmptyScreen
+            icon={
+              <div className="flex items-center justify-center w-20 h-20 mx-auto bg-slate-400/20 dark:bg-zinc-900/20 rounded-full opacity-70">
+                <HandCoins className="w-12 h-12" />
               </div>
-              <p>No lend transactions found</p>
-              <p className="text-sm text-slate-500 mt-1">Create your first lend above</p>
-            </div>
-          </div>
+            }
+            title="No Lend Transactions"
+            subtitle="No lend transactions found for this period"
+          />
         ) : (
           groupLendsByDate(filteredLends).map(({ date, total, pending, data }, i: number) => {
             const sectionDate = new Date(

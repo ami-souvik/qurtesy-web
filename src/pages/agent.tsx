@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Bot, TrendingUp, TrendingDown } from 'lucide-react';
+import { User, Bot, TrendingUp, TrendingDown, Mic, SendHorizonal } from 'lucide-react';
 import { CommandOrchestrator } from '../infrastructure/agent';
 import { Message } from '../types';
 import { sqlite } from '../config';
@@ -9,10 +9,11 @@ export const Agent: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const handleCreateMessageEvent = () => {
-    setMessages(sqlite.messages.get<Message>());
+    setMessages(sqlite.messages.fetch());
   };
+  console.log(messages);
   useEffect(() => {
-    setMessages(sqlite.messages.get());
+    setMessages(sqlite.messages.fetch());
     document.addEventListener('messages.create', handleCreateMessageEvent);
     return () => {
       document.removeEventListener('messages.create', handleCreateMessageEvent);
@@ -28,9 +29,11 @@ export const Agent: React.FC = () => {
     scrollToBottom();
   }, [messages]);
   const processMessage = () => {
-    sqlite.messages.create({ command: inputValue.trim() });
-    orchestrator.current.processCommand(inputValue.trim().toLocaleLowerCase());
-    setInputValue('');
+    if (inputValue.trim()) {
+      sqlite.messages.create({ command: inputValue.trim() });
+      orchestrator.current.processCommand(inputValue.trim().toLocaleLowerCase());
+      setInputValue('');
+    }
   };
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -183,12 +186,20 @@ export const Agent: React.FC = () => {
               rows={3}
             />
           </div>
-          <button
-            onClick={processMessage}
-            className={`mb-2 pl-3 pt-3.5 pr-3.5 pb-3 rounded-full bg-white dark:bg-teal-700`}
-          >
-            <Send className="w-5 h-5" />
-          </button>
+          <div className="mb-2 flex flex-col gap-2">
+            <button
+              onClick={processMessage}
+              className={`w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-teal-700`}
+            >
+              <Mic className="w-5 h-5" />
+            </button>
+            <button
+              onClick={processMessage}
+              className={`w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-teal-700`}
+            >
+              <SendHorizonal className="w-4.5 h-4.5 -rotate-45" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

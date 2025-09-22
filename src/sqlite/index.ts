@@ -2,7 +2,9 @@ import initSqlJs, { Database as SqlDB } from 'sql.js';
 import wasmUrl from '/sql-wasm.wasm?url';
 import { sqlite } from '../config';
 import { Table } from './table';
+import { Message } from './message';
 import schema from './schema.json';
+import initSchema from './schema.txt';
 
 export class SQlite {
   db: SqlDB | null = null;
@@ -10,7 +12,7 @@ export class SQlite {
   accounts: Table = new Table();
   categories: Table = new Table();
   transactions: Table = new Table();
-  messages: Table = new Table();
+  messages: Message = new Message();
   profiles: Table = new Table();
   config: Table = new Table();
 
@@ -54,15 +56,34 @@ export class SQlite {
                   .join(',\n')}
             );
             `;
-          this[t.name as 'accounts' | 'categories' | 'transactions' | 'messages' | 'profiles' | 'config'] = new Table(
-            t.name,
-            [...common.fields, ...t.fields].map((f) => ({
-              ...f,
-              type: f.type as 'TEXT' | 'INTEGER' | 'TIMESTAMP' | 'REAL' | 'DECIMAL(10,2)',
-            }))
-          );
+          switch (t.name) {
+            case 'messages':
+              this.messages = new Message(
+                'messages',
+                [...common.fields, ...t.fields].map((f) => ({
+                  ...f,
+                  type: f.type as 'TEXT' | 'INTEGER' | 'TIMESTAMP' | 'REAL' | 'DECIMAL(10,2)',
+                }))
+              );
+              break;
+            default:
+              this[t.name as 'accounts' | 'categories' | 'transactions' | 'profiles' | 'config'] = new Table(
+                t.name,
+                [...common.fields, ...t.fields].map((f) => ({
+                  ...f,
+                  type: f.type as 'TEXT' | 'INTEGER' | 'TIMESTAMP' | 'REAL' | 'DECIMAL(10,2)',
+                }))
+              );
+          }
         });
         sqlite.db?.run(initSql);
+
+        // Insert dummy records
+        fetch(initSchema)
+          .then((r) => r.text())
+          .then((query) => {
+            sqlite.db?.run(query);
+          });
       } catch (error) {
         console.log(error);
         return false;
