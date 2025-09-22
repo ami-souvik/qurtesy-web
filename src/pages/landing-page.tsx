@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/index.types';
-import { formatCurrency } from '../components/currency';
+import { formatCurrency } from '../services/currency-service';
 import { BarChart3, TrendingUp, PiggyBank, Repeat, ArrowRight, Calendar, DollarSign } from 'lucide-react';
 
 const LandingPage: React.FC = () => {

@@ -15,15 +15,13 @@ import { RecurringTransactionManager } from './components/recurring';
 import { GoalsContent } from './components/dashboard/goals-content';
 import { InvestmentsContent } from './components/dashboard/investments-content';
 import { ImportManager, ExportManager } from './components/statement';
-import { CurrencySettings } from './components/currency';
-import { NotificationSettingsPanel } from './components/notifications';
 import { TransactionForm } from './components/form/transaction-form';
-import { Background } from './components/ui/background';
 import { LoadingScreen } from './components/loading-screen';
 import { registerSW } from './utils/pwa';
 import PWAInstallBanner from './components/pwa-install-banner';
 import Assistant from './components/voice/assistant';
 import { useInitApp } from './hooks';
+import { Settings } from './pages/settings';
 
 function App() {
   return (
@@ -42,15 +40,7 @@ function App() {
           <Route path="investments" element={<InvestmentsContent />} />
           <Route path="export" element={<ExportManager />} />
           <Route path="import" element={<ImportManager />} />
-          <Route
-            path="settings"
-            element={
-              <div className="space-y-6">
-                <CurrencySettings />
-                <NotificationSettingsPanel />
-              </div>
-            }
-          />
+          <Route path="settings" element={<Settings />} />
           <Route path="voice" element={<Assistant />} />
         </Route>
         <Route path="/f/landing" element={<LandingPage />} />
@@ -66,7 +56,6 @@ function App() {
           }
         />
       </Routes>
-      <Background />
     </Router>
   );
 }

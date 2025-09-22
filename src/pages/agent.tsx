@@ -11,7 +11,6 @@ export const Agent: React.FC = () => {
   const handleCreateMessageEvent = () => {
     setMessages(sqlite.messages.fetch());
   };
-  console.log(messages);
   useEffect(() => {
     setMessages(sqlite.messages.fetch());
     document.addEventListener('messages.create', handleCreateMessageEvent);
@@ -93,28 +92,21 @@ export const Agent: React.FC = () => {
     textareaRef.current && textareaRef.current.focus();
   };
   return (
-    <div
-      className="flex flex-col"
-      style={{
-        height: 'calc(100vh - var(--spacing) * 20)',
-      }}
-    >
+    <>
       {/* Messages */}
-      <div className="flex-1 space-y-2">
-        <div className="flex justify-start">
-          <div className="flex gap-3 max-w-xs sm:max-w-md lg:max-w-lg flex-row items-end">
-            {/* Avatar */}
-            <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-white dark:bg-zinc-900 text-black dark:text-white">
-              <Bot className="w-4 h-4" />
-            </div>
+      <div className="flex flex-1 flex-col justify-end space-y-2">
+        <div className="flex gap-3 max-w-xs sm:max-w-md lg:max-w-lg flex-row items-end">
+          {/* Avatar */}
+          <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-white dark:bg-zinc-900 text-black dark:text-white">
+            <Bot className="w-4 h-4" />
+          </div>
 
-            {/* Message Content */}
-            <div className="rounded-2xl px-4 py-2 bg-white dark:bg-zinc-900 text-black dark:text-white rounded-bl-md shadow-sm">
-              <p className="text-sm leading-relaxed">
-                Hi! I'm your financial assistant. You can tell me about transactions like 'Sent 500 to John' or 'Spent
-                200 on dinner' and I'll help track them.
-              </p>
-            </div>
+          {/* Message Content */}
+          <div className="rounded-2xl px-4 py-2 bg-white dark:bg-zinc-900 text-black dark:text-white rounded-bl-md shadow-sm">
+            <p className="text-sm leading-relaxed">
+              Hi! I'm your financial assistant. You can tell me about transactions like 'Sent 500 to John' or 'Spent 200
+              on dinner' and I'll help track them.
+            </p>
           </div>
         </div>
         {messages.map((message) => (
@@ -161,7 +153,12 @@ export const Agent: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
       {/* Input */}
-      <div className="w-full z-1">
+      <div
+        className="fixed bottom-0 z-1"
+        style={{
+          width: 'calc(100vw - var(--spacing) * 8)',
+        }}
+      >
         {/* Example prompts */}
         <div className="my-2 flex flex-wrap justify-end gap-2">
           {suggestions.map((sugg) => (
@@ -202,6 +199,6 @@ export const Agent: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };

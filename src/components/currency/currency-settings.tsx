@@ -1,7 +1,7 @@
 import React from 'react';
+import { Settings, Globe, ArrowRightLeft } from 'lucide-react';
 import { useCurrency } from '../../hooks';
 import { CURRENCIES, Currency } from '../../services/currency-service';
-import { Settings, Globe, ArrowRightLeft } from 'lucide-react';
 
 export const CurrencySettings: React.FC = () => {
   const { currentCurrency, changeCurrency, getAllCurrencies } = useCurrency();

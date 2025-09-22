@@ -4,7 +4,7 @@ import { sqlite } from '../config';
 import { Table } from './table';
 import { Message } from './message';
 import schema from '../../schema.json';
-import initSchema from './schema.txt';
+import initDb from './init-db.txt';
 
 export class SQlite {
   db: SqlDB | null = null;
@@ -80,7 +80,7 @@ export class SQlite {
         sqlite.db?.run(initSql);
 
         // Insert dummy records
-        fetch(initSchema)
+        fetch(initDb)
           .then((r) => r.text())
           .then((query) => {
             sqlite.db?.run(query);

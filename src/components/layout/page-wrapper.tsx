@@ -29,14 +29,14 @@ export interface PageWrapperProps {
   className?: string;
 }
 
-export const PageWrapper: React.FC<PageWrapperProps> = ({ headerActions, children, className = '' }) => {
+export const PageWrapper: React.FC<PageWrapperProps> = ({ headerActions, children }) => {
   const [year, month] = useSelector((state: RootState) => state.transactions.yearmonth);
   const summary = useSelector((state: RootState) => state.transactions.summary);
   const pathend: string | undefined = location.pathname.split('/').pop();
   return (
-    <div className={className}>
+    <div>
       {/* Top Bar for Mobile */}
-      <div className="lg:hidden w-screen px-4 py-2">
+      <div className="lg:hidden fixed top-0 w-screen px-4 py-2">
         <div className="flex items-center justify-between bg-white/20 dark:bg-zinc-800/30 rounded-xl border-y-1 border-white dark:border-zinc-800/70 px-4 py-2 space-x-4 backdrop-blur">
           <Sidebar summary={summary} year={year} month={month} />
           {pathend && routes[pathend] && (
@@ -62,7 +62,15 @@ export const PageWrapper: React.FC<PageWrapperProps> = ({ headerActions, childre
       </div>
       {headerActions}
       {/* Page Content */}
-      <div className="px-4">{children}</div>
+      <div
+        className="w-full h-screen px-4 overflow-y-auto"
+        style={{
+          paddingTop: '62px',
+          paddingBottom: '108px',
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 };

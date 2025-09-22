@@ -53,16 +53,11 @@ const RootPage: React.FC = () => {
   }, [transactions]);
 
   return (
-    <div className="min-h-screen">
-      {/* Main Content */}
-      <main className="flex-1 lg:ml-72 transition-all duration-300 ease-in-out">
-        <div className="lg:pt-4">
-          <PageWrapper>
-            <Outlet />
-          </PageWrapper>
-        </div>
-      </main>
-    </div>
+    <main className="flex-1 lg:ml-72 transition-all duration-300 ease-in-out">
+      <PageWrapper>
+        <Outlet />
+      </PageWrapper>
+    </main>
   );
 };
 

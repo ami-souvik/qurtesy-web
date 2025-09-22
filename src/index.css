@@ -5,6 +5,9 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --radius-xxl: 2.5rem;
+}
 
 /* Global styles */
 @layer base {
