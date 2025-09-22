@@ -12,6 +12,7 @@ export const Agent: React.FC = () => {
     setMessages(sqlite.messages.fetch());
   };
   useEffect(() => {
+    textareaRef.current?.focus();
     setMessages(sqlite.messages.fetch());
     document.addEventListener('messages.create', handleCreateMessageEvent);
     return () => {
@@ -88,8 +89,7 @@ export const Agent: React.FC = () => {
     } else {
       setInputValue(!inputValue ? `${suggestion} ` : `${inputValue} ${suggestion} `);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    textareaRef.current && textareaRef.current.focus();
+    textareaRef.current?.focus();
   };
   return (
     <>

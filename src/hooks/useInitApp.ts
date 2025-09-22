@@ -9,7 +9,9 @@ export const useInitApp = () => {
     setLoading(false);
   };
   useEffect(() => {
+    // setTimeout(() => {
     initSQlite();
+    // }, 2000)
   }, []);
   return { loading };
 };

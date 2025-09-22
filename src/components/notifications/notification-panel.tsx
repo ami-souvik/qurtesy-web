@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PiggyBank, HandHeart, Users, Bell, X, AlertTriangle, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
 import { notificationService, type Notification } from './notification-service';
+import { createPortal } from 'react-dom';
 
 export const NotificationPanel: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -54,7 +55,7 @@ export const NotificationPanel: React.FC = () => {
           onClick={() => setIsOpen(!isOpen)}
           className={`
             absolute ${showOptions ? 'right-2.5 -bottom-16' : 'right-0 bottom-0'} p-2 rounded-lg transition-all duration-200 flex items-center sm:space-x-1.5
-            -z-1 bg-white/60 dark:bg-black/60 backdrop-blur
+            bg-white/60 dark:bg-black/60 backdrop-blur
           `}
         >
           <PiggyBank className="h-5 w-5 opacity-90" strokeWidth={1.5} absoluteStrokeWidth />
@@ -63,7 +64,7 @@ export const NotificationPanel: React.FC = () => {
           onClick={() => setIsOpen(!isOpen)}
           className={`
             absolute ${showOptions ? 'right-13 -bottom-13' : 'right-0 bottom-0'} p-2 rounded-lg transition-all duration-200 flex items-center sm:space-x-1.5
-            -z-1 bg-white/60 dark:bg-black/60 backdrop-blur
+            bg-white/60 dark:bg-black/60 backdrop-blur
           `}
         >
           <HandHeart className="h-5 w-5 opacity-90" strokeWidth={1.5} absoluteStrokeWidth />
@@ -72,7 +73,7 @@ export const NotificationPanel: React.FC = () => {
           onClick={() => setIsOpen(!isOpen)}
           className={`
             absolute ${showOptions ? 'right-16 -bottom-2.5' : 'right-0 bottom-0'} p-2 rounded-lg transition-all duration-200 flex items-center sm:space-x-1.5
-            -z-1 bg-white/60 dark:bg-black/60 backdrop-blur
+            bg-white/60 dark:bg-black/60 backdrop-blur
           `}
         >
           <Users className="h-5 w-5 opacity-90" strokeWidth={1.5} absoluteStrokeWidth />
@@ -139,6 +140,15 @@ export const NotificationPanel: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Mobile Overlay */}
+      {showOptions &&
+        createPortal(
+          <div
+            className="lg:hidden fixed top-0 left-0 w-screen h-screen z-3 bg-black/50"
+            onClick={() => setShowOptions(false)}
+          />,
+          document.body
+        )}
     </div>
   );
 };
