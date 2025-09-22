@@ -142,7 +142,7 @@
             {
                 "name": "transaction_type",
                 "type": "INTEGER",
-                "attrs": "CHECK (type IN ('expense', 'income', 'transfer', 'lending', 'split'))"
+                "attrs": "CHECK (transaction_type IN ('expense', 'income', 'transfer', 'lending', 'split'))"
             },
             {
                 "name": "category_id",

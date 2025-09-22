@@ -2,7 +2,7 @@ import initSqlJs, { Database as SqlDB } from 'sql.js';
 import wasmUrl from '/sql-wasm.wasm?url';
 import { sqlite } from '../config';
 import { Table } from './table';
-import schema from './schema.json';
+import schema from '../../schema.json';
 
 export class SQlite {
   db: SqlDB | null = null;
@@ -62,6 +62,7 @@ export class SQlite {
             }))
           );
         });
+        console.log(initSql);
         sqlite.db?.run(initSql);
       } catch (error) {
         console.log(error);
