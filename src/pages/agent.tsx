@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, Bot, TrendingUp, TrendingDown, Mic, SendHorizonal } from 'lucide-react';
-import { CommandOrchestrator } from '../infrastructure/agent';
+// import { CommandOrchestrator } from '../infrastructure/agent';
 import { Message } from '../types';
 import { sqlite } from '../config';
 import { useSuggestion } from '../hooks';
+import { handler } from '../infrastructure/agent/handler';
 
 export const Agent: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -20,7 +21,7 @@ export const Agent: React.FC = () => {
     };
   }, []);
   const [inputValue, setInputValue] = useState('');
-  const orchestrator = useRef(CommandOrchestrator.getInstance());
+  // const orchestrator = useRef(CommandOrchestrator.getInstance());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -28,10 +29,15 @@ export const Agent: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-  const processMessage = () => {
+  const processMessage = async () => {
     if (inputValue.trim()) {
       sqlite.messages.create({ command: inputValue.trim() });
-      orchestrator.current.processCommand(inputValue.trim().toLocaleLowerCase());
+      // orchestrator.current.processCommand(inputValue.trim().toLocaleLowerCase());
+      const reply = await handler(inputValue.trim().toLocaleLowerCase());
+      sqlite.messages.create({
+        command: JSON.stringify(reply, null, 2),
+        is_agent: true,
+      });
       setInputValue('');
     }
   };

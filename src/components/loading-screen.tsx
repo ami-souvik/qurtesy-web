@@ -21,7 +21,7 @@ const Graphic = ({ className }: { className?: string }) => (
     <Box className="bg-purple-400" />
     <Box className="bg-teal-200 rounded-xxl" />
     <Box className="bg-blue-200 rounded-xxl" />
-    <Box className="bg-teal-800" />
+    <Box className="bg-teal-600" />
   </div>
 );
 
