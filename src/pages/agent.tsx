@@ -35,7 +35,7 @@ export const Agent: React.FC = () => {
       // orchestrator.current.processCommand(inputValue.trim().toLocaleLowerCase());
       const reply = await handler(inputValue.trim().toLocaleLowerCase());
       sqlite.messages.create({
-        command: JSON.stringify(reply, null, 2),
+        command: reply,
         is_agent: true,
       });
       setInputValue('');
